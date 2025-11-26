@@ -1,0 +1,273 @@
+import { router } from "expo-router";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from "react-native";
+import Toast from "react-native-toast-message";
+import { SoundTouchableOpacity } from "../../components/SoundTouchableOpacity";
+import { useAuth } from "../../contexts/AuthContext";
+import { authStyles, globalStyles } from "../../styles";
+
+import {
+  responsiveFontSize,
+  responsiveWidth,
+} from "react-native-responsive-dimensions";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { allStyles } from "../../styles/global";
+
+export default function LoginScreen() {
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { requestOTP } = useAuth();
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhoneNumber = (phone: string) => {
+    // Allow only digits and limit to 15 characters (including country code)
+    const phoneRegex = /^\d{1,15}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    if (text.trim()) {
+      setPhoneNumber(""); // Clear phone when email is entered
+    }
+  };
+
+  const handlePhoneChange = (text: string) => {
+    // Only allow digits and max 15 characters
+    const cleanedText = text.replace(/\D/g, "").slice(0, 15);
+    setPhoneNumber(cleanedText);
+    if (cleanedText.trim()) {
+      setEmail(""); // Clear email when phone is entered
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!email.trim()) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please enter your email address",
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please enter a valid email address",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await requestOTP({ email: email.trim() });
+
+      if (response.success) {
+        router.push({
+          pathname: "/otp",
+          params: { email: email.trim() },
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to send OTP",
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "An unexpected error occurred",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={allStyles.safeArea} edges={["top", "bottom"]}>
+      <ImageBackground
+        source={require("@/assets/bg.png")}
+        style={styles.container}
+        resizeMode="cover"
+      >
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView contentContainerStyle={allStyles.scrollContent}>
+            <View style={allStyles.container}>
+              <View style={styles.imageContainer}>
+                <Image
+                  source={require("@/assets/loginImg.png")}
+                  style={styles.buildingImage}
+                  resizeMode="contain"
+                />
+              </View>
+
+              <Text style={authStyles.title}>Start your{"\n"}journey!</Text>
+
+              <Text style={authStyles.subtitle}>
+                Please enter your Email or Phone number to get started.
+              </Text>
+
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Email"
+                placeholderTextColor="#999"
+                value={email}
+                onChangeText={handleEmailChange}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <Text style={authStyles.orText}>or</Text>
+
+              <View style={styles.phoneContainer}>
+                <View style={styles.countryCode}>
+                  <Text style={styles.flag}>🇺🇸</Text>
+                </View>
+                <TextInput
+                  style={[globalStyles.input, styles.input]}
+                  placeholder="Phone number"
+                  placeholderTextColor="#999"
+                  value={phoneNumber}
+                  onChangeText={handlePhoneChange}
+                  keyboardType="phone-pad"
+                  maxLength={15}
+                />
+              </View>
+
+              <SoundTouchableOpacity
+                style={[
+                  allStyles.outlineBtn,
+                  isLoading && styles.otpButtonDisabled,
+                ]}
+                onPress={handleLogin}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="white" size="small" />
+                ) : (
+                  <Text style={allStyles.outlineBtnText}>Send OTP</Text>
+                )}
+              </SoundTouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+        <Toast />
+      </ImageBackground>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    // paddingTop: 50,
+  },
+  imageContainer: {
+    alignItems: "center",
+    paddingVertical: responsiveWidth(6),
+  },
+  buildingImage: {
+    // width: 247,
+    // height: 201,
+    width: responsiveWidth(60),
+    height: responsiveWidth(60),
+  },
+  title: {
+    fontSize: 40,
+    color: "white",
+    textAlign: "left",
+    marginBottom: 12,
+    fontWeight: "bold",
+  },
+  subtitle: {
+    fontSize: 13,
+    color: "white",
+    textAlign: "left",
+    marginBottom: 30,
+  },
+  input: {
+    // backgroundColor: "rgba(255, 255, 255, 0.1)",
+    // borderRadius: 25,
+    // paddingHorizontal: 20,
+    // paddingVertical: 15,
+    // fontSize: 16,
+    // color: "white",
+    // marginBottom: 15,
+    paddingLeft: responsiveWidth(16),
+  },
+  orText: {
+    color: "white",
+    textAlign: "center",
+    marginVertical: 15,
+    fontSize: 16,
+  },
+  phoneContainer: {
+    // flexDirection: "row",
+    // alignItems: "center",
+    // backgroundColor: "rgba(255, 255, 255, 0.1)",
+    // borderRadius: 25,
+    // marginBottom: 30,
+  },
+  countryCode: {
+    // paddingHorizontal: 15,
+    // paddingVertical: 15,
+    position: "absolute",
+    zIndex: 99,
+    top: responsiveWidth(2.4),
+    left: responsiveWidth(6),
+  },
+  flag: {
+    fontSize: responsiveFontSize(3),
+  },
+  phoneInput: {
+    flex: 1,
+    paddingVertical: 15,
+    paddingRight: 20,
+    fontSize: 16,
+    color: "white",
+  },
+  otpButton: {
+    backgroundColor: "#00bfff",
+    borderRadius: 25,
+    paddingVertical: 15,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  otpButtonDisabled: {
+    backgroundColor: "#cccccc",
+    opacity: 0.7,
+  },
+  otpButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+});
