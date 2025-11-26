@@ -4,7 +4,6 @@ import { useMemo } from "react";
 const screenMap = {
   login: () => require("../src/screens/auth/LoginScreen").default,
   otp: () => require("../src/screens/auth/OTPScreen").default,
-  verified: () => require("../src/screens/auth/VerifiedScreen").default,
   "edit-profile": () => require("../src/screens/profile/EditProfile").default,
   "personal-info": () => require("../src/screens/profile/PersonalInfo").default,
   notification: () => require("../src/screens/home/NotificationScreen").default,

@@ -1,9 +1,7 @@
 export * from './authStyles';
-export * from './battleStyles';
-export * from './communityStyles';
 export * from './dialogStyles';
 export * from './globalStyles';
 export * from './homeStyles';
 export * from './otpStyles';
 export * from './profileStyles';
-export * from './settingsStyles';
+

@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -58,50 +58,51 @@ export default function LoginScreen() {
   };
 
   const handleLogin = async () => {
-    if (!email.trim()) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Please enter your email address",
-      });
-      return;
-    }
+    router.push("/(tabs)/home");
+    // if (!email.trim()) {
+    //   Toast.show({
+    //     type: "error",
+    //     text1: "Error",
+    //     text2: "Please enter your email address",
+    //   });
+    //   return;
+    // }
 
-    if (!validateEmail(email)) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Please enter a valid email address",
-      });
-      return;
-    }
+    // if (!validateEmail(email)) {
+    //   Toast.show({
+    //     type: "error",
+    //     text1: "Error",
+    //     text2: "Please enter a valid email address",
+    //   });
+    //   return;
+    // }
 
-    setIsLoading(true);
+    // setIsLoading(true);
 
-    try {
-      const response = await requestOTP({ email: email.trim() });
+    // try {
+    //   const response = await requestOTP({ email: email.trim() });
 
-      if (response.success) {
-        router.push({
-          pathname: "/otp",
-          params: { email: email.trim() },
-        });
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Failed to send OTP",
-        });
-      }
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "An unexpected error occurred",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    //   if (response.success) {
+    //     router.push({
+    //       pathname: "/otp",
+    //       params: { email: email.trim() },
+    //     });
+    //   } else {
+    //     Toast.show({
+    //       type: "error",
+    //       text1: "Error",
+    //       text2: "Failed to send OTP",
+    //     });
+    //   }
+    // } catch (error) {
+    //   Toast.show({
+    //     type: "error",
+    //     text1: "Error",
+    //     text2: "An unexpected error occurred",
+    //   });
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   return (
