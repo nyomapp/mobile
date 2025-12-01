@@ -35,19 +35,47 @@ export const globalStyles = StyleSheet.create({
   buttonText: {
     color: COLORS.white,
     fontSize: 22,
-    fontFamily: FONTS.MontserratSemiBold,
+    fontFamily: FONTS.Yellix,
   },
   input: {
     backgroundColor: COLORS.white,
-    borderRadius: responsiveWidth(100),
+    borderRadius: responsiveWidth(2),
     paddingHorizontal: responsiveWidth(6),
     paddingVertical: responsiveWidth(4),
     fontSize: responsiveFontSize(1.8),
     marginBottom: responsiveWidth(4),
+    fontFamily: FONTS.Yellix,
     color: '#333',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+   dropdown: {
+    borderRadius: responsiveWidth(2),
+    paddingHorizontal: responsiveWidth(6),
+    paddingVertical: responsiveWidth(4),
+    marginBottom: responsiveWidth(4),
+    fontSize: responsiveFontSize(1.8),
+    
+    // borderColor: COLORS.black,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    fontFamily: FONTS.Yellix,
+    // color: '#333',
+    alignItems: "center",
+  },
+   dropdownText: {
+    fontSize: responsiveFontSize(2),
+    fontFamily: FONTS.Yellix,
+    color: "#6C757D",
   },
   iconButton: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryBlue,
     padding: 8,
     borderRadius: DIMENSIONS.borderRadius.medium,
     marginLeft: 10,
@@ -66,7 +94,7 @@ export const globalStyles = StyleSheet.create({
     color: COLORS.white,
     textAlign: "center",
     marginBottom: 20,
-    fontFamily: FONTS.primary,
+    fontFamily: FONTS.Yellix,
   },
   verifiedSubtitle: {
     fontSize: 16,
@@ -107,12 +135,12 @@ export const globalStyles = StyleSheet.create({
   infoLabel: {
     color: "white",
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.MontserratBold
+    fontFamily: FONTS.Yellix
   },
   infoValue: {
     color: "white",
     fontSize: responsiveFontSize(2.2),
-    fontFamily: FONTS.primary
+    fontFamily: FONTS.Yellix
   },
   coinValue: {
     flexDirection: "row",
@@ -123,7 +151,7 @@ export const globalStyles = StyleSheet.create({
     width: responsiveWidth(26),
     justifyContent: "space-between",
     paddingHorizontal: responsiveWidth(2),
-    fontFamily: FONTS.primary
+    fontFamily: FONTS.Yellix
   },
   coinIcon: {
     fontSize: 16,
@@ -143,9 +171,9 @@ export const globalStyles = StyleSheet.create({
     marginTop: 20,
   },
   startButtonText: {
-    color: COLORS.primary,
+    color: COLORS.primaryBlue,
     fontSize: 20,
-    fontFamily: FONTS.MontserratSemiBold,
+    fontFamily: FONTS.Yellix,
   },
   sliderContainer: {
     // marginVertical: 20,
@@ -155,7 +183,7 @@ export const globalStyles = StyleSheet.create({
     fontSize: responsiveWidth(3.5),
     textAlign: "center",
     marginBottom: responsiveWidth(2),
-    fontFamily: FONTS.MontserratRegular
+    fontFamily: FONTS.Yellix
   },
   slider: {
     flexDirection: "row",
@@ -197,12 +225,12 @@ export const globalStyles = StyleSheet.create({
   sliderMin: {
     color: "#ffd700",
     fontSize: responsiveFontSize(1.4),
-    fontFamily: FONTS.MontserratBold
+    fontFamily: FONTS.Yellix
   },
   sliderMax: {
     color: "#ffd700",
     fontSize: responsiveFontSize(1.4),
-    fontFamily: FONTS.MontserratBold
+    fontFamily: FONTS.Yellix
   },
   solidHeader: {
     backgroundColor: "#131465",
@@ -319,7 +347,7 @@ export const globalStyles = StyleSheet.create({
   coinContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryBlue,
     borderRadius: responsiveWidth(100),
     height: responsiveWidth(8),
     width: responsiveWidth(16),
@@ -328,7 +356,7 @@ export const globalStyles = StyleSheet.create({
   coinText: {
     color: "white",
     // fontWeight: "bold",
-    fontFamily: FONTS.primary,
+    fontFamily: FONTS.Yellix,
     marginLeft: responsiveWidth(1),
     fontSize: responsiveFontSize(1.8)
   },
@@ -367,7 +395,7 @@ export const globalStyles = StyleSheet.create({
 
   opponentSection: {
     alignItems: "center",
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryBlue,
     borderRadius: responsiveWidth(100),
     padding: responsiveWidth(2),
     marginTop: responsiveWidth(4)
@@ -375,7 +403,7 @@ export const globalStyles = StyleSheet.create({
   opponentTitle: {
     color: "white",
     fontSize: responsiveFontSize(1.4),
-    fontFamily: FONTS.MontserratSemiBold,
+    fontFamily: FONTS.Yellix,
     marginBottom: responsiveWidth(2)
   },
   toggleContainer: {
@@ -389,7 +417,7 @@ export const globalStyles = StyleSheet.create({
   toggleText: {
     color: "white",
     fontSize: responsiveFontSize(1.6),
-    fontFamily: FONTS.MontserratSemiBold
+    fontFamily: FONTS.Yellix
   },
   toggleSwitch: {
     width: responsiveWidth(14),
@@ -500,7 +528,7 @@ export const globalStyles = StyleSheet.create({
   tableColumn: {
     color: "#131465",
     fontSize: 13,
-    fontFamily: FONTS.MontserratSemiBold,
+    fontFamily: FONTS.Yellix,
     flex: 1,
     textAlign: "center",
   },
@@ -545,7 +573,7 @@ export const globalStyles = StyleSheet.create({
     color: '#666',
     fontSize: 14,
     // fontWeight: '500',
-    fontFamily: FONTS.MontserratSemiBold,
+    fontFamily: FONTS.Yellix,
   },
   searchInput: {
     backgroundColor: 'white',
@@ -554,25 +582,25 @@ export const globalStyles = StyleSheet.create({
     // paddingVertical: 12,
     fontSize: 13,
     color: '#333',
-    fontFamily: FONTS.MontserratSemiBold,
+    fontFamily: FONTS.Yellix,
   },
   submitButtonText: {
     color: 'white',
     fontSize: 20,
     // fontWeight: '600',
-    fontFamily: FONTS.MontserratSemiBold,
+    fontFamily: FONTS.Yellix,
   },
   headerText: {
     flex: 1,
     fontSize: 14,
-    fontFamily: FONTS.MontserratSemiBold,
+    fontFamily: FONTS.Yellix,
     color: '#131465',
     textAlign: 'center',
   },
   //   playerName: {
   //   fontSize: 14,
   //   color: '#333',
-  //   fontFamily: FONTS.MontserratSemiBold,
+  //   fontFamily: FONTS.Yellix,
   // },
   // playerLevel: {
   //   flex: 1,
@@ -600,7 +628,7 @@ export const globalStyles = StyleSheet.create({
     color: '#FCB104'
   },
   ObscreenDec: {
-    fontFamily: FONTS.MontserratRegular,
+    fontFamily: FONTS.Yellix,
     fontSize: responsiveFontSize(2),
     color: '#fff',
     // marginTop: 10,
@@ -622,5 +650,6 @@ export const globalStyles = StyleSheet.create({
     fontSize: responsiveFontSize(1.8),
     fontFamily: FONTS.body,
   },
+  
 
 });

@@ -2,6 +2,9 @@ import { Platform } from 'react-native';
 
 export const FONTS = {
   ClashDisplay: 'ClashDisplay',
+  Yellix: 'Yellix',
+  YellixBold: 'Yellix-Bold',
+  YellixThin: 'Yellix-Thin',
   // Montserrat variants
   MontserratRegular: 'MontserratRegular',
   MontserratSemiBold: 'MontserratSemiBold',

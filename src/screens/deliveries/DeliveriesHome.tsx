@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-
   Text,
   TextInput,
   TouchableOpacity,
@@ -17,8 +16,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import { authStyles, globalStyles } from "../../styles";
 
 import { SafeAreaView } from "react-native-safe-area-context";
+import { styles } from "../../styles//deliveries/deliveriesHomeStyles";
 import { allStyles } from "../../styles/global";
-import { styles } from "../../styles/loginStyles";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");

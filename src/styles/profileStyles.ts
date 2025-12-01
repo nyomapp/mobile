@@ -11,7 +11,7 @@ import {
 
 export const profileStyles = StyleSheet.create({
   solidHeader: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryBlue,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     padding: 15,
@@ -34,7 +34,7 @@ export const profileStyles = StyleSheet.create({
     flexDirection: 'row',
   },
   iconButton: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryBlue,
     padding: 8,
     borderRadius: DIMENSIONS.borderRadius.medium,
     marginLeft: DIMENSIONS.padding.small,
@@ -109,7 +109,7 @@ export const profileStyles = StyleSheet.create({
     marginBottom: 30,
   },
   statCard: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryBlue,
     padding: DIMENSIONS.padding.medium,
     borderRadius: 24,
     width: '48%',
@@ -136,7 +136,7 @@ export const profileStyles = StyleSheet.create({
     color: '#10EE4B',
     fontSize: 12,
     fontWeight: '500',
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryBlue,
     width: 50,
     height: 21,
     borderRadius: 11,
@@ -148,7 +148,7 @@ export const profileStyles = StyleSheet.create({
     color: '#ff4757',
     fontSize: 12,
     fontWeight: '500',
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryBlue,
     width: 50,
     height: 21,
     borderRadius: 11,
@@ -167,7 +167,7 @@ export const profileStyles = StyleSheet.create({
   },
   gameStatsContainer: {
     flexDirection: 'row',
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryBlue,
     borderRadius: responsiveWidth(4),
     paddingVertical: 30,
     paddingHorizontal: DIMENSIONS.padding.medium,
@@ -242,7 +242,7 @@ export const profileStyles = StyleSheet.create({
 
   // Edit Profile
   settingsGroup: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primaryBlue,
     borderRadius: 15,
     marginBottom: DIMENSIONS.padding.medium,
   },
@@ -339,7 +339,7 @@ export const profileStyles = StyleSheet.create({
     alignItems: 'center',
   },
   btnCircle: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.secondaryBlue,
     width: 38,
     height: 38,
     justifyContent: 'center',

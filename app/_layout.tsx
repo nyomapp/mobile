@@ -13,6 +13,8 @@ export default function RootLayout() {
     MontserratBold: require("../assets/fonts/montserrat/Montserrat-Bold.ttf"),
     MontserratRegular: require("../assets/fonts/montserrat/Montserrat-Regular.ttf"),
     MontserratSemiBold: require("../assets/fonts/montserrat/Montserrat-SemiBold.ttf"),
+    Yellix: require("../assets/fonts/yellix/Yellix-Regular.otf"),
+    "Yellix-Bold": require("../assets/fonts/yellix/Yellix-Bold.otf"),
   });
 
   useEffect(() => {
