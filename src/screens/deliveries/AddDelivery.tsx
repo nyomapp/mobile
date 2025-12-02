@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   Text,
@@ -13,6 +14,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/addDeliveryStyles";
 import { allStyles } from "../../styles/global";
@@ -26,7 +28,7 @@ export default function AddDelivery() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [registrationNumber, setRegistrationNumber] = useState("");
-  const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const [showModelModal, setShowModelModal] = useState(false);
 
   // Debug log to track state
   console.log("AddDelivery render - Current deliveryType:", deliveryType);
@@ -36,10 +38,10 @@ export default function AddDelivery() {
     "Model B", 
     "Model C",
     "Model D",
-    "Model A",
-    "Model B", 
-    "Model C",
-    "Model D"
+    "Model E",
+    "Model F", 
+    "Model G",
+    "Model H"
   ];
 
   // Validation functions
@@ -118,7 +120,7 @@ export default function AddDelivery() {
     setMobileNumber("");
     setSelectedModel("");
     setRegistrationNumber("");
-    setShowModelDropdown(false);
+    setShowModelModal(false);
     console.log(`Delivery type changed to: ${type}`);
   };
 
@@ -129,14 +131,16 @@ export default function AddDelivery() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={allStyles.pageHeader}>
-          <View>
-            <Text style={allStyles.pageTitle}><b>Add</b>{"\n"}Delivery</Text>
-          </View>
+        <View style={{paddingTop: responsiveWidth(6)}}>
           <HeaderIcon />
         </View>
-
-        <ScrollView style={allStyles.formContainer} showsVerticalScrollIndicator={false}>
+        <View style={allStyles.pageHeader}>
+          <View>
+            <Text style={allStyles.pageTitle}>
+              <b>Add</b>{"\n"}<Text style={allStyles.headerSecondaryText}>Delivery</Text>
+            </Text>
+          </View>
+          <View style={{flexDirection: "column", justifyContent: "center", alignItems: "flex-end"}}>
           {/* Toggle Buttons */}
           <View style={allStyles.toggleContainer}>
             <TouchableOpacity
@@ -190,7 +194,14 @@ export default function AddDelivery() {
               </Text>
             </TouchableOpacity>
           </View>
+           </View>
+          </View>
+        
 
+         <ScrollView
+          style={[allStyles.scrollContent,{ paddingTop: responsiveWidth(4)}]}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Details Section */}
           <Text style={allStyles.Title}>Details</Text>
 
@@ -241,7 +252,7 @@ export default function AddDelivery() {
           {deliveryType === "New" && (
             <TouchableOpacity
               style={allStyles.dropdown}
-              onPress={() => setShowModelDropdown(!showModelDropdown)}
+              onPress={() => setShowModelModal(true)}
               activeOpacity={0.7}
             >
               <Text
@@ -253,30 +264,59 @@ export default function AddDelivery() {
                 {selectedModel || "Select Model"}
               </Text>
               <Ionicons
-                name={showModelDropdown ? "chevron-up" : "chevron-down"}
+                name="chevron-down"
                 size={20}
                 color="#6C757D"
               />
             </TouchableOpacity>
           )}
 
-          {/* Dropdown Options - Only for New deliveries */}
-          {deliveryType === "New" && showModelDropdown && (
-            <View style={styles.dropdownOptions}>
-              {models.map((model, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.dropdownOption}
-                  onPress={() => {
-                    setSelectedModel(model);
-                    setShowModelDropdown(false);
-                  }}
-                >
-                  <Text style={styles.dropdownOptionText}>{model}</Text>
-                </TouchableOpacity>
-              ))}
+          {/* Model Selection Modal */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={showModelModal}
+            onRequestClose={() => setShowModelModal(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Model</Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setShowModelModal(false)}
+                  >
+                    <Ionicons name="close" size={24} color="#6C757D" />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView style={styles.modalScrollView} showsVerticalScrollIndicator={false}>
+                  {models.map((model, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        styles.modalOption,
+                        selectedModel === model && styles.selectedOption
+                      ]}
+                      onPress={() => {
+                        setSelectedModel(model);
+                        setShowModelModal(false);
+                      }}
+                    >
+                      <Text style={[
+                        styles.modalOptionText,
+                        selectedModel === model && styles.selectedOptionText
+                      ]}>
+                        {model}
+                      </Text>
+                      {selectedModel === model && (
+                        <Ionicons name="checkmark" size={20} color={COLORS.primaryBlue} />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
             </View>
-          )}
+          </Modal>
         </ScrollView>
 
         {/* Bottom Buttons */}

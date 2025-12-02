@@ -11,7 +11,14 @@ export const allStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
     fontFamily: FONTS.Yellix,
-    backgroundColor: COLORS.white 
+    backgroundColor: COLORS.white,
+  },
+  headerContainer: {
+    paddingTop: responsiveWidth(6),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    // paddingHorizontal: responsiveWidth(4),
   },
   background: {
     flex: 1,
@@ -66,7 +73,7 @@ export const allStyles = StyleSheet.create({
   btnText: {
     color: COLORS.white,
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
   },
 
   // Soild Button
@@ -201,10 +208,10 @@ export const allStyles = StyleSheet.create({
     marginBottom: responsiveWidth(-18),
     marginTop: responsiveWidth(2),
   },
-    // bottom button container
-   bottomContainer: {
+  // bottom button container
+  bottomContainer: {
     // paddingHorizontal: responsiveWidth(4),
-    paddingBottom: responsiveWidth(4),
+    paddingBottom: responsiveWidth(10),
   },
 
   // Card styles
@@ -277,7 +284,7 @@ export const allStyles = StyleSheet.create({
     flex: 1,
     // paddingHorizontal: responsiveWidth(4),
   },
-  
+
   formInput: {
     backgroundColor: "#F8F9FA",
     borderRadius: responsiveWidth(2),
@@ -292,12 +299,12 @@ export const allStyles = StyleSheet.create({
   },
 
   dropdown: {
-    backgroundColor:COLORS.white,
+    backgroundColor: COLORS.white,
     borderRadius: responsiveWidth(2),
     paddingHorizontal: responsiveWidth(4),
     paddingVertical: responsiveWidth(4),
     marginBottom: responsiveWidth(4),
-  
+
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -313,24 +320,20 @@ export const allStyles = StyleSheet.create({
 
   dropdownText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: "#6C757D",
   },
-
- 
-
- 
 
   toggleContainer: {
     flexDirection: "row",
     backgroundColor: "#F8F9FA",
     borderRadius: responsiveWidth(6),
     // padding: responsiveWidth(1),
-    marginBottom: responsiveWidth(6),
+    // marginBottom: responsiveWidth(6),
     alignSelf: "flex-end",
     borderWidth: 1,
     borderColor: "#E9ECEF",
-    minHeight: responsiveWidth(10),
+    // minHeight: responsiveWidth(10),
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -350,6 +353,7 @@ export const allStyles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "transparent",
     marginHorizontal: responsiveWidth(0.5),
+    fontFamily: FONTS.YellixThin,
   },
 
   toggleButtonActive: {
@@ -368,7 +372,7 @@ export const allStyles = StyleSheet.create({
 
   toggleButtonText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+
     color: "#6C757D",
     textAlign: "center",
     fontWeight: "100",
@@ -376,14 +380,13 @@ export const allStyles = StyleSheet.create({
 
   toggleButtonTextActive: {
     color: COLORS.white,
-    fontFamily: FONTS.Yellix,
     fontWeight: "100",
     // fontSize: responsiveFontSize(2),
   },
 
   Title: {
     fontSize: responsiveFontSize(3.5),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: COLORS.black,
     marginBottom: responsiveWidth(4),
   },
@@ -402,6 +405,12 @@ export const allStyles = StyleSheet.create({
   //   fontSize: responsiveFontSize(2.2),
   //   fontFamily: FONTS.MontserratSemiBold,
   // },
+  backButtonBackgroundStyle: {
+    paddingHorizontal: responsiveWidth(2),
+    paddingVertical: responsiveWidth(2),
+    backgroundColor: "#0000000D",
+    borderRadius: responsiveWidth(2),
+  },
 
   backButton: {
     alignItems: "center",
@@ -409,24 +418,24 @@ export const allStyles = StyleSheet.create({
   },
 
   backButtonText: {
-    color: "#6C757D",
+    color: COLORS.black,
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
   },
 
   pageHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-end",
     // paddingHorizontal: responsiveWidth(4),
-    paddingVertical: responsiveWidth(6),
+    marginBottom: responsiveWidth(4),
   },
 
   pageTitle: {
     fontSize: responsiveFontSize(5.5),
-    paddingTop: responsiveWidth(5),
+    // paddingTop: responsiveWidth(5),
     fontFamily: FONTS.Yellix,
-    fontWeight:"200",
+    // fontWeight:"200",
     color: COLORS.secondaryBlue,
   },
 
@@ -434,5 +443,8 @@ export const allStyles = StyleSheet.create({
     fontSize: responsiveFontSize(1.8),
     fontFamily: FONTS.Yellix,
     color: "#6C757D",
+  },
+  headerSecondaryText: {
+    fontFamily: FONTS.YellixThin,
   },
 });

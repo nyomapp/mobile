@@ -8,11 +8,9 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import {
-  responsiveWidth
-} from "react-native-responsive-dimensions";
+import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/documentsStyles";
 import { allStyles } from "../../styles/global";
@@ -75,86 +73,87 @@ export default function DocumentsScreen() {
   return (
     <SafeAreaView style={[allStyles.safeArea]} edges={["top"]}>
       <KeyboardAvoidingView
-              style={allStyles.container}
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-            >
-      {/* Header */}
-      <View style={allStyles.pageHeader}>
-        <View>
-          <Text style={allStyles.pageTitle}>
-            <b>Add</b>
-            {"\n"}Delivery
-          </Text>
-        </View>
-        <HeaderIcon />
-      </View>
-
-      <ScrollView
-        style={{marginTop: responsiveWidth(4)}}
-        showsVerticalScrollIndicator={false}
+        style={allStyles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* Documents Title */}
-        <Text style={allStyles.Title}>Documents</Text>
+        {/* Header */}
+        <View style={{ paddingTop: responsiveWidth(6) }}>
+          <HeaderIcon />
+        </View>
+        <View style={allStyles.pageHeader}>
+          <View>
+            <Text style={allStyles.pageTitle}>
+              <b>Add</b>
+              {"\n"}
+              <Text style={allStyles.headerSecondaryText}>Delivery</Text>
+            </Text>
+          </View>
+        </View>
 
-        {/* Document Upload Cards */}
-        {documentTypes.map((doc) => (
-          <TouchableOpacity
-            key={doc.id}
-            style={[
-              globalStyles.input,
-              styles.documentCard,
-              doc.uploaded && styles.documentUploadedCard,
-            ]}
-            onPress={() => handleDocumentUpload(doc.title)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.documentLeft}>
-              <View style={styles.iconContainer}>
+        <ScrollView
+          style={[allStyles.scrollContent,{ paddingTop: responsiveWidth(4)}]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Documents Title */}
+          <Text style={allStyles.Title}>Documents</Text>
+
+          {/* Document Upload Cards */}
+          {documentTypes.map((doc) => (
+            <TouchableOpacity
+              key={doc.id}
+              style={[
+                globalStyles.input,
+                styles.documentCard,
+                doc.uploaded && styles.documentUploadedCard,
+              ]}
+              onPress={() => handleDocumentUpload(doc.title)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.documentLeft}>
+                <View style={styles.iconContainer}>
+                  <Image
+                    source={doc.icon}
+                    style={{ width: 24, height: 24 }}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={styles.documentTitle}>{doc.title}</Text>
+              </View>
+              <TouchableOpacity
+                //   style={styles.uploadButton}
+                onPress={() => handleDocumentUpload(doc.title)}
+              >
                 <Image
-                  source={doc.icon}
-                  style={{ width: 24, height: 24 }}
+                  source={
+                    doc.uploaded
+                      ? require("@/assets/icons/DocumentsPageTickIcon.png")
+                      : require("@/assets/icons/DocumentPageUplaodIcon.png")
+                  }
+                  // style={styles.img}
+                  width={24}
                   resizeMode="contain"
                 />
-              </View>
-              <Text style={styles.documentTitle}>{doc.title}</Text>
-            </View>
-            <TouchableOpacity
-              //   style={styles.uploadButton}
-              onPress={() => handleDocumentUpload(doc.title)}
-            >
-              <Image
-                source={
-                  doc.uploaded
-                    ? require("@/assets/icons/DocumentsPageTickIcon.png")
-                    : require("@/assets/icons/DocumentPageUplaodIcon.png")
-                }
-                // style={styles.img}
-                width={24}
-                resizeMode="contain"
-              />
+              </TouchableOpacity>
             </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Bottom Buttons */}
+        <View
+          style={[
+            allStyles.bottomContainer,
+            // { paddingHorizontal: responsiveWidth(4) },
+          ]}
+        >
+          <TouchableOpacity style={allStyles.btn} onPress={handleNext}>
+            <Text style={allStyles.btnText}>Next</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
 
-      {/* Bottom Buttons */}
-      <View
-        style={[
-          allStyles.bottomContainer,
-          { paddingHorizontal: responsiveWidth(4) },
-        ]}
-      >
-        <TouchableOpacity style={allStyles.btn} onPress={handleNext}>
-          <Text style={allStyles.btnText}>Next</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={allStyles.backButton} onPress={handleBack}>
-          <Text style={allStyles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={allStyles.backButton} onPress={handleBack}>
+            <Text style={allStyles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-

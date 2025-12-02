@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
   },
   documentTitle: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: COLORS.black,
     flex: 1,
   },

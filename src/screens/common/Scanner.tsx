@@ -5,10 +5,13 @@ import { useState } from "react";
 import {
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
+import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/ScannerStyles";
@@ -132,15 +135,19 @@ export default function DocumentScanner({
 
   return (
     <SafeAreaView style={[allStyles.safeArea]} edges={["top"]}>
+      <KeyboardAvoidingView
+                style={allStyles.container}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+              >
       {/* Header */}
-      <View style={allStyles.pageHeader}>
+      <View style={[allStyles.pageHeader,{paddingTop:responsiveWidth(4)}]}>
         <View>
           <Text style={styles.headerTitle}>{documentType}</Text>
         </View>
         <HeaderIcon />
       </View>
 
-      <View style={styles.container}>
+      <View>
         {/* Camera/Preview Area */}
         <View style={[styles.cameraContainer, capturedImage ? styles.cameraContainerWithImage : null]}>
           {!capturedImage &&(
@@ -223,6 +230,7 @@ export default function DocumentScanner({
           </TouchableOpacity>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

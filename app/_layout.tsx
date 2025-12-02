@@ -15,10 +15,24 @@ export default function RootLayout() {
     MontserratSemiBold: require("../assets/fonts/montserrat/Montserrat-SemiBold.ttf"),
     Yellix: require("../assets/fonts/yellix/Yellix-Regular.otf"),
     "Yellix-Bold": require("../assets/fonts/yellix/Yellix-Bold.otf"),
+    "Yellix-Thin": require("../assets/fonts/yellix/Yellix-Thin.otf"),
   });
 
   useEffect(() => {
+    console.log('🔤 Root Layout - Fonts loaded:', loaded);
+    
     if (loaded) {
+      console.log('✅ All fonts loaded in _layout.tsx');
+      console.log('📋 Available fonts:', {
+        ClashDisplay: 'ClashDisplay',
+        Yellix: 'Yellix', 
+        'Yellix-Bold': 'Yellix-Bold',
+        'Yellix-Thin': 'Yellix-Thin',
+        MontserratRegular: 'MontserratRegular',
+        MontserratBold: 'MontserratBold',
+        MontserratSemiBold: 'MontserratSemiBold',
+      });
+      
       setTimeout(() => {
         SplashScreen.hideAsync();
       }, 3000);

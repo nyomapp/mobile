@@ -12,6 +12,8 @@ const screenMap = {
   "document-scanner": () => require("../src/screens/common/Scanner").default,
   "amount": () => require("../src/screens/deliveries/Amount").default,
   "preview": () => require("../src/screens/deliveries/Preview").default,
+  "other-documents": () => require("../src/screens/deliveries/OtherDocumentsScreen").default,
+  "change-password": () => require("../src/screens/settings/ChangePassword").default,
 };
 
 export default function DynamicScreen() {

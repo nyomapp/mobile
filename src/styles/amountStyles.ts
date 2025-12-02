@@ -1,5 +1,8 @@
 import { StyleSheet } from "react-native";
-import { responsiveFontSize, responsiveWidth } from "react-native-responsive-dimensions";
+import {
+  responsiveFontSize,
+  responsiveWidth,
+} from "react-native-responsive-dimensions";
 import { COLORS } from "../constants";
 import { FONTS } from "../constants/fonts";
 export const styles = StyleSheet.create({
@@ -15,18 +18,16 @@ export const styles = StyleSheet.create({
     // padding: responsiveWidth(5),
     flexDirection: "column",
     // textAlign: "left",
-   
-    
   },
   totalAmountDisplay: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderBottomWidth: 1,
-    marginLeft:"auto",
-    minWidth:responsiveWidth(35),
+    marginLeft: "auto",
+    minWidth: responsiveWidth(35),
     borderBottomColor: "#E5E7EB",
-    paddingBottom: responsiveWidth(2),
+    paddingBottom: responsiveWidth(3),
     marginTop: responsiveWidth(2),
   },
   totalAmountValue: {
@@ -42,20 +43,26 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: responsiveWidth(1),
+    marginBottom: responsiveWidth(0.5),
+    paddingRight: responsiveWidth(1),
   },
   amountLabel: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: "#6B7280",
     flex: 1,
     marginRight: responsiveWidth(4),
   },
+  discountLabel: {
+    color: "#EF4444", // Red color for discount
+  },
   totalAmountLabel: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    maxWidth: responsiveWidth(35),
+    minWidth: responsiveWidth(35),
+    fontFamily: FONTS.YellixThin,
     color: COLORS.black,
-    marginLeft:"auto",
+    marginLeft: "auto",
     paddingHorizontal: responsiveWidth(4),
     paddingVertical: responsiveWidth(2),
     borderRadius: responsiveWidth(2),
@@ -72,7 +79,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     maxWidth: responsiveWidth(35),
     // fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.Yellix,
+    // fontFamily: FONTS.Yellix,
     color: "#333",
     textAlign: "left",
     paddingVertical: responsiveWidth(2),
@@ -90,7 +97,7 @@ export const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   backButton: {
-    marginTop:responsiveWidth(10),
+    marginTop: responsiveWidth(10),
     flex: 1,
     alignItems: "flex-start",
   },
@@ -114,13 +121,13 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
   },
   skipButton: {
-    marginTop:responsiveWidth(10),
+    marginTop: responsiveWidth(10),
     flex: 1,
     alignItems: "flex-end",
   },
   skipButtonText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: "#6B7280",
   },
 });

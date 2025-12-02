@@ -1,295 +1,210 @@
+import {
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
+import Toast from "react-native-toast-message";
+
+import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from "react-native";
-import Toast from "react-native-toast-message";
-import { useAuth } from "../../contexts/AuthContext";
-import { authStyles, globalStyles } from "../../styles";
-
-import { COLORS, FONTS } from "@/src/constants";
-import {
-    responsiveFontSize,
-    responsiveWidth,
+  responsiveWidth
 } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
+import { styles } from "../../styles/searchScreenStyles";
 
-export default function LoginScreen() {
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const { requestOTP } = useAuth();
+interface Customer {
+  id: string;
+  name: string;
+  frameNumber: string;
+  mobileNumber: string;
+  model: string;
+  status: "uploaded" | "pending";
+}
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+export default function DeliveriesHome() {
+  const [activeTab, setActiveTab] = useState<"delivery" | "pending">(
+    "delivery"
+  );
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showModelModal, setShowModelModal] = useState(false);
+  const [frameNumber, setFrameNumber] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  
+
+  const handleBack = () => {
+    router.back();
   };
 
-  const validatePhoneNumber = (phone: string) => {
-    // Allow only digits and limit to 15 characters (including country code)
-    const phoneRegex = /^\d{1,15}$/;
-    return phoneRegex.test(phone);
+  // Sample data
+  const customers: Customer[] = [
+    {
+      id: "1",
+      name: "Customer 1",
+      frameNumber: "5555858665172",
+      mobileNumber: "5555858665172",
+      model: "Hero Splendor",
+      status: "pending",
+    },
+    {
+      id: "2",
+      name: "Customer 1",
+      frameNumber: "5555858665172",
+      mobileNumber: "5555858665172",
+      model: "Hero Splendor",
+      status: "pending",
+    },
+    {
+      id: "3",
+      name: "Customer 1",
+      frameNumber: "5555858665172",
+      mobileNumber: "5555858665172",
+      model: "Hero Splendor",
+      status: "pending",
+    },
+    {
+      id: "4",
+      name: "Customer 1",
+      frameNumber: "5555858665172",
+      mobileNumber: "5555858665172",
+      model: "Hero Splendor",
+      status: "pending",
+    },
+  ];
+
+  const handleEdit = (data:any) => {
+      console.log("Edit ",data);
   };
 
-  const handleEmailChange = (text: string) => {
-    setEmail(text);
-    if (text.trim()) {
-      setPhoneNumber(""); // Clear phone when email is entered
-    }
+  const handleDelete = (data:any) => {
+      console.log("Delete ",data);
   };
 
-  const handlePhoneChange = (text: string) => {
-    // Only allow digits and max 15 characters
+  const renderCustomerCard = ({ item }: { item: Customer }) => (
+    <View style={styles.customerCard}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.customerName}>{item.name}</Text>
+        <View style={styles.cardActions}>
+         
+              <TouchableOpacity
+                // style={styles.uploadButton}
+                onPress={() => handleEdit(item)}
+              >
 
-    setPhoneNumber(text.trim());
-    // if (text.trim()) {
-    //   setEmail(""); // Clear email when phone is entered
-    // }
-  };
+                <View
+                //  style={styles.uploadIcon}
+                 >
+                  <Image
+                    source={require("@/assets/icons/EditFilledIcon.png")}
+                    // style={styles.img}
+                    width={20}
+                    resizeMode="contain"
+                  />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                // style={styles.moreButton}
+                onPress={() => handleDelete(item)}
+              >
+                <Image
+                  source={require("@/assets/icons/DeleteIcon.png")}
+                  // style={styles.img}
+                  width={20}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+    
+        </View>
+      </View>
 
-  const handleLogin = async () => {
-    router.push("/(tabs)/home");
-    // if (!email.trim()) {
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Error",
-    //     text2: "Please enter your email address",
-    //   });
-    //   return;
-    // }
-
-    // if (!validateEmail(email)) {
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Error",
-    //     text2: "Please enter a valid email address",
-    //   });
-    //   return;
-    // }
-
-    // setIsLoading(true);
-
-    // try {
-    //   const response = await requestOTP({ email: email.trim() });
-
-    //   if (response.success) {
-    //     router.push({
-    //       pathname: "/otp",
-    //       params: { email: email.trim() },
-    //     });
-    //   } else {
-    //     Toast.show({
-    //       type: "error",
-    //       text1: "Error",
-    //       text2: "Failed to send OTP",
-    //     });
-    //   }
-    // } catch (error) {
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Error",
-    //     text2: "An unexpected error occurred",
-    //   });
-    // } finally {
-    //   setIsLoading(false);
-    // }
-  };
+      <View style={styles.customerDetails}>
+        <Text style={styles.detailText}>
+          <Text style={styles.detailLabel}>Frame Number: </Text>
+          <Text style={styles.detailValue}>{item.frameNumber}</Text>
+        </Text>
+        <Text style={styles.detailText}>
+          <Text style={styles.detailLabel}>Mobile Number: </Text>
+          <Text style={styles.detailValue}>{item.mobileNumber}</Text>
+        </Text>
+        <Text style={styles.detailText}>
+          <Text style={styles.detailLabel}>Model: </Text>
+          <Text style={styles.detailValue}>{item.model}</Text>
+        </Text>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top", "bottom"]}>
-      {/* <ImageBackground
-        source={require("@/assets/bg.png")}
-        style={styles.container}
-        resizeMode="cover"
-      > */}
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <ScrollView contentContainerStyle={allStyles.scrollContent}>
-            <View style={allStyles.container}>
-              <View style={styles.imageContainer}>
-                <Image
-                  source={require("@/assets/icons/loginPageLogo.png")}
-                  style={styles.buildingImage}
-                  resizeMode="contain"
-                />
-              </View>
+      <KeyboardAvoidingView
+        style={allStyles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        {/* Header */}
+        <View style={allStyles.headerContainer}>
+          <TouchableOpacity
+            onPress={handleBack}
+            style={[allStyles.backButton, allStyles.backButtonBackgroundStyle]}
+          >
+            <Text style={allStyles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+          <HeaderIcon />
+        </View>
 
-              <Text style={authStyles.title}>Get Started</Text>
+        <View style={styles.titleContainer}>
+          <Text
+            style={[allStyles.pageTitle, { paddingTop: responsiveWidth(0) }]}
+          >
+            Search
+          </Text>
+        </View>
 
-              <Text style={authStyles.subtitle}>
-                Sign in to Start your session
-              </Text>
-              <View style={styles.dividerLine}>
-              </View>
-              
-
-              <TextInput
-                style={globalStyles.input}
-                placeholder="Email"
-                placeholderTextColor="#999"
-                value={email}
-                onChangeText={handleEmailChange}
-                keyboardType="email-address"
-                autoCapitalize="none"
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search customers..."
+              placeholderTextColor="#9CA3AF"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoCorrect={false}
+            />
+            <TouchableOpacity style={styles.searchButton}>
+              <Image
+                source={require("@/assets/icons/SearchIcon.png")}
+                // style={styles.img}
+                // width={10}
+                resizeMode="contain"
               />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-
-              
-                <TextInput
-                  style={[globalStyles.input, styles.input]}
-                  secureTextEntry={true}
-                  placeholder="Password"
-                  placeholderTextColor="#999"
-                  value={phoneNumber}
-                  onChangeText={handlePhoneChange}
-                />
-                <View  style={styles.forgetPasswordContainer}>
-                  <Text style={styles.forgetPasswordText}>Forgot Password?</Text>
-                </View>
-                      <View style={styles.loginButtonContainer}>
-              <TouchableOpacity
-                style={[
-                  allStyles.btn,
-                  isLoading && styles.otpButtonDisabled,
-                ]}
-                onPress={handleLogin}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="white" size="small" />
-                ) : (
-                  <Text style={allStyles.btnText}>Login</Text>
-                )}
-              </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-        <Toast />
-      {/* </ImageBackground> */}
+        {/* Customer List */}
+        <FlatList
+          data={customers}
+          renderItem={renderCustomerCard}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          style={[
+            allStyles.scrollContent,
+            { paddingHorizontal: responsiveWidth(0.5) },
+          ]}
+        />
+      </KeyboardAvoidingView>
+      <Toast />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    // paddingTop: 50,
-  },
-  imageContainer: {
-    alignItems: "center",
-    paddingVertical: responsiveWidth(6),
-  },
-  buildingImage: {
-    // width: 247,
-    // height: 201,
-    width: responsiveWidth(60),
-    height: responsiveWidth(60),
-  },
-  title: {
-    fontSize: 40,
-    color: "white",
-    textAlign: "left",
-    marginBottom: 12,
-    fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: 13,
-    color: "white",
-    textAlign: "left",
-    marginBottom: 15,
-  },
-  input: {
-    // backgroundColor: "rgba(255, 255, 255, 0.1)",
-    // borderRadius: 25,
-    // paddingHorizontal: 20,
-    // paddingVertical: 15,
-    // fontSize: 16,
-    // color: "white",
-    // marginBottom: 15,
-    // paddingLeft: responsiveWidth(16),
-  },
-  orText: {
-    color: "white",
-    textAlign: "center",
-    marginVertical: 15,
-    fontSize: 16,
-  },
-  phoneContainer: {
-    // flexDirection: "row",
-    // alignItems: "center",
-    // backgroundColor: "rgba(255, 255, 255, 0.1)",
-    // borderRadius: 25,
-    // marginBottom: 30,
-  },
-  countryCode: {
-    // paddingHorizontal: 15,
-    // paddingVertical: 15,
-    position: "absolute",
-    zIndex: 99,
-    top: responsiveWidth(2.4),
-    left: responsiveWidth(6),
-  },
-  flag: {
-    fontSize: responsiveFontSize(3),
-  },
-  phoneInput: {
-    flex: 1,
-    paddingVertical: 15,
-    paddingRight: 20,
-    fontSize: 16,
-    color: "white",
-  },
-  otpButton: {
-    backgroundColor: "#00bfff",
-    borderRadius: 25,
-    paddingVertical: 15,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  otpButtonDisabled: {
-    backgroundColor: "#cccccc",
-    opacity: 0.7,
-  },
-  otpButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
-  dividerLine: {
-    width: responsiveWidth(10),
-    height: 1.2,
-    backgroundColor: COLORS.primaryBlue,
-    marginBottom: responsiveWidth(5),
-  },
-  forgetPasswordContainer: {
-    alignItems: "center",
-    marginBottom: responsiveWidth(5),
-  },
-  forgetPasswordText: {
-    color: COLORS.primaryBlue,
-    fontFamily: FONTS.Yellix,
-    fontWeight: "600",
-  },
-  loginButtonContainer:{
-    marginTop:"auto",
-    marginBottom: responsiveWidth(10),
-  }
-});

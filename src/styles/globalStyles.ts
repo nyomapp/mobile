@@ -44,7 +44,7 @@ export const globalStyles = StyleSheet.create({
     paddingVertical: responsiveWidth(4),
     fontSize: responsiveFontSize(1.8),
     marginBottom: responsiveWidth(4),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: '#333',
     shadowColor: "#000",
     shadowOffset: {
