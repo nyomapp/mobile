@@ -174,7 +174,7 @@ export default function PreviewScreen() {
         <View
           style={[
             allStyles.bottomContainer,
-            { paddingHorizontal: responsiveWidth(4) },
+            // { paddingHorizontal: responsiveWidth(4) },
           ]}
         >
           <TouchableOpacity style={allStyles.btn}>

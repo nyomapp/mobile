@@ -14,6 +14,7 @@ const screenMap = {
   "preview": () => require("../src/screens/deliveries/Preview").default,
   "other-documents": () => require("../src/screens/deliveries/OtherDocumentsScreen").default,
   "change-password": () => require("../src/screens/settings/ChangePassword").default,
+  "payment-mode": () => require("../src/screens/deliveries/PaymentMode").default,
 };
 
 export default function DynamicScreen() {

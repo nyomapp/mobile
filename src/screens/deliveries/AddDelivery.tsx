@@ -199,7 +199,7 @@ export default function AddDelivery() {
         
 
          <ScrollView
-          style={[allStyles.scrollContent,{ paddingTop: responsiveWidth(4)}]}
+          style={[allStyles.scrollContent,{ paddingTop: responsiveWidth(4),paddingHorizontal:responsiveWidth(1)}]}
           showsVerticalScrollIndicator={false}
         >
           {/* Details Section */}

@@ -5,7 +5,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import Toast from "react-native-toast-message";
@@ -35,11 +35,6 @@ export default function ChangePassword() {
     // Handle password change logic
   };
 
-  const handleLogout = () => {
-    console.log("Logout pressed");
-    // Handle logout logic
-  };
-
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
@@ -57,14 +52,22 @@ export default function ChangePassword() {
           <HeaderIcon />
         </View>
 
-        <ScrollView style={allStyles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={allStyles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Page Title */}
           <View style={{ paddingVertical: responsiveWidth(6) }}>
             <Text style={styles.headerStyle}>Change Password</Text>
           </View>
 
           {/* Password Input Fields */}
-          <View style={{ gap: responsiveWidth(4), paddingHorizontal: responsiveWidth(1) }}>
+          <View
+            style={{
+              gap: responsiveWidth(4),
+              paddingHorizontal: responsiveWidth(1),
+            }}
+          >
             <View style={allStyles.formContainer}>
               <TextInput
                 style={globalStyles.input}
@@ -93,11 +96,8 @@ export default function ChangePassword() {
 
         {/* Action Section - Outside ScrollView to stick to bottom */}
         <View style={allStyles.bottomContainer}>
-          <TouchableOpacity 
-            style={allStyles.btn}
-            onPress={handleLogout}
-          >
-            <Text style={allStyles.btnText}>Logout</Text>
+          <TouchableOpacity style={allStyles.btn} onPress={handleSavePassword}>
+            <Text style={allStyles.btnText}>Save</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -105,4 +105,3 @@ export default function ChangePassword() {
     </SafeAreaView>
   );
 }
-

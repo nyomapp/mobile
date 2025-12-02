@@ -63,7 +63,7 @@ export default function AmountScreen() {
   const handleNext = () => {
     // Validate and proceed
     console.log("Amount data:", amounts);
-    router.push("/preview");
+    router.push("/payment-mode");
   };
 
   const handleBack = () => {

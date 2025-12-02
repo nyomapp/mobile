@@ -91,7 +91,7 @@ export default function DocumentsScreen() {
         </View>
 
         <ScrollView
-          style={[allStyles.scrollContent,{ paddingTop: responsiveWidth(4)}]}
+          style={[allStyles.scrollContent,{ paddingTop: responsiveWidth(4)}, { paddingHorizontal: responsiveWidth(1) }]}
           showsVerticalScrollIndicator={false}
         >
           {/* Documents Title */}
