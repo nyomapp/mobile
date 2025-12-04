@@ -137,7 +137,7 @@ export default function AddDelivery() {
         <View style={allStyles.pageHeader}>
           <View>
             <Text style={allStyles.pageTitle}>
-              <b>Add</b>{"\n"}<Text style={allStyles.headerSecondaryText}>Delivery</Text>
+              <Text style={{fontWeight: 'bold'}}>Add</Text>{"\n"}<Text style={allStyles.headerSecondaryText}>Delivery</Text>
             </Text>
           </View>
           <View style={{flexDirection: "column", justifyContent: "center", alignItems: "flex-end"}}>

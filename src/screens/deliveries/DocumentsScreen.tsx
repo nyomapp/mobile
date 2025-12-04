@@ -83,7 +83,7 @@ export default function DocumentsScreen() {
         <View style={allStyles.pageHeader}>
           <View>
             <Text style={allStyles.pageTitle}>
-              <b>Add</b>
+              <Text style={{fontWeight: 'bold'}}>Add</Text>
               {"\n"}
               <Text style={allStyles.headerSecondaryText}>Delivery</Text>
             </Text>
@@ -129,8 +129,7 @@ export default function DocumentsScreen() {
                       ? require("@/assets/icons/DocumentsPageTickIcon.png")
                       : require("@/assets/icons/DocumentPageUplaodIcon.png")
                   }
-                  // style={styles.img}
-                  width={24}
+                  style={{ width: 24, height: 24 }}
                   resizeMode="contain"
                 />
               </TouchableOpacity>

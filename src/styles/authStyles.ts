@@ -24,7 +24,7 @@ export const authStyles = StyleSheet.create({
     textAlign: 'left',
     marginBottom: responsiveWidth(3),
     fontFamily: FONTS.Yellix,
-    fontWeight:600,
+    fontWeight: '600',
     // lineHeight: 30,
   },
   subtitle: {

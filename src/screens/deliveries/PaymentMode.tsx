@@ -64,7 +64,7 @@ export default function PaymentMode() {
         <View style={allStyles.pageHeader}>
           <View>
             <Text style={allStyles.pageTitle}>
-              <b>Add</b>
+              <Text style={{fontWeight: 'bold'}}>Add</Text>
               {"\n"}
               <Text style={allStyles.headerSecondaryText}>Delivery</Text>
             </Text>

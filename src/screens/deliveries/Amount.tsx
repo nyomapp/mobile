@@ -86,7 +86,7 @@ export default function AmountScreen() {
         <View style={[allStyles.pageHeader,{paddingTop:responsiveWidth(6)}]}>
           <View style={{paddingBottom:responsiveWidth(5)}}>
                       <Text style={allStyles.pageTitle}>
-                        <b>Add</b>{"\n"}<Text style={allStyles.headerSecondaryText}>Delivery</Text>
+                        <Text style={{fontWeight: 'bold'}}>Add</Text>{"\n"}<Text style={allStyles.headerSecondaryText}>Delivery</Text>
                       </Text>
                     </View>
           <View
