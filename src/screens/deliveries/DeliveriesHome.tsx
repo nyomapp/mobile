@@ -24,7 +24,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/deliveryHomeStyles";
 import { allStyles } from "../../styles/global";
-import { getDeliveriesData } from "@/src/api/deliveriesHome";
+import { deleteDeliveryById, getDeliveriesData } from "@/src/api/deliveriesHome";
 import { useDeliveryHomePageContext } from "@/src/contexts/DeliveryHomePageContext";
 interface Customer {
   id: string;
@@ -51,7 +51,8 @@ export default function DeliveriesHome() {
   const [selectedModel, setSelectedModel] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
+  const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   useEffect(() => {
     getDeleverirsData(activeTab);
   }, [activeTab]);
@@ -153,48 +154,45 @@ export default function DeliveriesHome() {
     // Show options menu
   };
 
-  // Sample data
-  const customers: Customer[] = [
-    {
-      id: "1",
-      name: "Customer 1",
-      frameNumber: "5555858665172",
-      mobileNumber: "5555858665172",
-      model: "Hero Splendor",
-      status: "pending",
-    },
-    {
-      id: "2",
-      name: "Customer 1",
-      frameNumber: "5555858665172",
-      mobileNumber: "5555858665172",
-      model: "Hero Splendor",
-      status: "pending",
-    },
-    {
-      id: "3",
-      name: "Customer 1",
-      frameNumber: "5555858665172",
-      mobileNumber: "5555858665172",
-      model: "Hero Splendor",
-      status: "pending",
-    },
-    {
-      id: "4",
-      name: "Customer 1",
-      frameNumber: "5555858665172",
-      mobileNumber: "5555858665172",
-      model: "Hero Splendor",
-      status: "pending",
-    },
-  ];
-
   const handleEdit = (data:any) => {
       console.log("Edit ",data);
   };
 
-  const handleDelete = (data:any) => {
-      console.log("Delete ",data);
+  const handleDelete = (data: any) => {
+    console.log("Delete ", data);
+    setSelectedDelivery(data);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      // Delete the delivery from database
+      await deleteDeliveryById(selectedDelivery.id);
+      
+      // Refresh the data by calling API again to get latest data
+      await getDeleverirsData(activeTab, 1, false);
+      
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Delivery deleted successfully."
+      });
+      
+      setShowDeleteModal(false);
+      setSelectedDelivery(null);
+    } catch (error) {
+      console.error("Error deleting delivery:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: (error as any).message || "An error occurred while deleting the delivery.",
+      });
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setSelectedDelivery(null);
   };
 
   const renderLoadingFooter = () => {
@@ -503,6 +501,83 @@ export default function DeliveriesHome() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+            </View>
+          </View>
+        </Modal>
+        
+        {/* Delete Confirmation Modal */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showDeleteModal}
+          onRequestClose={cancelDelete}
+        >
+          <View style={styles.modelModalOverlay}>
+            <View style={[styles.modelModalContent, { width: '80%', maxHeight: 'auto' }]}>
+              <View style={styles.modelModalHeader}>
+                <Text style={styles.modelModalTitle}>Confirm Delete</Text>
+              </View>
+              
+              <View style={{ padding: responsiveWidth(5) }}>
+                <Text style={{ 
+                  fontSize: 16, 
+                  color: '#333', 
+                  textAlign: 'center',
+                  marginBottom: responsiveWidth(2)
+                }}>
+                  Are you sure you want to delete this delivery?
+                </Text>
+                
+                {selectedDelivery && (
+                  <View style={{ 
+                    backgroundColor: '#f8f9fa', 
+                    padding: responsiveWidth(3),
+                    borderRadius: responsiveWidth(2),
+                    marginBottom: responsiveWidth(5)
+                  }}>
+                    <Text style={{ fontSize: 14, color: '#666' }}>
+                      Customer: {selectedDelivery.customerName}
+                    </Text>
+                    <Text style={{ fontSize: 14, color: '#666' }}>
+                      Frame Number: {selectedDelivery.chassisNo}
+                    </Text>
+                  </View>
+                )}
+                
+                <View style={{ 
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between',
+                  gap: responsiveWidth(3)
+                }}>
+                  <TouchableOpacity
+                    style={[
+                      allStyles.btn,
+                      { 
+                        flex: 1, 
+                        backgroundColor: '#6c757d',
+                        marginBottom: 0
+                      }
+                    ]}
+                    onPress={cancelDelete}
+                  >
+                    <Text style={allStyles.btnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[
+                      allStyles.btn,
+                      { 
+                        flex: 1, 
+                        backgroundColor: '#dc3545',
+                        marginBottom: 0
+                      }
+                    ]}
+                    onPress={confirmDelete}
+                  >
+                    <Text style={allStyles.btnText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </View>
         </Modal>

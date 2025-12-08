@@ -12,6 +12,7 @@ export const API_CONFIG = {
 export const API_ENDPOINTS = {
   DELIVERIES_HOME: {
     GET: 'deliveries?status={STATUS}',
+    DELETE:'deliveries/:deliveryId'
   },
   MasterData:{
     GET:"master",

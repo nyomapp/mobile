@@ -242,7 +242,22 @@ class APIClient {
         });
       }
 
-      const data = await response.json();
+      // Handle empty response for DELETE requests (like 204 No Content)
+      let data;
+      const contentType = response.headers.get('content-type');
+      const responseText = await response.text();
+      
+      if (responseText && contentType && contentType.includes('application/json')) {
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          data = null;
+        }
+      } else {
+        // For DELETE requests that return empty body or non-JSON
+        data = null;
+      }
+      
       return {
         success: true,
         data,

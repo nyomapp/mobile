@@ -16,3 +16,18 @@ export const getDeliveriesData = async (status: any, page: number = 1, limit: nu
       throw error;   
     }
 }
+export const deleteDeliveryById = async (id: any) => {
+    try {
+        
+        const response = await apiClient.delete(API_ENDPOINTS.DELIVERIES_HOME.DELETE.replace(":deliveryId", id));
+         // Check if the API client returned an error response
+    if (!response.success || response.error) {
+      // console.log('API: Error detected in response, throwing error...');
+      throw new Error(response.error || "API request failed");
+      
+    }
+    return response.data;
+    } catch (error) {
+      throw error;   
+    }
+}
