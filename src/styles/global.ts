@@ -301,7 +301,7 @@ export const allStyles = StyleSheet.create({
   dropdown: {
     backgroundColor: COLORS.white,
     borderRadius: responsiveWidth(2),
-    paddingHorizontal: responsiveWidth(4),
+    paddingHorizontal: responsiveWidth(6),
     paddingVertical: responsiveWidth(4),
     marginBottom: responsiveWidth(4),
 

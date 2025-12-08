@@ -1,96 +1,58 @@
-// Auth Types
-export interface RequestOTPRequest {
+// Auth
+export interface LoginRequest {
   email: string;
+  password: string;
 }
 
-export interface VerifyOTPRequest {
-  email: string;
-  otp: string;
+export interface LoginResponse {
+  user: User;
+  tokens: {
+    access: {
+      token: string;
+      expires: string;
+    };
+    refresh: {
+      token: string;
+      expires: string;
+    };
+  };
 }
-
-export interface RequestOTPResponse {
-  success: boolean;
-  message: string;
-}
-
-export interface VerifyOTPResponse {
-  success: boolean;
-  data: {
-    success: boolean;
-    message: string;
-    token?: string;
-    user?: User;
-  }
-
-}
-
 // User Types
 export interface User {
-  id: string;
-  firstName?: string;
-  lastName?: string;
-  email: string;
-  phone?: string;
-  avatarUrl: string;
-  level?: {
-    solo: number;
-    team: number;
-    pvp: number;
-  };
-  currentConsecutiveWins?: number;
-  longestConsecutiveWins?: number;
-  currentConsecutiveLosses?: number;
-  longestConsecutiveLosses?: number;
-  totalMatches?: number;
-  totalWins?: number;
-  streak?: number;
-  gameCoins?: number;
-  spentCoins?: number;
-  earnedCoins?: number;
-  firstTimeRewardClaimed?: boolean;
-  verifiedEmail?: boolean;
-  verifiedPhone?: boolean;
-  emailVerificationToken?: string;
-  phoneVerificationToken?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  profileData?: ProfileData[];
-  deleted?: boolean;
-  country?: string;
-  isInMatch?: boolean;
-  age?: string;
-  preferences?: {
-    language: string;
-    notifications: {
-      email: boolean;
-      web: boolean;
-      sms: boolean;
-      mobile: boolean;
-      inApp: boolean;
+  role: string;
+  userType: string;
+  permissions: string[];
+  mainDealerRef: {
+    name: string;
+    email: string;
+    tradeName: string;
+    oemRef: {
+      _id: string;
+      name: string;
     };
-    audio: boolean;
+    stateRef: {
+      _id: string;
+      name: string;
+      code: string;
+    };
+    code: string;
+    id: string;
   };
-  profileCompletion?: number;
-  cash?: number;
-  zipcode?: string;
-  preferredLanguage?: string;
-}
-
-export interface ProfileData {
-  question: string;
-  questionId: string;
-  answer: string;
-  answerId?: string;
-  type: 'input' | 'dropdown';
-  question_shorthand: string;
-}
-
-export interface CreateUserRequest {
-  firstName: string;
-  lastName: string;
+  dealerRef: any;
+  status: boolean;
+  isEmailVerified: boolean;
+  isInvoiceEnabled: boolean;
+  isCombo: boolean;
+  name: string;
   email: string;
-  phone: string;
-  zipcode: string;
+  contactPersonMobile: string;
+  locationRef: {
+    code: string;
+    title: string;
+    id: string;
+  };
+  adhaar: string;
+  id: string;
 }
 
 export interface UpdateUserRequest {
@@ -100,173 +62,10 @@ export interface UpdateUserRequest {
   phone?: string;
   zipcode?: string;
   country?: string;
-  profileData?: ProfileData[];
   firstTimeRewardClaimed?: boolean;
   gameCoins?: number;
   preferredLanguage?: string;
 }
-
-export interface GetUsersByIdsRequest {
-  ids: string[];
-}
-
-export interface ProfileQuestion {
-  id: string;
-  question: string;
-  type: string;
-  options?: string[];
-}
-
-export interface ProfileQuestionResponse {
-  success: boolean;
-  data: {
-    success: boolean;
-    country: string;
-    sections: {
-      questions: {
-        questionId: string;
-        question: string;
-        question_shorthand: string;
-        type: 'input' | 'dropdown';
-        answers: {
-          id: string;
-          answer: string;
-        }[];
-      }[];
-    }[];
-  };
-}
-
-export interface FormData {
-  [questionId: string]: {
-    questionId: string;
-    question: string;
-    question_shorthand: string;
-    answer: string;
-    answerId?: string;
-    type: 'input' | 'dropdown';
-  };
-}
-
-
-export interface Transaction {
-  id: string;
-  userId: string;
-  gameCoinsBefore: number;
-  gameCoinsAfter: number;
-  amount: number;
-  gameType: 'solo' | 'pvp' | 'team';
-  matchId?: string;
-  type: 'debit' | 'credit' | 'redeem';
-  status: 'completed' | 'pending' | 'failed';
-  createdAt: string;
-  updatedAt: string;
-  deleted: boolean;
-}
-
-
-export interface GetTransactionsRequest {
-  gameType?: string;
-  type?: string;
-  status?: string;
-  matchId?: string;
-  sortBy?: 'createdAt' | 'amount' | 'type' | 'status' | 'gameType';
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
-}
-
-export interface ReVerifyRequest {
-  type: 'email' | 'phone';
-  action: 'resend' | 'verify';
-  email?: string;
-  phone?: string;
-  otp?: string;
-}
-
-export interface ReVerifyResponse {
-  success: boolean;
-  message: string;
-}
-
-
-// Team Types
-export interface Team {
-  id: string;
-  name: string;
-  description?: string;
-  members?: User[];
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface CreateTeamRequest {
-  name?: string;
-  userIds: string[];
-}
-
-export interface UpdateTeamRequest {
-  name?: string;
-  userIds?: string[];
-}
-
-// Match Making Types
-export interface CreateMatchRequest {
-  loi: number;
-  type: 'pvp' | 'team' | 'solo';
-  entryCoins: number;
-  teamId?: string;
-  scheduledTimestamp?: string;
-}
-
-export interface MatchUpdate {
-  transactionId: string;
-  matchId: string;
-  status: string;
-  userId: string;
-  rewards: string;
-}
-
-export interface MatchRequest {
-  userId: string;
-  teamId?: string;
-  scheduledTimestamp?: string;
-  loi: number;
-  rank: number;
-  level: number;
-  country: string;
-  type?: 'pvp' | 'team' | 'solo';
-}
-
-// Setup Types
-export interface Avatar {
-  id: string;
-  type: 'male' | 'female' | 'group';
-  url: string;
-  name?: string;
-}
-
-export interface AvatarResponse {
-  success: boolean;
-  data: {
-    success: boolean;
-    avatars: string[];
-  };
-}
-
-
-export interface Country {
-  code: string;
-  name: string;
-}
-
-export interface CountriesResponse {
-  success: boolean;
-  data: {
-    countries: Country[];
-  };
-}
-
 
 // API Response Types
 export interface APIResponse<T = any> {
@@ -281,9 +80,17 @@ export class APIError extends Error {
   status?: number;
   code?: string;
 
-  constructor({ message, status, code }: { message: string; status?: number; code?: string }) {
+  constructor({
+    message,
+    status,
+    code,
+  }: {
+    message: string;
+    status?: number;
+    code?: string;
+  }) {
     super(message);
-    this.name = 'APIError';
+    this.name = "APIError";
     this.status = status;
     this.code = code;
   }

@@ -3,34 +3,92 @@ import { COLORS } from "@/src/constants";
 import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/paymentModeStyles";
 import { allStyles } from "../../styles/global";
+import Toast from "react-native-toast-message";
+import { apiClient } from "@/src/api";
+import { getAllFinancierData, getAllMasterData } from "@/src/api/addDelivery";
+import { useFinancierData, useMasterData } from "@/src/contexts";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 
-type DeliveryType = "New" | "Renew";
-type PaymentMode = "Cash" | "Finance";
+type PaymentMode = "cash" | "finance";
 
 export default function PaymentMode() {
+  const { currentDelivery, setCurrentDelivery } = useDeliveryContext();
+  const {
+    data: masterData,
+    setData,
+    updateField,
+    updateMultipleFields,
+    resetData,
+    getField,
+  } = useMasterData();
+  const {
+    data: financierData,
+    setData: setFinancierData,
+    addItem,
+    resetData: resetFinancierData,
+    clearData,
+  } = useFinancierData();
   const [selectedPaymentMode, setSelectedPaymentMode] =
-    useState<PaymentMode>("Cash");
+    useState<PaymentMode>("cash");
   const [financierName, setFinancierName] = useState("");
   const [financeAmount, setFinanceAmount] = useState("");
   const [financierPlan1, setFinancierPlan1] = useState("");
   const [financierPlan2, setFinancierPlan2] = useState("");
   const [showFinancierModal, setShowFinancierModal] = useState(false);
   const [showPlan1Modal, setShowPlan1Modal] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  // Initialize from context
+  useEffect(() => {
+    if (currentDelivery) {
+      setSelectedPaymentMode(
+        currentDelivery.purchaseType === "finance" ? "finance" : "cash"
+      );
+      setFinancierName(currentDelivery.financerRef || "");
+      setFinanceAmount(currentDelivery.financeAmount?.toString() || "");
+      setFinancierPlan1(currentDelivery.financierPlan1 || "");
+      setFinancierPlan2(currentDelivery.financierPlan2?.toString() || "");
+    }
+  }, [currentDelivery]);
+
+  useEffect(() => {
+    console.log("Master Data Context:", masterData);
+    console.log("Financier Data Context:", financierData);
+    console.log("Current Delivery Context:", currentDelivery);
+  }, [financierData, masterData, currentDelivery]);
+  useEffect(() => {
+    if (selectedPaymentMode === "finance") {
+      getFinacierData();
+    }
+  }, [selectedPaymentMode]);
+  const getFinacierData = async () => {
+    try {
+      const response = await getAllMasterData();
+      setData(response as any);
+      const financierPlanData = await getAllFinancierData();
+      setFinancierData(financierPlanData as any);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "error fetching financier data",
+        text2: (error as any)?.message || "Unknown error",
+      });
+    }
+  };
 
   const handleBack = () => {
     router.back();
@@ -38,7 +96,59 @@ export default function PaymentMode() {
 
   const handleNext = () => {
     console.log("Next pressed");
-    // Handle next logic
+
+    const newErrors: { [key: string]: string } = {};
+
+    // Validation for finance mode
+    if (selectedPaymentMode === "finance") {
+      if (!financierName.trim()) {
+        newErrors.financierName = "Please select a financier";
+      }
+      if (!financeAmount.trim()) {
+        newErrors.financeAmount = "Finance amount is required";
+      }
+      if (!financierPlan1.trim()) {
+        newErrors.financierPlan1 = "Please select financier plan 1";
+      }
+      if (!financierPlan2.trim()) {
+        newErrors.financierPlan2 = "Financier plan 2 is required";
+      }
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      // Show first error message using Toast
+      const firstError = Object.values(newErrors)[0];
+      if (firstError) {
+        Toast.show({
+          type: "error",
+          text1: "Validation Error",
+          text2: firstError,
+          visibilityTime: 3000,
+        });
+      }
+      return;
+    }
+
+    // Update delivery context with payment data
+    if (currentDelivery) {
+      const paymentData = {
+        ...currentDelivery,
+        purchaseType: selectedPaymentMode,
+        ...(selectedPaymentMode === "finance" && {
+          financerRef: financierName.trim(),
+          financeAmount: parseFloat(financeAmount) || 0,
+          financierPlan1: financierPlan1.trim(),
+          financierPlan2: parseFloat(financierPlan2) || 0,
+        }),
+      };
+
+      setCurrentDelivery(paymentData);
+
+      console.log("Payment data stored in context:", paymentData);
+    }
+
     router.push("/preview");
   };
 
@@ -64,7 +174,7 @@ export default function PaymentMode() {
         <View style={allStyles.pageHeader}>
           <View>
             <Text style={allStyles.pageTitle}>
-              <Text style={{fontWeight: 'bold'}}>Add</Text>
+              <Text style={{ fontWeight: "bold" }}>Add</Text>
               {"\n"}
               <Text style={allStyles.headerSecondaryText}>Delivery</Text>
             </Text>
@@ -83,10 +193,10 @@ export default function PaymentMode() {
               {/* Cash Option */}
               <TouchableOpacity
                 style={styles.radioContainer}
-                onPress={() => setSelectedPaymentMode("Cash")}
+                onPress={() => setSelectedPaymentMode("cash")}
               >
                 <View style={styles.radioButton}>
-                  {selectedPaymentMode === "Cash" && (
+                  {selectedPaymentMode === "cash" && (
                     <View style={styles.radioSelected} />
                   )}
                 </View>
@@ -96,10 +206,10 @@ export default function PaymentMode() {
               {/* Finance Option */}
               <TouchableOpacity
                 style={styles.radioContainer}
-                onPress={() => setSelectedPaymentMode("Finance")}
+                onPress={() => setSelectedPaymentMode("finance")}
               >
                 <View style={styles.radioButton}>
-                  {selectedPaymentMode === "Finance" && (
+                  {selectedPaymentMode === "finance" && (
                     <View style={styles.radioSelected} />
                   )}
                 </View>
@@ -109,13 +219,18 @@ export default function PaymentMode() {
           </View>
 
           {/* Finance Fields - Only show when Finance is selected */}
-          {selectedPaymentMode === "Finance" && (
+          {selectedPaymentMode === "finance" && (
             <View style={styles.financeFieldsContainer}>
               {/* Financier Name Select */}
               <View style={styles.fieldContainer}>
                 {/* <Text style={styles.fieldLabel}>Financier Name</Text> */}
                 <TouchableOpacity
-                  style={allStyles.dropdown}
+                  style={[
+                    allStyles.dropdown,
+                    errors.financierName
+                      ? { borderColor: "red", borderWidth: 1 }
+                      : {},
+                  ]}
                   onPress={() => setShowFinancierModal(true)}
                 >
                   <Text
@@ -124,7 +239,10 @@ export default function PaymentMode() {
                       !financierName && styles.placeholderText,
                     ]}
                   >
-                    {financierName || "Select Financier"}
+                    {financierName
+                      ? financierData.find((f) => f._id === financierName)
+                          ?.name || financierName
+                      : "Select Financier"}
                   </Text>
                   <Ionicons
                     name="chevron-down"
@@ -139,13 +257,21 @@ export default function PaymentMode() {
                 {/* <Text style={styles.fieldLabel}>Finance Amount</Text> */}
                 <View style={allStyles.formContainer}>
                   <TextInput
-                    style={globalStyles.input}
+                    style={[
+                      globalStyles.input,
+                      errors.financeAmount
+                        ? { borderColor: "red", borderWidth: 1 }
+                        : {},
+                    ]}
                     placeholder="Enter finance amount"
                     placeholderTextColor="#9CA3AF"
                     value={financeAmount}
                     onChangeText={(text) => {
                       const numericValue = text.replace(/[^0-9]/g, "");
                       setFinanceAmount(numericValue);
+                      if (errors.financeAmount) {
+                        setErrors((prev) => ({ ...prev, financeAmount: "" }));
+                      }
                     }}
                     keyboardType="numeric"
                     autoCorrect={false}
@@ -157,7 +283,12 @@ export default function PaymentMode() {
               <View style={styles.fieldContainer}>
                 {/* <Text style={styles.fieldLabel}>Financier Plan 1</Text> */}
                 <TouchableOpacity
-                  style={allStyles.dropdown}
+                  style={[
+                    allStyles.dropdown,
+                    errors.financierPlan1
+                      ? { borderColor: "red", borderWidth: 1 }
+                      : {},
+                  ]}
                   onPress={() => setShowPlan1Modal(true)}
                 >
                   <Text
@@ -166,7 +297,11 @@ export default function PaymentMode() {
                       !financierPlan1 && styles.placeholderText,
                     ]}
                   >
-                    {financierPlan1 || "Financier Plan 1"}
+                    {financierPlan1
+                      ? masterData?.financierPlans?.find(
+                          (p: any) => p._id === financierPlan1
+                        )?.name || financierPlan1
+                      : "Financier Plan 1"}
                   </Text>
                   <Ionicons
                     name="chevron-down"
@@ -181,13 +316,21 @@ export default function PaymentMode() {
                 {/* <Text style={styles.fieldLabel}>Financier Plan 2</Text> */}
                 <View style={allStyles.formContainer}>
                   <TextInput
-                    style={globalStyles.input}
+                    style={[
+                      globalStyles.input,
+                      errors.financierPlan2
+                        ? { borderColor: "red", borderWidth: 1 }
+                        : {},
+                    ]}
                     placeholder="Financier Plan 2"
                     placeholderTextColor="#9CA3AF"
                     value={financierPlan2}
                     onChangeText={(text) => {
                       const numericValue = text.replace(/[^0-9]/g, "");
                       setFinancierPlan2(numericValue);
+                      if (errors.financierPlan2) {
+                        setErrors((prev) => ({ ...prev, financierPlan2: "" }));
+                      }
                     }}
                     keyboardType="numeric"
                     autoCorrect={false}
@@ -220,27 +363,31 @@ export default function PaymentMode() {
                 style={styles.modalScrollView}
                 showsVerticalScrollIndicator={false}
               >
-                {financierOptions.map((option, index) => (
+                {financierData?.map((option, index) => (
                   <TouchableOpacity
                     key={index}
                     style={[
                       styles.modalOption,
-                      financierName === option && styles.selectedOption,
+                      financierName === option._id && styles.selectedOption,
                     ]}
                     onPress={() => {
-                      setFinancierName(option);
+                      setFinancierName(option._id);
                       setShowFinancierModal(false);
+                      if (errors.financierName) {
+                        setErrors((prev) => ({ ...prev, financierName: "" }));
+                      }
                     }}
                   >
                     <Text
                       style={[
                         styles.modalOptionText,
-                        financierName === option && styles.selectedOptionText,
+                        financierName === option._id &&
+                          styles.selectedOptionText,
                       ]}
                     >
-                      {option}
+                      {option.name}
                     </Text>
-                    {financierName === option && (
+                    {financierName === option._id && (
                       <Ionicons
                         name="checkmark"
                         size={20}
@@ -276,27 +423,31 @@ export default function PaymentMode() {
                 style={styles.modalScrollView}
                 showsVerticalScrollIndicator={false}
               >
-                {plan1Options.map((option, index) => (
+                {masterData?.financierPlans?.map((option: any, index: any) => (
                   <TouchableOpacity
                     key={index}
                     style={[
                       styles.modalOption,
-                      financierPlan1 === option && styles.selectedOption,
+                      financierPlan1 === option._id && styles.selectedOption,
                     ]}
                     onPress={() => {
-                      setFinancierPlan1(option);
+                      setFinancierPlan1(option._id);
                       setShowPlan1Modal(false);
+                      if (errors.financierPlan1) {
+                        setErrors((prev) => ({ ...prev, financierPlan1: "" }));
+                      }
                     }}
                   >
                     <Text
                       style={[
                         styles.modalOptionText,
-                        financierPlan1 === option && styles.selectedOptionText,
+                        financierPlan1 === option._id &&
+                          styles.selectedOptionText,
                       ]}
                     >
-                      {option}
+                      {option.name}
                     </Text>
-                    {financierPlan1 === option && (
+                    {financierPlan1 === option._id && (
                       <Ionicons
                         name="checkmark"
                         size={20}
@@ -321,6 +472,7 @@ export default function PaymentMode() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+      <Toast />
     </SafeAreaView>
   );
 }

@@ -1,19 +1,29 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { FONTS } from "@/src/constants";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useFinancierData, useMasterData } from "@/src/contexts";
+import { useModels } from "@/src/contexts/ModelsContext";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  createDelivery,
+  getAllFinancierData,
+  getAllMasterData,
+} from "@/src/api/addDelivery";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/previewStyles";
+import Toast from "react-native-toast-message";
 interface DetailField {
   label: string;
   value: string;
@@ -25,35 +35,180 @@ interface DocumentItem {
 }
 
 export default function PreviewScreen() {
-  // Sample data - replace with actual data from props or context
+  const { currentDelivery,resetCurrentDelivery } = useDeliveryContext();
+  const { data: masterData, setData: setMasterData } = useMasterData();
+  const { data: financierData, setData: setFinancierData } = useFinancierData();
+  const { models: modelsData, setModels } = useModels();
+
+  const [resolvedNames, setResolvedNames] = useState({
+    modelName: "",
+    financierName: "",
+    financierPlan1Name: "",
+  });
+
+  // Print final delivery context on mount
+  useEffect(() => {
+    console.log("=== FINAL DELIVERY CONTEXT ===");
+    console.log(JSON.stringify(currentDelivery, null, 2));
+    console.log("================================");
+  }, []);
+
+  // Load API data and resolve names
+  useEffect(() => {
+    const loadAndResolveData = async () => {
+      try {
+        // Load master data and financier data if not already loaded
+        if (!masterData || Object.keys(masterData).length === 0) {
+          const masterResponse = await getAllMasterData();
+          setMasterData(masterResponse as any);
+        }
+
+        if (!financierData || financierData.length === 0) {
+          const financierResponse = await getAllFinancierData();
+          setFinancierData(financierResponse as any);
+        }
+      } catch (error) {
+        console.error("Error loading API data:", error);
+      }
+    };
+
+    loadAndResolveData();
+  }, []);
+
+  // Resolve IDs to names when data is available
+  useEffect(() => {
+    if (currentDelivery && (masterData || financierData || modelsData)) {
+      const resolved = {
+        modelName:
+          modelsData?.find((model) => model._id === currentDelivery.modelRef)
+            ?.name ||
+          currentDelivery.modelRef ||
+          "N/A",
+        financierName:
+          financierData?.find((f) => f._id === currentDelivery.financerRef)
+            ?.name ||
+          currentDelivery.financerRef ||
+          "N/A",
+        financierPlan1Name:
+          masterData?.financierPlans?.find(
+            (p: any) => p._id === currentDelivery.financierPlan1
+          )?.name ||
+          currentDelivery.financierPlan1 ||
+          "N/A",
+      };
+
+      setResolvedNames(resolved);
+      console.log("Resolved names:", resolved);
+    }
+  }, [currentDelivery, masterData, financierData, modelsData]);
+
+  // Details data from delivery context with resolved names
   const detailsData: DetailField[] = [
-    { label: "Customer Name:", value: "John Doe" },
-    { label: "Frame Number:", value: "ABC123456789" },
-    { label: "Mobile Number:", value: "+91 9876543210" },
-    { label: "Model:", value: "Hero Splender" },
+    { label: "Customer Name:", value: currentDelivery?.customerName || "N/A" },
+    {
+      label: currentDelivery?.isRenewal
+        ? "Registration Number:"
+        : "Frame Number:",
+      value: currentDelivery?.isRenewal
+        ? currentDelivery?.registrationNumber || "N/A"
+        : currentDelivery?.chassisNo || "N/A",
+    },
+    { label: "Mobile Number:", value: currentDelivery?.mobileNumber || "N/A" },
+    { label: "Model:", value: resolvedNames.modelName || "N/A" },
+    {
+      label: "RTO Location:",
+      value:
+        currentDelivery?.rtoLocation
+          ?.replace(/([A-Z])/g, " $1")
+          .trim()
+          .replace(/^./, (str) => str.toUpperCase()) || "N/A",
+    },
   ];
 
   const moreDetailsData: DetailField[] = [
-    { label: "Ex-Showroom", value: "₹50,000" },
-    { label: "Insurance", value: "₹5,000" },
-    { label: "RTO", value: "₹8,000" },
-    { label: "Accessories", value: "₹2,000" },
-    { label: "Helmet", value: "₹1,500" },
-    { label: "RSA", value: "₹1,000" },
-    { label: "Other 1", value: "₹500" },
-    { label: "Other 2", value: "₹300" },
-    { label: "Other 3", value: "₹200" },
-    { label: "Total Amount", value: "₹68,500" },
+    {
+      label: "Ex-Showroom",
+      value: `₹${
+        currentDelivery?.exShowAmount?.toLocaleString("en-IN") || "0"
+      }`,
+    },
+    {
+      label: "Insurance",
+      value: `₹${
+        currentDelivery?.insuranceAmount?.toLocaleString("en-IN") || "0"
+      }`,
+    },
+    {
+      label: "RTO",
+      value: `₹${currentDelivery?.rtoAmount?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "Accessories",
+      value: `₹${
+        currentDelivery?.accessoriesAmount?.toLocaleString("en-IN") || "0"
+      }`,
+    },
+    {
+      label: "RSA",
+      value: `₹${currentDelivery?.rsaAmount?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "Helmet",
+      value: `₹${currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "Other 1",
+      value: `₹${currentDelivery?.others1?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "Other 2",
+      value: `₹${currentDelivery?.others2?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "Other 3",
+      value: `₹${currentDelivery?.others3?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "Discount",
+      value: `₹${currentDelivery?.discount?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "Total Amount",
+      value: `₹${currentDelivery?.totalAmount?.toLocaleString("en-IN") || "0"}`,
+    },
   ];
 
-  const documentsData: DocumentItem[] = [
-    { title: "Aadhar Card Front", image: null },
-    { title: "Aadhar Card Back", image: null },
-    { title: "Driving License Front", image: null },
-    { title: "Customer Photo", image: null },
-    { title: "Aadhar Voter", image: null },
-    { title: "Aadhar Back", image: null },
-  ];
+  // Documents data from delivery context
+  const documentsData: DocumentItem[] =
+    currentDelivery?.downloadDocuments?.map((doc) => ({
+      title: doc.documentName
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (l) => l.toUpperCase()),
+      image: null, // Image URL would be doc.fileUrl in real implementation
+    })) || [];
+  const handleSubmit = async () => {
+    try {
+      await createDelivery(currentDelivery);
+      resetCurrentDelivery(); // Reset context after successful submission
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Delivery created successfully!",
+      });
+      router.push("/(tabs)/deliveries");
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Submission Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while submitting the delivery.",
+      });
+      console.error("Error creating delivery:", error);
+      return;
+    }
+  };
   const handleBack = () => {
     // Navigate back to the previous screen
     console.log("Back button pressed");
@@ -81,7 +236,14 @@ export default function PreviewScreen() {
           key={index}
           style={showAsInputs ? styles.detailRowSpaced : styles.detailRow}
         >
-          <Text style={[styles.detailLabel, showAsInputs ?{fontFamily: FONTS.YellixThin}  :null ]}>{item.label}</Text>
+          <Text
+            style={[
+              styles.detailLabel,
+              showAsInputs ? { fontFamily: FONTS.YellixThin } : null,
+            ]}
+          >
+            {item.label}
+          </Text>
           {showAsInputs ? (
             <View style={styles.amountInputBox}>
               <Text style={styles.amountPlaceholder}>{item.value}</Text>
@@ -123,6 +285,36 @@ export default function PreviewScreen() {
 
           {/* More Details Section */}
           {renderDetailSection("More Details", moreDetailsData, true)}
+
+          {/* Payment Mode Section - Only show if finance */}
+          
+          {currentDelivery?.purchaseType === "finance" &&
+            renderDetailSection("Payment Details", [
+              { label: "Payment Mode:", value: "Finance" },
+              {
+                label: "Financier:",
+                value: resolvedNames.financierName || "N/A",
+              },
+              {
+                label: "Finance Amount:",
+                value: `₹${
+                  currentDelivery?.financeAmount?.toLocaleString("en-IN") || "0"
+                }`,
+              },
+              {
+                label: "Financier Plan 1:",
+                value: resolvedNames.financierPlan1Name || "N/A",
+              },
+              {
+                label: "Financier Plan 2:",
+                value: currentDelivery?.financierPlan2?.toString() || "N/A",
+              },
+            ])}
+
+          {currentDelivery?.purchaseType === "cash" &&
+            renderDetailSection("Payment Details", [
+              { label: "Payment Mode:", value: "Cash" },
+            ])}
 
           {/* Documents Section */}
           <View style={styles.section}>
@@ -177,7 +369,7 @@ export default function PreviewScreen() {
             // { paddingHorizontal: responsiveWidth(4) },
           ]}
         >
-          <TouchableOpacity style={allStyles.btn}>
+          <TouchableOpacity style={allStyles.btn} onPress={handleSubmit}>
             <Text style={allStyles.btnText}>Submit</Text>
           </TouchableOpacity>
 
@@ -186,6 +378,7 @@ export default function PreviewScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+      <Toast />
     </SafeAreaView>
   );
 }

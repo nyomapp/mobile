@@ -90,4 +90,38 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.YellixThin,
     color: '#333'
   },
+    radioRow: {
+    flexDirection: "row",
+    gap: responsiveWidth(5),
+    paddingHorizontal: responsiveWidth(2),
+  },
+  radioContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: responsiveWidth(3),
+  },
+
+  radioButton: {
+    width: responsiveWidth(5),
+    height: responsiveWidth(5),
+    borderRadius: responsiveWidth(2.5),
+    borderWidth: 2,
+    borderColor: COLORS.primaryBlue,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: responsiveWidth(3),
+  },
+
+  radioSelected: {
+    width: responsiveWidth(2.5),
+    height: responsiveWidth(2.5),
+    borderRadius: responsiveWidth(1.25),
+    backgroundColor: COLORS.primaryBlue,
+  },
+
+  radioText: {
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: FONTS.YellixThin,
+    color: COLORS.black,
+  },
 });

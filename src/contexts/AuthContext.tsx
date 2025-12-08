@@ -1,17 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { AuthAPI, TokenStorage, initializeAPI } from "../api";
-import { RequestOTPRequest, User, VerifyOTPRequest } from "../api/types";
+import { LoginRequest, User} from "../api/types";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   isLoading: boolean;
-  requestOTP: (
-    data: RequestOTPRequest
+  login: (
+    data: LoginRequest
   ) => Promise<{ success: boolean; message?: string; error?: string }>;
-  verifyOTP: (
-    data: VerifyOTPRequest
-  ) => Promise<{ success: boolean; message?: string; error?: string; }>;
   updateUser: (userData: User) => Promise<void>;
   logout: () => void;
 }
@@ -60,34 +57,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const requestOTP = async (data: RequestOTPRequest) => {
-    try {
-      const response = await AuthAPI.requestOTP(data);
-      return {
-        success: response.success,
-        message: response.message,
-        error: response.error,
-      };
-    } catch (error) {
-      console.error("Request OTP Error:", error);
-      return {
-        success: false,
-        error: "An unexpected error occurred",
-      };
-    }
-  };
 
-  const verifyOTP = async (data: VerifyOTPRequest) => {
+  const login = async (data: LoginRequest) => {
     try {
-      const response = await AuthAPI.verifyOTP(data);
-      console.log("VerifyOTP response:", response);
+      const response = await AuthAPI.LoginIn(data);
+      console.log("Login response:", response);
 
-      if (response.success && response.data?.data) {
-        const responseData = response.data.data;
+      if (response.success && response.data) {
+        const responseData = response.data;
         console.log("Response data:", responseData);
 
         // Handle token
-        const token = responseData.token;
+        const token = responseData.tokens.access.token;
         if (token) {
           console.log("Setting token:", token);
           await TokenStorage.setToken(token);
@@ -106,11 +87,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       return {
         success: response.success,
-        message: response.data?.message || response.message,
+        message: (response.data as any)?.message || response.message,
         error: response.error,
       };
     } catch (error) {
-      console.error("Verify OTP Error:", error);
+      console.error("Login Error:", error);
       return {
         success: false,
         error: "An unexpected error occurred",
@@ -142,8 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated,
     user,
     isLoading,
-    requestOTP,
-    verifyOTP,
+    login,
     updateUser,
     logout,
   };

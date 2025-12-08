@@ -1,6 +1,7 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import {
   Image,
   KeyboardAvoidingView,
@@ -16,6 +17,8 @@ import { styles } from "../../styles/deliveries/documentsStyles";
 import { allStyles } from "../../styles/global";
 
 export default function DocumentsScreen() {
+  const { currentDelivery, setCurrentDelivery } = useDeliveryContext();
+
   const handleBack = () => {
     router.back();
   };
@@ -23,6 +26,25 @@ export default function DocumentsScreen() {
   const handleNext = () => {
     // Navigate to next step
     console.log("Next button pressed");
+
+    // Transform documentTypes array to match DownloadDocument interface
+    const downloadDocuments = documentTypes.map(doc => ({
+      documentName: doc.documentName,
+      fileUrl: doc.fileUrl,
+      fileSize: doc.fileSize,
+      fileType: doc.fileType as 'PDF' | 'JPG'
+    }));
+
+    // Store documents in DeliveryContext - ensure we don't lose existing data
+    if (currentDelivery) {
+      setCurrentDelivery({
+        ...currentDelivery,
+        downloadDocuments: downloadDocuments
+      });
+    }
+
+    console.log("Documents stored in context:", downloadDocuments);
+    console.log("Full delivery context after documents:", currentDelivery);
     router.push("/amount");
   };
 
@@ -37,36 +59,61 @@ export default function DocumentsScreen() {
       id: 1,
       title: "Vehicle Front Image",
       icon: require("@/assets/icons/DocumentPageBikeFrontSideIcon.png"),
-      uploaded: true,
+      uploaded: false,
+      documentName: 'FRONT' as const,
+      fileUrl: 'https://example.com/document1.pdf',
+      fileSize: 390,
+      fileType: 'PDF',
     },
     {
       id: 2,
       title: "Vehicle Side Image",
       icon: require("@/assets/icons/DocumentPageBikeSideWiseIcon.png"),
       uploaded: false,
+      documentName: 'LEFT' as const,
+      fileUrl: 'https://example.com/document1.pdf',
+      fileSize: 390,
+      fileType: 'PDF',
     },
     {
       id: 3,
       title: "Vehicle Frame Image",
       icon: require("@/assets/icons/DocumentPageFrameIcon.png"),
       uploaded: false,
+      documentName: 'CHASSIS' as const,
+      fileUrl: 'https://example.com/document1.pdf',
+      fileSize: 390,
+      fileType: 'PDF',
+      
     },
     {
       id: 4,
       title: "Customer Photo",
       icon: require("@/assets/icons/DocumentPageCustomerPhotoIcon.png"),
       uploaded: false,
+      documentName: 'Customer' as const,
+      fileUrl: 'https://example.com/document1.pdf',
+      fileSize: 390,
+      fileType: 'PDF',
     },
     {
       id: 5,
       title: "Aadhaar Front",
       icon: require("@/assets/icons/DocumnetPageAdhaarFrontIcon.png"),
       uploaded: false,
+      documentName: 'AADHAAR FRONT' as const,
+      fileUrl: 'https://example.com/document1.pdf',
+      fileSize: 390,
+      fileType: 'PDF',
     },
     {
       id: 6,
       title: "Aadhaar Back",
       icon: require("@/assets/icons/DocumnetPageAdhaarBackIcon.png"),
+      documentName: 'AADHAAR BACK' as const,
+      fileUrl: 'https://example.com/document1.pdf',
+      fileSize: 390,
+      fileType: 'PDF',
     },
   ];
 
@@ -129,7 +176,7 @@ export default function DocumentsScreen() {
                       ? require("@/assets/icons/DocumentsPageTickIcon.png")
                       : require("@/assets/icons/DocumentPageUplaodIcon.png")
                   }
-                  style={{ width: 24, height: 24 }}
+                  style={{ width: 20, height: 20 }}
                   resizeMode="contain"
                 />
               </TouchableOpacity>

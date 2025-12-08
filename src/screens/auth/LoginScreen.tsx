@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -19,12 +19,40 @@ import { authStyles, globalStyles } from "../../styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/loginStyles";
+import { TokenStorage } from "@/src/api/tokenStorage";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { requestOTP } = useAuth();
+  const { login } = useAuth();
+
+    useEffect(() => {
+    const checkUserAndRedirect = async () => {
+      try {
+        const user = await TokenStorage.getUser();
+ 
+        if (user && user.id) {
+          // User is logged in, redirect to home
+          router.replace('/(tabs)/home');
+        } else {
+          // No user found, show onboarding
+          setTimeout(() => {
+            router.replace('/login');
+          }, 3000);
+        }
+      } catch (error) {
+        // Error getting user, show onboarding
+        setTimeout(() => {
+          router.replace('/login');
+        }, 3000);
+      }
+    };
+ 
+    checkUserAndRedirect();
+  }, [router]);
+
+
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -40,65 +68,66 @@ export default function LoginScreen() {
   const handleEmailChange = (text: string) => {
     setEmail(text);
     if (text.trim()) {
-      setPhoneNumber(""); // Clear phone when email is entered
+      setPassword(""); // Clear password when email is entered
     }
   };
 
-  const handlePhoneChange = (text: string) => {
+  const handlePasswordChange = (text: string) => {
     // Only allow digits and max 15 characters
 
-    setPhoneNumber(text.trim());
+    setPassword(text.trim());
     // if (text.trim()) {
     //   setEmail(""); // Clear email when phone is entered
     // }
   };
 
   const handleLogin = async () => {
-    router.push("/(tabs)/home");
-    // if (!email.trim()) {
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Error",
-    //     text2: "Please enter your email address",
-    //   });
-    //   return;
-    // }
+ 
+ 
+    if (!email) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Email is required.",
+      });
+      return;
+    }
 
-    // if (!validateEmail(email)) {
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Error",
-    //     text2: "Please enter a valid email address",
-    //   });
-    //   return;
-    // }
-
-    // setIsLoading(true);
-
-    // try {
-    //   const response = await requestOTP({ email: email.trim() });
-
-    //   if (response.success) {
-    //     router.push({
-    //       pathname: "/otp",
-    //       params: { email: email.trim() },
-    //     });
-    //   } else {
-    //     Toast.show({
-    //       type: "error",
-    //       text1: "Error",
-    //       text2: "Failed to send OTP",
-    //     });
-    //   }
-    // } catch (error) {
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Error",
-    //     text2: "An unexpected error occurred",
-    //   });
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    if (!password) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Password is required.",
+      });
+      return;
+    }
+ 
+    setIsLoading(true);
+ 
+    try {
+      const response = await login({
+        email: email,
+        password: password,
+      });
+ 
+      if (response.success) {
+        router.push("/(tabs)/home");
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Invalid password. Please try again.",
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "An unexpected error occurred",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -148,8 +177,8 @@ export default function LoginScreen() {
                   secureTextEntry={true}
                   placeholder="Password"
                   placeholderTextColor="#999"
-                  value={phoneNumber}
-                  onChangeText={handlePhoneChange}
+                  value={password}
+                  onChangeText={handlePasswordChange}
                 />
                 <View  style={styles.forgetPasswordContainer}>
                   <Text style={styles.forgetPasswordText}>Forgot Password?</Text>

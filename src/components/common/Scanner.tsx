@@ -116,13 +116,14 @@ export default function DocumentScanner({
     if (capturedImage) {
       // Process the upload
       console.log("Uploading image:", capturedImage);
-      router.back();
+      
     } else {
       Alert.alert(
         "No Image",
         "Please take a photo or select from gallery first."
       );
     }
+    router.back();
   };
 
   const handleBack = () => {

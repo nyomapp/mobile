@@ -1,9 +1,10 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
 import { globalStyles } from "@/src/styles";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -12,98 +13,253 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import { responsiveWidth } from "react-native-responsive-dimensions";
+import {
+  responsiveFontSize,
+  responsiveWidth,
+} from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/addDeliveryStyles";
+import { styles as paymentStyles } from "../../styles/deliveries/paymentModeStyles";
 import { allStyles } from "../../styles/global";
+import Toast from "react-native-toast-message";
+import { getModalsData } from "@/src/api/addDelivery";
+import { useAuth } from "@/src/contexts";
+import { useModels } from "@/src/contexts/ModelsContext";
 
 type DeliveryType = "New" | "Renew";
+type RTOLocationType = "sameCity" | "sameState" | "otherState";
 
 export default function AddDelivery() {
+  const {
+    currentDelivery,
+    setCurrentDelivery,
+    updateDeliveryField,
+    resetCurrentDelivery,
+  } = useDeliveryContext();
+  const { user, updateUser } = useAuth();
+  const {
+    models: modelsData,
+    setModels,
+    resetModels,
+    isLoading,
+    setLoading,
+  } = useModels();
+
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("New");
   const [customerName, setCustomerName] = useState("");
   const [frameNumber, setFrameNumber] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [registrationNumber, setRegistrationNumber] = useState("");
+  const [selectedRTOLocation, setSelectedRTOLocation] =
+    useState<RTOLocationType>("sameCity");
   const [showModelModal, setShowModelModal] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Initialize context on component mount
+  useEffect(() => {
+    console.log("AddDelivery mounted - currentDelivery:", currentDelivery);
+    if (!currentDelivery) {
+      console.log("No currentDelivery found, resetting to initial state");
+      resetCurrentDelivery();
+    }
+  }, []);
+
+  // Initialize form fields from context data (similar to PaymentMode)
+  useEffect(() => {
+    if (currentDelivery) {
+      console.log(
+        "Initializing AddDelivery form from context:",
+        currentDelivery
+      );
+
+      // Set delivery type based on context
+      setDeliveryType(currentDelivery.isRenewal ? "Renew" : "New");
+
+      // Set common fields
+      setCustomerName(currentDelivery.customerName || "");
+      setMobileNumber(currentDelivery.mobileNumber || "");
+
+      // Set fields specific to delivery type
+      if (currentDelivery.isRenewal) {
+        setRegistrationNumber(currentDelivery.registrationNumber || "");
+      } else {
+        setFrameNumber(currentDelivery.chassisNo || "");
+        setSelectedModel(currentDelivery.modelRef || "");
+      }
+
+      // Set RTO location
+      setSelectedRTOLocation(currentDelivery.rtoLocation || "sameCity");
+    }
+  }, [currentDelivery]);
+
+  // Track currentDelivery changes
+  useEffect(() => {
+    console.log("AddDelivery - currentDelivery updated:", currentDelivery);
+  }, [currentDelivery]);
+
+  // Only call getAllModels when user is available
+  useEffect(() => {
+    if (user) {
+      // console.log('User is available, fetching models...');
+      getAllModels();
+    } else {
+      console.log("User is null, skipping model fetch");
+    }
+  }, [user]);
+  useEffect(() => {
+    console.log("Models data updated:", modelsData);
+  }, [modelsData]);
+  const getAllModels = async () => {
+    // console.log('COMPONENT: getAllModels function called', { user });
+
+    let oemRef = "";
+
+    try {
+      if (user?.userType === "main_dealer") {
+        oemRef = (user as any)?.oemRef?._id;
+      } else {
+        oemRef = (user as any)?.mainDealerRef?.oemRef?._id;
+      }
+
+      console.log("COMPONENT: OEM Ref:", oemRef);
+
+      if (!oemRef) {
+        console.log("COMPONENT: No OEM reference found in user data");
+        Toast.show({
+          type: "error",
+          text1: "Configuration Error",
+          text2: "OEM reference not found in user profile",
+          visibilityTime: 3000,
+        });
+        return;
+      }
+
+      const response = await getModalsData(oemRef);
+      setModels(response as any[]);
+
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Models loaded successfully",
+        visibilityTime: 2000,
+      });
+    } catch (error) {
+      console.error("COMPONENT: Error in getAllModels:", error);
+
+      Toast.show({
+        type: "error",
+        text1: "API Error",
+        text2: `Failed to load models: ${(error as Error).message}`,
+        visibilityTime: 3000,
+      });
+    }
+  };
 
   // Debug log to track state
-  console.log("AddDelivery render - Current deliveryType:", deliveryType);
-
-  const models = [
-    "Model A",
-    "Model B", 
-    "Model C",
-    "Model D",
-    "Model E",
-    "Model F", 
-    "Model G",
-    "Model H"
-  ];
+  // console.log("AddDelivery render - Current deliveryType:", deliveryType);
 
   // Validation functions
   const validateFrameNumber = (text: string) => {
     // Allow only alphanumeric characters and limit to 17 characters
-    const alphanumericOnly = text.replace(/[^a-zA-Z0-9]/g, '');
+    const alphanumericOnly = text.replace(/[^a-zA-Z0-9]/g, "");
     return alphanumericOnly.slice(0, 17).toUpperCase();
   };
 
   const validateMobileNumber = (text: string) => {
     // Allow only numeric characters and limit to 10 digits
-    const numericOnly = text.replace(/[^0-9]/g, '');
+    const numericOnly = text.replace(/[^0-9]/g, "");
     return numericOnly.slice(0, 10);
   };
 
   const handleFrameNumberChange = (text: string) => {
     const validatedText = validateFrameNumber(text);
     setFrameNumber(validatedText);
+    if (errors.frameNumber) {
+      setErrors((prev) => ({ ...prev, frameNumber: "" }));
+    }
   };
 
   const handleMobileNumberChange = (text: string) => {
     const validatedText = validateMobileNumber(text);
     setMobileNumber(validatedText);
+    if (errors.mobileNumber) {
+      setErrors((prev) => ({ ...prev, mobileNumber: "" }));
+    }
   };
 
   const handleNext = () => {
-    // Validation before proceeding
-    // if (!customerName.trim()) {
-    //   alert("Please enter customer name");
-    //   return;
-    // }
-    
-    // if (deliveryType === "New") {
-    //   if (frameNumber.length !== 17) {
-    //     alert("Frame number must be exactly 17 characters");
-    //     return;
-    //   }
-    //   if (!selectedModel) {
-    //     alert("Please select a model");
-    //     return;
-    //   }
-    // }
-    
-    // if (deliveryType === "Renew" && !registrationNumber.trim()) {
-    //   alert("Please enter registration number");
-    //   return;
-    // }
-    
-    // if (mobileNumber.length !== 10) {
-    //   alert("Mobile number must be exactly 10 digits");
-    //   return;
-    // }
-    
-    // // Validate form and proceed to next step
-    // console.log({
-    //   deliveryType,
-    //   customerName,
-    //   frameNumber,
-    //   mobileNumber,
-    //   selectedModel,
-    //   registrationNumber
-    // });
+    const newErrors: { [key: string]: string } = {};
+
+    // Common validations for both New and Renew
+    if (!customerName.trim()) {
+      newErrors.customerName = "Customer name is required";
+    }
+
+    if (!mobileNumber.trim()) {
+      newErrors.mobileNumber = "Mobile number is required";
+    } else if (mobileNumber.length !== 10) {
+      newErrors.mobileNumber = "Mobile number must be exactly 10 digits";
+    }
+
+    // Validations specific to New delivery
+    if (deliveryType === "New") {
+      if (!frameNumber.trim()) {
+        newErrors.frameNumber = "Frame number is required";
+      } else if (frameNumber.length !== 6) {
+        newErrors.frameNumber = "Frame number must be exactly 6 characters";
+      }
+
+      if (!selectedModel.trim()) {
+        newErrors.selectedModel = "Please select a model";
+      }
+    }
+
+    // Validations specific to Renew delivery
+    if (deliveryType === "Renew") {
+      if (!registrationNumber.trim()) {
+        newErrors.registrationNumber = "Registration number is required";
+      }
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      // Show first error message using Toast
+      const firstError = Object.values(newErrors)[0];
+      if (firstError) {
+        Toast.show({
+          type: "error",
+          text1: "Validation Error",
+          text2: firstError,
+          visibilityTime: 3000,
+        });
+      }
+      return;
+    }
+
+    // Store form data in context
+    const deliveryData = {
+      ...currentDelivery,
+      isRenewal: deliveryType === "Renew",
+      customerName: customerName.trim(),
+      mobileNumber: mobileNumber.trim(),
+      ...(deliveryType === "New" && {
+        chassisNo: frameNumber.trim(),
+        modelRef: selectedModel, // In real app, this would be model ID
+      }),
+      ...(deliveryType === "Renew" && {
+        registrationNumber: registrationNumber.trim(),
+      }),
+      rtoLocation: selectedRTOLocation,
+      userRef: user ? user.id : "",
+    };
+
+    setCurrentDelivery(deliveryData);
+
+    console.log("Form validated and stored in context:", deliveryData);
     router.push("/document-screen");
   };
 
@@ -112,7 +268,7 @@ export default function AddDelivery() {
   };
 
   const handleDeliveryTypeChange = (type: DeliveryType) => {
-    console.log(`Changing delivery type to: ${type}`);
+    // console.log(`Changing delivery type to: ${type}`);
     setDeliveryType(type);
     // Clear form fields when switching types for better UX
     setCustomerName("");
@@ -120,8 +276,14 @@ export default function AddDelivery() {
     setMobileNumber("");
     setSelectedModel("");
     setRegistrationNumber("");
+    setSelectedRTOLocation("sameCity"); // Reset to default
     setShowModelModal(false);
-    console.log(`Delivery type changed to: ${type}`);
+    setErrors({}); // Clear all errors when switching types
+
+    // Reset context state when switching delivery types
+    resetCurrentDelivery();
+
+    // console.log(`Delivery type changed to: ${type} and context state reset`);
   };
 
   return (
@@ -131,75 +293,89 @@ export default function AddDelivery() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={{paddingTop: responsiveWidth(6)}}>
+        <View style={{ paddingTop: responsiveWidth(6) }}>
           <HeaderIcon />
         </View>
         <View style={allStyles.pageHeader}>
           <View>
             <Text style={allStyles.pageTitle}>
-              <Text style={{fontWeight: 'bold'}}>Add</Text>{"\n"}<Text style={allStyles.headerSecondaryText}>Delivery</Text>
+              <Text style={{ fontWeight: "bold" }}>Add</Text>
+              {"\n"}
+              <Text style={allStyles.headerSecondaryText}>Delivery</Text>
             </Text>
           </View>
-          <View style={{flexDirection: "column", justifyContent: "center", alignItems: "flex-end"}}>
-          {/* Toggle Buttons */}
-          <View style={allStyles.toggleContainer}>
-            <TouchableOpacity
-              style={[
-                allStyles.toggleButton,
-                deliveryType === "New" && allStyles.toggleButtonActive,
-                deliveryType === "New" && {
-                  backgroundColor: COLORS.primaryBlue,
-                  borderColor: COLORS.primaryBlue,
-                }
-              ]}
-              onPress={() => {
-                console.log("NEW button pressed, current state:", deliveryType);
-                handleDeliveryTypeChange("New");
-              }}
-              activeOpacity={0.6}
-            >
-              <Text
+          <View
+            style={{
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-end",
+            }}
+          >
+            {/* Toggle Buttons */}
+            <View style={allStyles.toggleContainer}>
+              <TouchableOpacity
                 style={[
-                  allStyles.toggleButtonText,
-                  deliveryType === "New" && allStyles.toggleButtonTextActive,
-                  deliveryType === "New" && { color: COLORS.white }
+                  allStyles.toggleButton,
+                  deliveryType === "New" && allStyles.toggleButtonActive,
+                  deliveryType === "New" && {
+                    backgroundColor: COLORS.primaryBlue,
+                    borderColor: COLORS.primaryBlue,
+                  },
                 ]}
+                onPress={() => {
+                  // console.log("NEW button pressed, current state:", deliveryType);
+                  handleDeliveryTypeChange("New");
+                }}
+                activeOpacity={0.6}
               >
-                New
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                allStyles.toggleButton,
-                deliveryType === "Renew" && allStyles.toggleButtonActive,
-                deliveryType === "Renew" && {
-                  backgroundColor: COLORS.primaryBlue,
-                  borderColor: COLORS.primaryBlue,
-                }
-              ]}
-              onPress={() => {
-                console.log("RENEW button pressed, current state:", deliveryType);
-                handleDeliveryTypeChange("Renew");
-              }}
-              activeOpacity={0.6}
-            >
-              <Text
+                <Text
+                  style={[
+                    allStyles.toggleButtonText,
+                    deliveryType === "New" && allStyles.toggleButtonTextActive,
+                    deliveryType === "New" && { color: COLORS.white },
+                  ]}
+                >
+                  New
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={[
-                  allStyles.toggleButtonText,
-                  deliveryType === "Renew" && allStyles.toggleButtonTextActive,
-                  deliveryType === "Renew" && { color: COLORS.white }
+                  allStyles.toggleButton,
+                  deliveryType === "Renew" && allStyles.toggleButtonActive,
+                  deliveryType === "Renew" && {
+                    backgroundColor: COLORS.primaryBlue,
+                    borderColor: COLORS.primaryBlue,
+                  },
                 ]}
+                onPress={() => {
+                  // console.log("RENEW button pressed, current state:", deliveryType);
+                  handleDeliveryTypeChange("Renew");
+                }}
+                activeOpacity={0.6}
               >
-                Renew
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={[
+                    allStyles.toggleButtonText,
+                    deliveryType === "Renew" &&
+                      allStyles.toggleButtonTextActive,
+                    deliveryType === "Renew" && { color: COLORS.white },
+                  ]}
+                >
+                  Renew
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-           </View>
-          </View>
-        
+        </View>
 
-         <ScrollView
-          style={[allStyles.scrollContent,{ paddingTop: responsiveWidth(4),paddingHorizontal:responsiveWidth(1)}]}
+        <ScrollView
+          style={[
+            allStyles.scrollContent,
+            {
+              paddingTop: responsiveWidth(4),
+              paddingHorizontal: responsiveWidth(1),
+            },
+          ]}
           showsVerticalScrollIndicator={false}
         >
           {/* Details Section */}
@@ -207,29 +383,45 @@ export default function AddDelivery() {
 
           {/* Form Fields */}
           <TextInput
-            style={globalStyles.input}
-            placeholder="Customer Name"
+            style={[
+              globalStyles.input,
+              errors.customerName ? { borderColor: "red", borderWidth: 1 } : {},
+            ]}
+            placeholder="Customer Name *"
             placeholderTextColor="#6C757D"
             value={customerName}
-            onChangeText={setCustomerName}
+            onChangeText={(text) => {
+              setCustomerName(text);
+              if (errors.customerName) {
+                setErrors((prev) => ({ ...prev, customerName: "" }));
+              }
+            }}
             autoCapitalize="words"
           />
 
           {deliveryType === "New" && (
             <TextInput
-              style={globalStyles.input}
-              placeholder="Frame Number (17 characters)"
+              style={[
+                globalStyles.input,
+                errors.frameNumber
+                  ? { borderColor: "red", borderWidth: 1 }
+                  : {},
+              ]}
+              placeholder="Frame Number (Last 6 characters) *"
               placeholderTextColor="#6C757D"
               value={frameNumber}
               onChangeText={handleFrameNumberChange}
               autoCapitalize="characters"
-              maxLength={17}
+              maxLength={6}
             />
           )}
 
           <TextInput
-            style={globalStyles.input}
-            placeholder="Mobile Number (10 digits)"
+            style={[
+              globalStyles.input,
+              errors.mobileNumber ? { borderColor: "red", borderWidth: 1 } : {},
+            ]}
+            placeholder="Mobile Number (10 digits) *"
             placeholderTextColor="#6C757D"
             value={mobileNumber}
             onChangeText={handleMobileNumberChange}
@@ -239,11 +431,21 @@ export default function AddDelivery() {
 
           {deliveryType === "Renew" && (
             <TextInput
-              style={globalStyles.input}
-              placeholder="Registration Number"
+              style={[
+                globalStyles.input,
+                errors.registrationNumber
+                  ? { borderColor: "red", borderWidth: 1 }
+                  : {},
+              ]}
+              placeholder="Registration Number *"
               placeholderTextColor="#6C757D"
               value={registrationNumber}
-              onChangeText={setRegistrationNumber}
+              onChangeText={(text) => {
+                setRegistrationNumber(text);
+                if (errors.registrationNumber) {
+                  setErrors((prev) => ({ ...prev, registrationNumber: "" }));
+                }
+              }}
               keyboardType="default"
             />
           )}
@@ -251,25 +453,81 @@ export default function AddDelivery() {
           {/* Model Dropdown - Only for New deliveries */}
           {deliveryType === "New" && (
             <TouchableOpacity
-              style={allStyles.dropdown}
+              style={[
+                allStyles.dropdown,
+                errors.selectedModel
+                  ? { borderColor: "red", borderWidth: 1 }
+                  : {},
+              ]}
               onPress={() => setShowModelModal(true)}
               activeOpacity={0.7}
             >
               <Text
                 style={[
                   allStyles.dropdownText,
-                  selectedModel ? { color: COLORS.black } : null
+                  selectedModel ? { color: COLORS.black } : null,
                 ]}
               >
-                {selectedModel || "Select Model"}
+                {selectedModel
+                  ? modelsData.find((model) => model._id === selectedModel)
+                      ?.name || selectedModel
+                  : "Select Model *"}
               </Text>
-              <Ionicons
-                name="chevron-down"
-                size={20}
-                color="#6C757D"
-              />
+              <Ionicons name="chevron-down" size={20} color="#6C757D" />
             </TouchableOpacity>
           )}
+
+          {/* RTO Location Selection - Only for New deliveries */}
+          {/* {deliveryType === "New" && ( */}
+          <View style={paymentStyles.sectionContainer}>
+            <Text
+              style={[allStyles.Title, { fontSize: responsiveFontSize(2.5) }]}
+            >
+              RTO Location
+            </Text>
+
+            <View style={styles.radioRow}>
+              {/* Same City Option */}
+              <TouchableOpacity
+                style={styles.radioContainer}
+                onPress={() => setSelectedRTOLocation("sameCity")}
+              >
+                <View style={styles.radioButton}>
+                  {selectedRTOLocation === "sameCity" && (
+                    <View style={styles.radioSelected} />
+                  )}
+                </View>
+                <Text style={styles.radioText}>Same City</Text>
+              </TouchableOpacity>
+
+              {/* Same State Option */}
+              <TouchableOpacity
+                style={styles.radioContainer}
+                onPress={() => setSelectedRTOLocation("sameState")}
+              >
+                <View style={styles.radioButton}>
+                  {selectedRTOLocation === "sameState" && (
+                    <View style={styles.radioSelected} />
+                  )}
+                </View>
+                <Text style={styles.radioText}>Same State</Text>
+              </TouchableOpacity>
+
+              {/* Other State Option */}
+              <TouchableOpacity
+                style={styles.radioContainer}
+                onPress={() => setSelectedRTOLocation("otherState")}
+              >
+                <View style={styles.radioButton}>
+                  {selectedRTOLocation === "otherState" && (
+                    <View style={styles.radioSelected} />
+                  )}
+                </View>
+                <Text style={styles.radioText}>Other State</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/* )} */}
 
           {/* Model Selection Modal */}
           <Modal
@@ -289,27 +547,40 @@ export default function AddDelivery() {
                     <Ionicons name="close" size={24} color="#6C757D" />
                   </TouchableOpacity>
                 </View>
-                <ScrollView style={styles.modalScrollView} showsVerticalScrollIndicator={false}>
-                  {models.map((model, index) => (
+                <ScrollView
+                  style={styles.modalScrollView}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {modelsData.map((model, index) => (
                     <TouchableOpacity
                       key={index}
                       style={[
                         styles.modalOption,
-                        selectedModel === model && styles.selectedOption
+                        selectedModel === model._id && styles.selectedOption,
                       ]}
                       onPress={() => {
-                        setSelectedModel(model);
+                        setSelectedModel(model._id);
                         setShowModelModal(false);
+                        if (errors.selectedModel) {
+                          setErrors((prev) => ({ ...prev, selectedModel: "" }));
+                        }
                       }}
                     >
-                      <Text style={[
-                        styles.modalOptionText,
-                        selectedModel === model && styles.selectedOptionText
-                      ]}>
-                        {model}
+                      <Text
+                        style={[
+                          styles.modalOptionText,
+                          selectedModel === model._id &&
+                            styles.selectedOptionText,
+                        ]}
+                      >
+                        {model.name}
                       </Text>
-                      {selectedModel === model && (
-                        <Ionicons name="checkmark" size={20} color={COLORS.primaryBlue} />
+                      {selectedModel === model._id && (
+                        <Ionicons
+                          name="checkmark"
+                          size={20}
+                          color={COLORS.primaryBlue}
+                        />
                       )}
                     </TouchableOpacity>
                   ))}
@@ -330,8 +601,7 @@ export default function AddDelivery() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+      <Toast />
     </SafeAreaView>
   );
 }
-
-

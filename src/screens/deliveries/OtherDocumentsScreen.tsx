@@ -135,7 +135,7 @@ export default function OtherDocumentsScreen() {
                     ? require("@/assets/icons/DocumentsPageTickIcon.png")
                     : require("@/assets/icons/DocumentPageUplaodIcon.png")
                 }
-                style={{ width: 24, height: 24 }}
+                style={{ width: 20, height: 20 }}
                 resizeMode="contain"
               />
             </TouchableOpacity>
