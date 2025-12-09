@@ -14,8 +14,9 @@ import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { settingsStyles } from "../../styles/settingsStyles";
-
+import { useAuth } from "../../contexts/AuthContext";
 export default function SettingsScreen() {
+  const { login,logout } = useAuth();
   const handleBack = () => {
     router.back();
   };
@@ -33,6 +34,8 @@ export default function SettingsScreen() {
 
   const handleLogout = () => {
     console.log("Logout pressed");
+    logout();
+    router.replace("/login");
     // Handle logout logic
   };
 

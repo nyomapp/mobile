@@ -193,12 +193,12 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  dropdownText: {
-    fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.Yellix,
-    color: "#9CA3AF",
-    flex: 1,
-  },
+  // dropdownText: {
+  //   fontSize: responsiveFontSize(1.8),
+  //   fontFamily: FONTS.Yellix,
+  //   color: "#9CA3AF",
+  //   flex: 1,
+  // },
   filterButtonContainer: {
     paddingHorizontal: responsiveWidth(5),
     paddingTop: responsiveWidth(4),

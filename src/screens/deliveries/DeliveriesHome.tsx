@@ -463,7 +463,7 @@ export default function DeliveriesHome() {
                 <TextInput
                   style={globalStyles.input}
                   placeholder="Frame Number"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={COLORS.black}
                   value={frameNumber}
                   onChangeText={setFrameNumber}
                 />
@@ -471,7 +471,7 @@ export default function DeliveriesHome() {
                 <TextInput
                   style={globalStyles.input}
                   placeholder="Mobile Number"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={COLORS.black}
                   value={mobileNumber}
                   onChangeText={setMobileNumber}
                   keyboardType="numeric"
@@ -485,7 +485,7 @@ export default function DeliveriesHome() {
                 >
                   <Text
                     style={[
-                      styles.dropdownText,
+                      allStyles.dropdownText,
                       selectedModel ? { color: COLORS.black } : null,
                     ]}
                   >
