@@ -5,7 +5,7 @@ import { FONTS } from "../constants/fonts";
 export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: responsiveFontSize(2.5),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
   },
   container: {
@@ -123,13 +123,13 @@ export const styles = StyleSheet.create({
   },
   uploadFromPhoneText: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: "#6C757D",
     marginRight: responsiveWidth(2),
   },
   uploadFromPhoneSubtext: {
     fontSize: responsiveFontSize(1.6),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: "#9CA3AF",
     marginRight: responsiveWidth(2),
   },
@@ -188,7 +188,7 @@ export const styles = StyleSheet.create({
   retakeButtonMainText: {
     color: COLORS.white,
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
   },
   bottomButtonsContainer: {
     paddingHorizontal: responsiveWidth(4),

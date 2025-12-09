@@ -109,7 +109,7 @@ export const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: "#6B7280",
   },
 
@@ -137,7 +137,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
     paddingRight: responsiveWidth(2),
     borderWidth: 0,

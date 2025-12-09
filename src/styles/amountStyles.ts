@@ -48,8 +48,8 @@ export const styles = StyleSheet.create({
   },
   amountLabel: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
-    color: "#6B7280",
+    fontFamily: FONTS.Yellix,
+    // color: "#6B7280",
     flex: 1,
     marginRight: responsiveWidth(4),
   },
@@ -60,7 +60,7 @@ export const styles = StyleSheet.create({
     fontSize: responsiveFontSize(2),
     maxWidth: responsiveWidth(35),
     minWidth: responsiveWidth(35),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
     marginLeft: "auto",
     paddingHorizontal: responsiveWidth(4),
@@ -78,14 +78,9 @@ export const styles = StyleSheet.create({
   amountInput: {
     flex: 1,
     maxWidth: responsiveWidth(35),
-    // fontSize: responsiveFontSize(1.8),
-    // fontFamily: FONTS.Yellix,
-    color: "#333",
     textAlign: "left",
     paddingVertical: responsiveWidth(2),
     paddingHorizontal: responsiveWidth(2),
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
     backgroundColor: "transparent",
   },
   bottomNavigation: {
@@ -127,7 +122,7 @@ export const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
-    color: "#6B7280",
+    fontFamily: FONTS.Yellix,
+    // color: "#6B7280",
   },
 });

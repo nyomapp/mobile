@@ -19,6 +19,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/searchScreenStyles";
+import { COLORS } from "@/src/constants";
 
 interface Customer {
   id: string;
@@ -174,7 +175,7 @@ export default function DeliveriesHome() {
             <TextInput
               style={styles.searchInput}
               placeholder="Search customers..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={COLORS.black}
               value={searchQuery}
               onChangeText={setSearchQuery}
               autoCorrect={false}

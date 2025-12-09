@@ -65,7 +65,7 @@ export const allStyles = StyleSheet.create({
     paddingVertical: responsiveWidth(4),
     borderRadius: responsiveWidth(2),
     alignItems: "center",
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     marginTop: responsiveWidth(4),
     borderColor: COLORS.white,
   },
@@ -73,7 +73,7 @@ export const allStyles = StyleSheet.create({
   btnText: {
     color: COLORS.white,
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
   },
 
   // Soild Button
@@ -304,15 +304,15 @@ export const allStyles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(6),
     paddingVertical: responsiveWidth(4),
     marginBottom: responsiveWidth(4),
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 3,
+    // elevation: 2,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -320,8 +320,8 @@ export const allStyles = StyleSheet.create({
 
   dropdownText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
-    color: "#6C757D",
+    fontFamily: FONTS.Yellix,
+    // color: "#6C757D",
   },
 
   toggleContainer: {
@@ -353,7 +353,7 @@ export const allStyles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "transparent",
     marginHorizontal: responsiveWidth(0.5),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
   },
 
   toggleButtonActive: {
@@ -386,7 +386,7 @@ export const allStyles = StyleSheet.create({
 
   Title: {
     fontSize: responsiveFontSize(3.5),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
     marginBottom: responsiveWidth(4),
   },
@@ -420,7 +420,7 @@ export const allStyles = StyleSheet.create({
   backButtonText: {
     color: COLORS.black,
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
   },
 
   pageHeader: {
@@ -445,6 +445,6 @@ export const allStyles = StyleSheet.create({
     color: "#6C757D",
   },
   headerSecondaryText: {
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
   },
 });

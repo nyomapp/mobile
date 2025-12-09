@@ -20,6 +20,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/loginStyles";
 import { TokenStorage } from "@/src/api/tokenStorage";
+import { COLORS } from "@/src/constants/colors";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -163,7 +164,7 @@ export default function LoginScreen() {
               <TextInput
                 style={globalStyles.input}
                 placeholder="Email"
-                placeholderTextColor="#999"
+                placeholderTextColor={COLORS.black}
                 value={email}
                 onChangeText={handleEmailChange}
                 keyboardType="email-address"
@@ -176,7 +177,7 @@ export default function LoginScreen() {
                   style={[globalStyles.input, styles.input]}
                   secureTextEntry={true}
                   placeholder="Password"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={COLORS.black}
                   value={password}
                   onChangeText={handlePasswordChange}
                 />

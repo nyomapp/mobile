@@ -51,7 +51,7 @@ export const styles = StyleSheet.create({
 
   radioText: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
   },
 
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
  
 
   placeholderText: {
-    color: "#9CA3AF",
+    // color: "#9CA3AF",
   },
 
   // Modal Styles
@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: responsiveFontSize(2.5),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
     fontWeight: "600",
   },
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: "#333",
   },
   selectedOptionText: {

@@ -140,12 +140,12 @@ export default function AddDelivery() {
       const response = await getModalsData(oemRef);
       setModels(response as any[]);
 
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Models loaded successfully",
-        visibilityTime: 2000,
-      });
+      // Toast.show({
+      //   type: "success",
+      //   text1: "Success",
+      //   text2: "Models loaded successfully",
+      //   visibilityTime: 2000,
+      // });
     } catch (error) {
       console.error("COMPONENT: Error in getAllModels:", error);
 
@@ -388,7 +388,7 @@ export default function AddDelivery() {
               errors.customerName ? { borderColor: "red", borderWidth: 1 } : {},
             ]}
             placeholder="Customer Name *"
-            placeholderTextColor="#6C757D"
+            placeholderTextColor={COLORS.black}
             value={customerName}
             onChangeText={(text) => {
               setCustomerName(text);
@@ -408,7 +408,7 @@ export default function AddDelivery() {
                   : {},
               ]}
               placeholder="Frame Number (Last 6 characters) *"
-              placeholderTextColor="#6C757D"
+              placeholderTextColor={COLORS.black}
               value={frameNumber}
               onChangeText={handleFrameNumberChange}
               autoCapitalize="characters"
@@ -422,7 +422,7 @@ export default function AddDelivery() {
               errors.mobileNumber ? { borderColor: "red", borderWidth: 1 } : {},
             ]}
             placeholder="Mobile Number (10 digits) *"
-            placeholderTextColor="#6C757D"
+            placeholderTextColor={COLORS.black}
             value={mobileNumber}
             onChangeText={handleMobileNumberChange}
             keyboardType="numeric"
@@ -438,7 +438,7 @@ export default function AddDelivery() {
                   : {},
               ]}
               placeholder="Registration Number *"
-              placeholderTextColor="#6C757D"
+              placeholderTextColor={COLORS.black}
               value={registrationNumber}
               onChangeText={(text) => {
                 setRegistrationNumber(text);

@@ -33,7 +33,7 @@ export const settingsStyles = StyleSheet.create({
 
   companyName: {
     fontSize: responsiveFontSize(1.6),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: "#9CA3AF",
     marginBottom: responsiveWidth(4),
   },
@@ -50,7 +50,7 @@ export const settingsStyles = StyleSheet.create({
 
   editProfileText: {
     fontSize: responsiveFontSize(1.4),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.white,
   },
 
@@ -89,7 +89,7 @@ export const settingsStyles = StyleSheet.create({
 
   contactLabel: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: "#9CA3AF",
     marginBottom: responsiveWidth(0.5),
   },

@@ -104,7 +104,7 @@ export const styles = StyleSheet.create({
   },
   uploadButtonText: {
     fontSize: responsiveFontSize(1.6),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.white,
   },
   uploadIcon: {
@@ -146,7 +146,7 @@ export const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: "#6B7280",
   },
 
@@ -195,7 +195,7 @@ export const styles = StyleSheet.create({
   },
   dropdownText: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: "#9CA3AF",
     flex: 1,
   },
@@ -237,7 +237,7 @@ export const styles = StyleSheet.create({
   },
   modelModalTitle: {
     fontSize: responsiveFontSize(2.5),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
     fontWeight: '600',
   },
@@ -261,7 +261,7 @@ export const styles = StyleSheet.create({
   },
   modelOptionText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: '#333',
   },
   selectedModelText: {

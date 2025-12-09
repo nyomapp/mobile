@@ -256,7 +256,7 @@ export default function PreviewScreen() {
           <Text
             style={[
               styles.detailLabel,
-              showAsInputs ? { fontFamily: FONTS.YellixThin } : null,
+              showAsInputs ? { fontFamily: FONTS.Yellix } : null,
             ]}
           >
             {item.label}

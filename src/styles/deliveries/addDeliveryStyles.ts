@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: responsiveFontSize(2.5),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
     fontWeight: '600',
   },
@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: '#333',
   },
   selectedOptionText: {
@@ -87,7 +87,7 @@ export const styles = StyleSheet.create({
   },
   dropdownOptionText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: '#333'
   },
     radioRow: {
@@ -121,7 +121,7 @@ export const styles = StyleSheet.create({
 
   radioText: {
     fontSize: responsiveFontSize(1.6),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
   },
 });

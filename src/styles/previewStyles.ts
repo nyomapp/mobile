@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: responsiveFontSize(3),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
     // fontWeight: "600",
   },
@@ -51,8 +51,8 @@ export const styles = StyleSheet.create({
   },
   detailValue: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.YellixThin,
-    color: "#6B7280",
+    fontFamily: FONTS.Yellix,
+    // color: "#6B7280",
     textAlign: "right",
     // flex: 1,
   },
@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
   },
   documentTitle: {
     fontSize: responsiveFontSize(2.3),
-    fontFamily: FONTS.YellixThin,
+    fontFamily: FONTS.Yellix,
     color: COLORS.black,
     marginBottom: responsiveWidth(5),
   },
@@ -146,18 +146,19 @@ export const styles = StyleSheet.create({
   paddingHorizontal: responsiveWidth(3),
   paddingVertical: responsiveWidth(2.5),
   minWidth: responsiveWidth(35),
-  shadowColor: COLORS.black,
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+  borderWidth: 1,
+  // shadowColor: COLORS.black,
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 3,
+    // elevation: 2,
 },
 amountPlaceholder: {
   fontSize: responsiveFontSize(1.6),
-  fontFamily: FONTS.YellixThin,
-  color: "#9CA3AF",
+  fontFamily: FONTS.Yellix,
+  // color: "#9CA3AF",
 },
 });

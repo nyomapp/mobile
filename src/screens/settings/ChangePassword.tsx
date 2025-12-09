@@ -17,6 +17,7 @@ import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/changePasswordStyles";
 import { allStyles } from "../../styles/global";
+import { COLORS } from "@/src/constants";
 
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -72,7 +73,7 @@ export default function ChangePassword() {
               <TextInput
                 style={globalStyles.input}
                 placeholder="New Password"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={COLORS.black}
                 value={newPassword}
                 onChangeText={setNewPassword}
                 secureTextEntry
@@ -84,7 +85,7 @@ export default function ChangePassword() {
               <TextInput
                 style={globalStyles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={COLORS.black}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry

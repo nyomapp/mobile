@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/amountStyles";
 import { allStyles } from "../../styles/global";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { COLORS } from "@/src/constants";
 
 interface AmountField {
   id: string;
@@ -271,7 +272,7 @@ export default function AmountScreen() {
                 <TextInput
                   style={[globalStyles.input, styles.amountInput]}
                   placeholder="Amount"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={COLORS.black}
                   value={item.value}
                   onChangeText={(value) => handleAmountChange(item.id, value)}
                   keyboardType="decimal-pad"

@@ -264,7 +264,7 @@ export default function PaymentMode() {
                         : {},
                     ]}
                     placeholder="Enter finance amount"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={COLORS.black}
                     value={financeAmount}
                     onChangeText={(text) => {
                       const numericValue = text.replace(/[^0-9]/g, "");
@@ -323,7 +323,7 @@ export default function PaymentMode() {
                         : {},
                     ]}
                     placeholder="Financier Plan 2"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={COLORS.black}
                     value={financierPlan2}
                     onChangeText={(text) => {
                       const numericValue = text.replace(/[^0-9]/g, "");
