@@ -231,7 +231,7 @@ export default function PreviewScreen() {
   const handleBack = () => {
     // Navigate back to the previous screen
     //console.log("Back button pressed");
-    router.back();
+    router.push("/payment-mode");
   };
   const renderDetailSection = (
     title: string,

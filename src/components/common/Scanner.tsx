@@ -127,7 +127,7 @@ export default function DocumentScanner({
   };
 
   const handleBack = () => {
-    router.back();
+    router.push("/document-screen");
   };
 
   const retakePhoto = () => {

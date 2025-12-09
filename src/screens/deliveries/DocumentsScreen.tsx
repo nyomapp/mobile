@@ -20,7 +20,7 @@ export default function DocumentsScreen() {
   const { currentDelivery, setCurrentDelivery } = useDeliveryContext();
 
   const handleBack = () => {
-    router.back();
+    router.push("/add-delivery");
   };
 
   const handleNext = () => {

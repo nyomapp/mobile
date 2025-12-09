@@ -90,7 +90,7 @@ export default function PaymentMode() {
   };
 
   const handleBack = () => {
-    router.back();
+    router.push("/amount");
   };
 
   const handleNext = () => {

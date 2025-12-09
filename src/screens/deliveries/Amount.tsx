@@ -206,7 +206,7 @@ export default function AmountScreen() {
   };
 
   const handleBack = () => {
-    router.back();
+    router.push("/document-screen");
   };
 
   const handleSkip = () => {
