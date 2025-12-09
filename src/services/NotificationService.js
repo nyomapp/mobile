@@ -1,3 +1,4 @@
+import * as Application from "expo-application";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
@@ -5,7 +6,6 @@ import { router } from "expo-router";
 import { Platform } from "react-native";
 import { TokenStorage } from "../api";
 import { NotificationAPI } from "../api/notification";
-import * as Application from "expo-application";
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -26,7 +26,7 @@ class NotificationService {
   async initialize() {
     try {
       if (!Device.isDevice) {
-        console.log("Push notifications only work on physical devices");
+        //console.log("Push notifications only work on physical devices");
         return false;
       }
 
@@ -40,7 +40,7 @@ class NotificationService {
       }
 
       if (finalStatus !== "granted") {
-        console.log("Push notification permission denied");
+        //console.log("Push notification permission denied");
         return false;
       }
 
@@ -71,8 +71,8 @@ class NotificationService {
         return;
       }
 
-      const deviceName = await Device.deviceName || 'Unknown Device';
-      const appVersion = Application.nativeApplicationVersion || '1.0.0';
+      const deviceName = (await Device.deviceName) || "Unknown Device";
+      const appVersion = Application.nativeApplicationVersion || "1.0.0";
 
       const response = await NotificationAPI.registerDevice({
         deviceToken: token,

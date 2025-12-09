@@ -24,12 +24,12 @@ export default function OtherDocumentsScreen() {
 
   const handleNext = () => {
     // Navigate to next step
-    console.log("Next button pressed");
+    //console.log("Next button pressed");
     router.push("/amount");
   };
 
   const handleDocumentUpload = (documentType: string) => {
-    console.log(`Upload ${documentType}`);
+    //console.log(`Upload ${documentType}`);
     router.push("/document-scanner");
     // Implement document upload logic
   };
@@ -70,7 +70,7 @@ export default function OtherDocumentsScreen() {
       title: "Form 20 - 3",
       icon: require("@/assets/icons/DocumnetPageAdhaarBackIcon.png"),
     },
-      {
+    {
       id: 7,
       title: "Form 20",
       icon: require("@/assets/icons/DocumnetPageAdhaarBackIcon.png"),
@@ -80,84 +80,84 @@ export default function OtherDocumentsScreen() {
   return (
     <SafeAreaView style={[allStyles.safeArea]} edges={["top"]}>
       <KeyboardAvoidingView
-              style={allStyles.container}
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-            >
-      {/* Header */}
-      <View style={[allStyles.pageHeader,{paddingTop:responsiveWidth(6)}]}>
-        <View>
-          {/* <Text style={allStyles.pageTitle}>
+        style={allStyles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        {/* Header */}
+        <View style={[allStyles.pageHeader, { paddingTop: responsiveWidth(6) }]}>
+          <View>
+            {/* <Text style={allStyles.pageTitle}>
             <b>Add</b>
             {"\n"}Delivery
           </Text> */}
-          <Text style={[allStyles.Title,{marginBottom: responsiveWidth(0)}]}>Documents</Text>
+            <Text style={[allStyles.Title, { marginBottom: responsiveWidth(0) }]}>Documents</Text>
+          </View>
+
+          <HeaderIcon />
         </View>
-        
-        <HeaderIcon />
-      </View>
 
-      <ScrollView
-        style={{marginTop: responsiveWidth(4)}}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Documents Title */}
-        
+        <ScrollView
+          style={{ marginTop: responsiveWidth(4) }}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Documents Title */}
 
-        {/* Document Upload Cards */}
-        {documentTypes.map((doc) => (
-          <TouchableOpacity
-            key={doc.id}
-            style={[
-              globalStyles.input,
-              styles.documentCard,
-              doc.uploaded && styles.documentUploadedCard,
-            ]}
-            onPress={() => handleDocumentUpload(doc.title)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.documentLeft}>
-              <View style={styles.iconContainer}>
+
+          {/* Document Upload Cards */}
+          {documentTypes.map((doc) => (
+            <TouchableOpacity
+              key={doc.id}
+              style={[
+                globalStyles.input,
+                styles.documentCard,
+                doc.uploaded && styles.documentUploadedCard,
+              ]}
+              onPress={() => handleDocumentUpload(doc.title)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.documentLeft}>
+                <View style={styles.iconContainer}>
+                  <Image
+                    source={doc.icon}
+                    style={{ width: 24, height: 24 }}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={styles.documentTitle}>{doc.title}</Text>
+              </View>
+              <TouchableOpacity
+                //   style={styles.uploadButton}
+                onPress={() => handleDocumentUpload(doc.title)}
+              >
                 <Image
-                  source={doc.icon}
-                  style={{ width: 24, height: 24 }}
+                  source={
+                    doc.uploaded
+                      ? require("@/assets/icons/DocumentsPageTickIcon.png")
+                      : require("@/assets/icons/DocumentPageUplaodIcon.png")
+                  }
+                  style={{ width: 20, height: 20 }}
                   resizeMode="contain"
                 />
-              </View>
-              <Text style={styles.documentTitle}>{doc.title}</Text>
-            </View>
-            <TouchableOpacity
-              //   style={styles.uploadButton}
-              onPress={() => handleDocumentUpload(doc.title)}
-            >
-              <Image
-                source={
-                  doc.uploaded
-                    ? require("@/assets/icons/DocumentsPageTickIcon.png")
-                    : require("@/assets/icons/DocumentPageUplaodIcon.png")
-                }
-                style={{ width: 20, height: 20 }}
-                resizeMode="contain"
-              />
+              </TouchableOpacity>
             </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Bottom Buttons */}
+        <View
+          style={[
+            allStyles.bottomContainer,
+            //   { paddingHorizontal: responsiveWidth(4) },
+          ]}
+        >
+          <TouchableOpacity style={allStyles.btn} onPress={handleNext}>
+            <Text style={allStyles.btnText}>Submit</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
 
-      {/* Bottom Buttons */}
-      <View
-        style={[
-          allStyles.bottomContainer,
-        //   { paddingHorizontal: responsiveWidth(4) },
-        ]}
-      >
-        <TouchableOpacity style={allStyles.btn} onPress={handleNext}>
-          <Text style={allStyles.btnText}>Submit</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={allStyles.backButton} onPress={handleBack}>
-          <Text style={allStyles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={allStyles.backButton} onPress={handleBack}>
+            <Text style={allStyles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

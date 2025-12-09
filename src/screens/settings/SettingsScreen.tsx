@@ -12,28 +12,28 @@ import Toast from "react-native-toast-message";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../../contexts/AuthContext";
 import { allStyles } from "../../styles/global";
 import { settingsStyles } from "../../styles/settingsStyles";
-import { useAuth } from "../../contexts/AuthContext";
 export default function SettingsScreen() {
-  const { login,logout } = useAuth();
+  const { login, logout } = useAuth();
   const handleBack = () => {
     router.back();
   };
 
   const handleEditProfile = () => {
-    console.log("Edit Profile pressed");
+    //console.log("Edit Profile pressed");
     // Navigate to edit profile screen
   };
 
   const handleChangePassword = () => {
-    console.log("Change Password pressed");
+    //console.log("Change Password pressed");
     router.push("/change-password");
     // Navigate to change password screen
   };
 
   const handleLogout = () => {
-    console.log("Logout pressed");
+    //console.log("Logout pressed");
     logout();
     router.replace("/login");
     // Handle logout logic
@@ -61,15 +61,15 @@ export default function SettingsScreen() {
           <View style={settingsStyles.profileSection}>
             <Image style={settingsStyles.profileImage} />
             <View>
-            <Text style={settingsStyles.userName}>Sivesh Kumar</Text>
-            <Text style={settingsStyles.companyName}>Company Name</Text>
-            <TouchableOpacity 
-              style={settingsStyles.editProfileButton}
-              onPress={handleEditProfile}
-            >
-              <Text style={settingsStyles.editProfileText}>Edit Profile</Text>
-            </TouchableOpacity>
-          </View>
+              <Text style={settingsStyles.userName}>Sivesh Kumar</Text>
+              <Text style={settingsStyles.companyName}>Company Name</Text>
+              <TouchableOpacity
+                style={settingsStyles.editProfileButton}
+                onPress={handleEditProfile}
+              >
+                <Text style={settingsStyles.editProfileText}>Edit Profile</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Contact Information */}
@@ -108,14 +108,14 @@ export default function SettingsScreen() {
 
         {/* Action Section - Outside ScrollView to stick to bottom */}
         <View style={allStyles.bottomContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={allStyles.backButton}
             onPress={handleChangePassword}
           >
             <Text style={allStyles.backButtonText}>Change Password</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={allStyles.btn}
             onPress={handleLogout}
           >

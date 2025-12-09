@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 // Generic interface for array items
 interface FinancierDataItem {
@@ -10,7 +10,7 @@ interface FinancierDataContextType {
   // Current data array
   data: FinancierDataItem[];
   setData: (data: FinancierDataItem[]) => void;
-  
+
   // Array management functions
   addItem: (item: FinancierDataItem) => void;
   removeItem: (index: number) => void;
@@ -19,7 +19,7 @@ interface FinancierDataContextType {
   updateItemById: (id: string | number, updatedItem: FinancierDataItem, idField?: string) => void;
   clearData: () => void;
   resetData: (initialData?: FinancierDataItem[]) => void;
-  
+
   // Utility functions
   getItem: (index: number) => FinancierDataItem | undefined;
   getItemById: (id: string | number, idField?: string) => FinancierDataItem | undefined;
@@ -41,16 +41,16 @@ interface FinancierDataProviderProps {
   initialData?: FinancierDataItem[];
 }
 
-export const FinancierDataProvider: React.FC<FinancierDataProviderProps> = ({ 
-  children, 
-  initialData = initialFinancierData 
+export const FinancierDataProvider: React.FC<FinancierDataProviderProps> = ({
+  children,
+  initialData = initialFinancierData
 }) => {
   const [data, setData] = useState<FinancierDataItem[]>(initialData || []);
 
   // Add new item to array
   const addItem = (item: FinancierDataItem) => {
     setData(prevData => [...prevData, item]);
-    console.log('FinancierData: Added item:', item);
+    //console.log('FinancierData: Added item:', item);
   };
 
   // Remove item by index
@@ -60,13 +60,13 @@ export const FinancierDataProvider: React.FC<FinancierDataProviderProps> = ({
       newData.splice(index, 1);
       return newData;
     });
-    console.log(`FinancierData: Removed item at index ${index}`);
+    //console.log(`FinancierData: Removed item at index ${index}`);
   };
 
   // Remove item by ID
   const removeItemById = (id: string | number, idField: string = 'id') => {
     setData(prevData => prevData.filter(item => item[idField] !== id));
-    console.log(`FinancierData: Removed item with ${idField}:`, id);
+    //console.log(`FinancierData: Removed item with ${idField}:`, id);
   };
 
   // Update item by index
@@ -76,23 +76,23 @@ export const FinancierDataProvider: React.FC<FinancierDataProviderProps> = ({
       newData[index] = updatedItem;
       return newData;
     });
-    console.log(`FinancierData: Updated item at index ${index}:`, updatedItem);
+    //console.log(`FinancierData: Updated item at index ${index}:`, updatedItem);
   };
 
   // Update item by ID
   const updateItemById = (id: string | number, updatedItem: FinancierDataItem, idField: string = 'id') => {
-    setData(prevData => 
-      prevData.map(item => 
+    setData(prevData =>
+      prevData.map(item =>
         item[idField] === id ? updatedItem : item
       )
     );
-    console.log(`FinancierData: Updated item with ${idField} ${id}:`, updatedItem);
+    //console.log(`FinancierData: Updated item with ${idField} ${id}:`, updatedItem);
   };
 
   // Clear all data
   const clearData = () => {
     setData([]);
-    console.log('FinancierData: Cleared all data');
+    //console.log('FinancierData: Cleared all data');
   };
 
   // Reset data to initial state or provided data
@@ -166,6 +166,6 @@ export const useFinancierData = (): FinancierDataContextType => {
 };
 
 // Export types for external use
-export type { FinancierDataItem, FinancierDataContextType };
+export type { FinancierDataContextType, FinancierDataItem };
 
 export default FinancierDataContext;

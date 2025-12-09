@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 // Document size configuration
 export const documentSizeConfig = {
@@ -63,9 +63,9 @@ export interface Delivery {
   financierPlan1?: string;
   financierPlan2?: number;
   helmetAmount?: number;
-//   status?: 'pending' | 'delivered';
+  //   status?: 'pending' | 'delivered';
   rtoLocation?: 'sameCity' | 'sameState' | 'otherState';
-//   updatedBy: string;
+  //   updatedBy: string;
 }
 
 // Context types
@@ -73,21 +73,21 @@ interface DeliveryContextType {
   // Current delivery being edited/created
   currentDelivery: Delivery | null;
   setCurrentDelivery: (delivery: Delivery | null) => void;
-  
+
   // All deliveries
   deliveries: Delivery[];
   setDeliveries: (deliveries: Delivery[]) => void;
-  
+
   // Loading states
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  
+
   // Additional states
   deliveryId: string | null;
   setDeliveryId: (id: string | null) => void;
   isEdit: boolean;
   setIsEdit: (edit: boolean) => void;
-  
+
   // Helper functions
   updateDeliveryField: (field: keyof Delivery, value: any) => void;
   resetCurrentDelivery: () => void;
@@ -123,7 +123,7 @@ const initialDelivery: Partial<Delivery> = {
   financeAmount: undefined,
   financierPlan1: '',
   financierPlan2: undefined,
-//   status: 'pending',
+  //   status: 'pending',
   rtoLocation: 'sameCity',
 };
 
@@ -150,7 +150,7 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
   };
 
   const resetCurrentDelivery = () => {
-    console.log('Resetting delivery context to initial state:', initialDelivery);
+    //console.log('Resetting delivery context to initial state:', initialDelivery);
     setCurrentDelivery(initialDelivery as Delivery);
   };
 
@@ -169,7 +169,7 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
         doc => doc.documentName !== document.documentName
       );
       const updatedDocuments = [...filteredDocuments, document];
-      
+
       setCurrentDelivery({
         ...currentDelivery,
         downloadDocuments: updatedDocuments,
@@ -183,7 +183,7 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
       const filteredDocuments = existingDocuments.filter(
         doc => doc.documentName !== documentName
       );
-      
+
       setCurrentDelivery({
         ...currentDelivery,
         downloadDocuments: filteredDocuments,
@@ -193,7 +193,7 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
 
   const calculateTotalAmount = (): number => {
     if (!currentDelivery) return 0;
-    
+
     const {
       exShowAmount = 0,
       insuranceAmount = 0,
@@ -207,10 +207,10 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
       others5 = 0,
       discount = 0,
     } = currentDelivery;
-    
-    const total = exShowAmount + insuranceAmount + rtoAmount + accessoriesAmount + 
-                  rsaAmount + others1 + others2 + others3 + others4 + others5 - discount;
-    
+
+    const total = exShowAmount + insuranceAmount + rtoAmount + accessoriesAmount +
+      rsaAmount + others1 + others2 + others3 + others4 + others5 - discount;
+
     return Math.max(0, total);
   };
 

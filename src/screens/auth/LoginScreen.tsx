@@ -16,15 +16,15 @@ import Toast from "react-native-toast-message";
 import { useAuth } from "../../contexts/AuthContext";
 import { authStyles, globalStyles } from "../../styles";
 
+import { TokenStorage } from "@/src/api/tokenStorage";
+import { COLORS } from "@/src/constants/colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/loginStyles";
-import { TokenStorage } from "@/src/api/tokenStorage";
-import { COLORS } from "@/src/constants/colors";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("ram@gmail.com");
+  const [password, setPassword] = useState("Abcd@1234");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 

@@ -1,7 +1,7 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import {
   Image,
   KeyboardAvoidingView,
@@ -25,7 +25,7 @@ export default function DocumentsScreen() {
 
   const handleNext = () => {
     // Navigate to next step
-    console.log("Next button pressed");
+    //console.log("Next button pressed");
 
     // Transform documentTypes array to match DownloadDocument interface
     const downloadDocuments = documentTypes.map(doc => ({
@@ -43,13 +43,13 @@ export default function DocumentsScreen() {
       });
     }
 
-    console.log("Documents stored in context:", downloadDocuments);
-    console.log("Full delivery context after documents:", currentDelivery);
+    //console.log("Documents stored in context:", downloadDocuments);
+    //console.log("Full delivery context after documents:", currentDelivery);
     router.push("/amount");
   };
 
   const handleDocumentUpload = (documentType: string) => {
-    console.log(`Upload ${documentType}`);
+    //console.log(`Upload ${documentType}`);
     router.push("/document-scanner");
     // Implement document upload logic
   };
@@ -84,7 +84,7 @@ export default function DocumentsScreen() {
       fileUrl: 'https://example.com/document1.pdf',
       fileSize: 390,
       fileType: 'PDF',
-      
+
     },
     {
       id: 4,
@@ -130,7 +130,7 @@ export default function DocumentsScreen() {
         <View style={allStyles.pageHeader}>
           <View>
             <Text style={allStyles.pageTitle}>
-              <Text style={{fontWeight: 'bold'}}>Add</Text>
+              <Text style={{ fontWeight: 'bold' }}>Add</Text>
               {"\n"}
               <Text style={allStyles.headerSecondaryText}>Delivery</Text>
             </Text>
@@ -138,7 +138,7 @@ export default function DocumentsScreen() {
         </View>
 
         <ScrollView
-          style={[allStyles.scrollContent,{ paddingTop: responsiveWidth(4)}, { paddingHorizontal: responsiveWidth(1) }]}
+          style={[allStyles.scrollContent, { paddingTop: responsiveWidth(4) }, { paddingHorizontal: responsiveWidth(1) }]}
           showsVerticalScrollIndicator={false}
         >
           {/* Documents Title */}

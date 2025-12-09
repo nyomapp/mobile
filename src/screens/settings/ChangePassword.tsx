@@ -1,23 +1,23 @@
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import Toast from "react-native-toast-message";
 
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
+import { COLORS } from "@/src/constants";
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/changePasswordStyles";
 import { allStyles } from "../../styles/global";
-import { COLORS } from "@/src/constants";
 
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -29,10 +29,10 @@ export default function ChangePassword() {
 
   const handleSavePassword = () => {
     if (newPassword !== confirmPassword) {
-      console.log("Passwords don't match");
+      //console.log("Passwords don't match");
       return;
     }
-    console.log("Password changed successfully");
+    //console.log("Password changed successfully");
     // Handle password change logic
   };
 

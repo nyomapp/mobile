@@ -1,15 +1,16 @@
-import { HeaderIcon } from "@/src/components/common/HeaderIcon";
-import { FONTS } from "@/src/constants";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
-import { useFinancierData, useMasterData } from "@/src/contexts";
-import { useModels } from "@/src/contexts/ModelsContext";
 import {
   createDelivery,
   getAllFinancierData,
   getAllMasterData,
 } from "@/src/api/addDelivery";
+import { updateDeliveryById } from "@/src/api/deliveriesHome";
+import { HeaderIcon } from "@/src/components/common/HeaderIcon";
+import { FONTS } from "@/src/constants";
+import { useFinancierData, useMasterData } from "@/src/contexts";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useModels } from "@/src/contexts/ModelsContext";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -21,10 +22,9 @@ import {
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/previewStyles";
-import Toast from "react-native-toast-message";
-import { updateDeliveryById } from "@/src/api/deliveriesHome";
 interface DetailField {
   label: string;
   value: string;
@@ -54,12 +54,6 @@ export default function PreviewScreen() {
     financierPlan1Name: "",
   });
 
-  // Print final delivery context on mount
-  useEffect(() => {
-    console.log("=== FINAL DELIVERY CONTEXT ===");
-    console.log(JSON.stringify(currentDelivery, null, 2));
-    console.log("================================");
-  }, []);
 
   // Load API data and resolve names
   useEffect(() => {
@@ -106,7 +100,7 @@ export default function PreviewScreen() {
       };
 
       setResolvedNames(resolved);
-      console.log("Resolved names:", resolved);
+      //console.log("Resolved names:", resolved);
     }
   }, [currentDelivery, masterData, financierData, modelsData]);
 
@@ -136,15 +130,13 @@ export default function PreviewScreen() {
   const moreDetailsData: DetailField[] = [
     {
       label: "Ex-Showroom",
-      value: `₹${
-        currentDelivery?.exShowAmount?.toLocaleString("en-IN") || "0"
-      }`,
+      value: `₹${currentDelivery?.exShowAmount?.toLocaleString("en-IN") || "0"
+        }`,
     },
     {
       label: "Insurance",
-      value: `₹${
-        currentDelivery?.insuranceAmount?.toLocaleString("en-IN") || "0"
-      }`,
+      value: `₹${currentDelivery?.insuranceAmount?.toLocaleString("en-IN") || "0"
+        }`,
     },
     {
       label: "RTO",
@@ -152,9 +144,8 @@ export default function PreviewScreen() {
     },
     {
       label: "Accessories",
-      value: `₹${
-        currentDelivery?.accessoriesAmount?.toLocaleString("en-IN") || "0"
-      }`,
+      value: `₹${currentDelivery?.accessoriesAmount?.toLocaleString("en-IN") || "0"
+        }`,
     },
     {
       label: "RSA",
@@ -162,9 +153,8 @@ export default function PreviewScreen() {
     },
     {
       label: "Helmet",
-      value: `₹${
-        currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"
-      }`,
+      value: `₹${currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"
+        }`,
     },
     {
       label: "Other 1",
@@ -228,7 +218,7 @@ export default function PreviewScreen() {
   };
   const handleBack = () => {
     // Navigate back to the previous screen
-    console.log("Back button pressed");
+    //console.log("Back button pressed");
     router.back();
   };
   const renderDetailSection = (
@@ -295,7 +285,7 @@ export default function PreviewScreen() {
         <ScrollView
           style={allStyles.scrollContent}
           showsVerticalScrollIndicator={false}
-          //   contentContainerStyle={styles.scrollContent}
+        //   contentContainerStyle={styles.scrollContent}
         >
           {/* Details Section */}
           {renderDetailSection("Details", detailsData)}
@@ -314,9 +304,8 @@ export default function PreviewScreen() {
               },
               {
                 label: "Finance Amount:",
-                value: `₹${
-                  currentDelivery?.financeAmount?.toLocaleString("en-IN") || "0"
-                }`,
+                value: `₹${currentDelivery?.financeAmount?.toLocaleString("en-IN") || "0"
+                  }`,
               },
               {
                 label: "Financier Plan 1:",

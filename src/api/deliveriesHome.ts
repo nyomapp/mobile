@@ -13,7 +13,6 @@ export const getDeliveriesData = async (
     const response = await apiClient.get(endpoint);
     // Check if the API client returned an error response
     if (!response.success || response.error) {
-      // console.log('API: Error detected in response, throwing error...');
       throw new Error(response.error || "API request failed");
     }
     return response.data;
@@ -28,7 +27,6 @@ export const deleteDeliveryById = async (id: any) => {
     );
     // Check if the API client returned an error response
     if (!response.success || response.error) {
-      // console.log('API: Error detected in response, throwing error...');
       throw new Error(response.error || "API request failed");
     }
     return response.data;
@@ -44,7 +42,6 @@ export const updateDeliveryById = async (id: any, data: any) => {
     );
     // Check if the API client returned an error response
     if (!response.success || response.error) {
-      // console.log('API: Error detected in response, throwing error...');
       throw new Error(response.error || "API request failed");
     }
     return response.data;

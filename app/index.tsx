@@ -1,1 +1,5 @@
-export { default } from "../src/screens/auth/LoginScreen";
+import { Redirect } from "expo-router";
+
+export default function Index() {
+  return <Redirect href="/login" />;
+}

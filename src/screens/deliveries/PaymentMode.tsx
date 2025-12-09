@@ -1,5 +1,8 @@
+import { getAllFinancierData, getAllMasterData } from "@/src/api/addDelivery";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
+import { useFinancierData, useMasterData } from "@/src/contexts";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -16,13 +19,9 @@ import {
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { styles } from "../../styles/deliveries/paymentModeStyles";
 import { allStyles } from "../../styles/global";
-import Toast from "react-native-toast-message";
-import { apiClient } from "@/src/api";
-import { getAllFinancierData, getAllMasterData } from "@/src/api/addDelivery";
-import { useFinancierData, useMasterData } from "@/src/contexts";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 
 type PaymentMode = "cash" | "finance";
 
@@ -66,9 +65,9 @@ export default function PaymentMode() {
   }, [currentDelivery]);
 
   useEffect(() => {
-    console.log("Master Data Context:", masterData);
-    console.log("Financier Data Context:", financierData);
-    console.log("Current Delivery Context:", currentDelivery);
+    //console.log("Master Data Context:", masterData);
+    //console.log("Financier Data Context:", financierData);
+    //console.log("Current Delivery Context:", currentDelivery);
   }, [financierData, masterData, currentDelivery]);
   useEffect(() => {
     if (selectedPaymentMode === "finance") {
@@ -95,7 +94,7 @@ export default function PaymentMode() {
   };
 
   const handleNext = () => {
-    console.log("Next pressed");
+    //console.log("Next pressed");
 
     const newErrors: { [key: string]: string } = {};
 
@@ -146,7 +145,7 @@ export default function PaymentMode() {
 
       setCurrentDelivery(paymentData);
 
-      console.log("Payment data stored in context:", paymentData);
+      //console.log("Payment data stored in context:", paymentData);
     }
 
     router.push("/preview");
@@ -241,7 +240,7 @@ export default function PaymentMode() {
                   >
                     {financierName
                       ? financierData.find((f) => f._id === financierName)
-                          ?.name || financierName
+                        ?.name || financierName
                       : "Select Financier"}
                   </Text>
                   <Ionicons
@@ -299,8 +298,8 @@ export default function PaymentMode() {
                   >
                     {financierPlan1
                       ? masterData?.financierPlans?.find(
-                          (p: any) => p._id === financierPlan1
-                        )?.name || financierPlan1
+                        (p: any) => p._id === financierPlan1
+                      )?.name || financierPlan1
                       : "Financier Plan 1"}
                   </Text>
                   <Ionicons
@@ -382,7 +381,7 @@ export default function PaymentMode() {
                       style={[
                         styles.modalOptionText,
                         financierName === option._id &&
-                          styles.selectedOptionText,
+                        styles.selectedOptionText,
                       ]}
                     >
                       {option.name}
@@ -442,7 +441,7 @@ export default function PaymentMode() {
                       style={[
                         styles.modalOptionText,
                         financierPlan1 === option._id &&
-                          styles.selectedOptionText,
+                        styles.selectedOptionText,
                       ]}
                     >
                       {option.name}

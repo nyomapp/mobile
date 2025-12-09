@@ -10,8 +10,7 @@ export const getModalsData = async (makeId?: any) => {
     );
 
     // Check if the API client returned an error response
-    if (!response.success || response.error) {
-      // console.log('API: Error detected in response, throwing error...');
+    if (!response.success || response.error) {      
       throw new Error(response.error || "API request failed");
     }
 
@@ -27,7 +26,6 @@ export const getAllMasterData = async () => {
 
     // Check if the API client returned an error response
     if (!response.success || response.error) {
-      // console.log('API: Error detected in response, throwing error...');
       throw new Error(response.error || "API request failed");
     }
     return response.data;
@@ -41,7 +39,6 @@ export const getAllFinancierData = async () => {
 
     // Check if the API client returned an error response
     if (!response.success || response.error) {
-      // console.log('API: Error detected in response, throwing error...');
       throw new Error(response.error || "API request failed");
     }
     return response.data;
@@ -55,7 +52,6 @@ export const createDelivery = async (data: any) => {
 
     // Check if the API client returned an error response
     if (!response.success || response.error) {
-      // console.log('API: Error detected in response, throwing error...');
       throw new Error(response.error || "API request failed");
     }
     return response.data;

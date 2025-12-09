@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 // Generic interface for any object structure
 interface MasterDataObject {
@@ -10,14 +10,14 @@ interface MasterDataContextType {
   // Current data object
   data: MasterDataObject;
   setData: (data: MasterDataObject) => void;
-  
+
   // Helper functions
   updateField: (key: string, value: any) => void;
   updateMultipleFields: (updates: Partial<MasterDataObject>) => void;
   resetData: (initialData?: MasterDataObject) => void;
   getField: (key: string) => any;
   removeField: (key: string) => void;
-  
+
   // Utility functions
   hasField: (key: string) => boolean;
   getAllKeys: () => string[];
@@ -37,9 +37,9 @@ interface MasterDataProviderProps {
   initialData?: MasterDataObject;
 }
 
-export const MasterDataProvider: React.FC<MasterDataProviderProps> = ({ 
-  children, 
-  initialData = initialMasterData 
+export const MasterDataProvider: React.FC<MasterDataProviderProps> = ({
+  children,
+  initialData = initialMasterData
 }) => {
   const [data, setData] = useState<MasterDataObject>(initialData);
 
@@ -49,7 +49,7 @@ export const MasterDataProvider: React.FC<MasterDataProviderProps> = ({
       ...prevData,
       [key]: value
     }));
-    console.log(`MasterData: Updated field '${key}' with value:`, value);
+    //console.log(`MasterData: Updated field '${key}' with value:`, value);
   };
 
   // Update multiple fields at once
@@ -58,13 +58,13 @@ export const MasterDataProvider: React.FC<MasterDataProviderProps> = ({
       ...prevData,
       ...updates
     }));
-    console.log('MasterData: Updated multiple fields:', updates);
+    //console.log('MasterData: Updated multiple fields:', updates);
   };
 
   // Reset data to initial state or provided data
   const resetData = (resetToData: MasterDataObject = initialMasterData) => {
     setData(resetToData);
-    console.log('MasterData: Reset data to:', resetToData);
+    //console.log('MasterData: Reset data to:', resetToData);
   };
 
   // Get a specific field value
@@ -79,7 +79,7 @@ export const MasterDataProvider: React.FC<MasterDataProviderProps> = ({
       delete newData[key];
       return newData;
     });
-    console.log(`MasterData: Removed field '${key}'`);
+    //console.log(`MasterData: Removed field '${key}'`);
   };
 
   // Check if a field exists
@@ -133,6 +133,6 @@ export const useMasterData = (): MasterDataContextType => {
 };
 
 // Export types for external use
-export type { MasterDataObject, MasterDataContextType };
+export type { MasterDataContextType, MasterDataObject };
 
 export default MasterDataContext;

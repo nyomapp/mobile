@@ -2,7 +2,7 @@ import { useFonts } from 'expo-font';
 
 export const useCustomFonts = () => {
   console.log('🔤 FontLoader: Starting font loading...');
-  
+
   const [fontsLoaded, error] = useFonts({
     'ClashDisplay': require('../../assets/fonts/ClashDisplay-Variable.ttf'),
     'ClashDisplay-Bold': require('../../assets/fonts/ClashDisplay-Variable.ttf'),
@@ -15,7 +15,7 @@ export const useCustomFonts = () => {
   console.log('🔤 FontLoader Status:');
   console.log('  - Fonts loaded:', fontsLoaded);
   console.log('  - Loading error:', error);
-  
+
   if (fontsLoaded) {
     console.log('✅ All fonts loaded successfully!');
     console.log('📋 Available fonts:');

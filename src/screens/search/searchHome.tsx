@@ -11,6 +11,7 @@ import {
 import Toast from "react-native-toast-message";
 
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
+import { COLORS } from "@/src/constants";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -19,7 +20,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/searchScreenStyles";
-import { COLORS } from "@/src/constants";
 
 interface Customer {
   id: string;
@@ -40,7 +40,7 @@ export default function DeliveriesHome() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  
+
 
   const handleBack = () => {
     router.back();
@@ -82,12 +82,12 @@ export default function DeliveriesHome() {
     },
   ];
 
-  const handleEdit = (data:any) => {
-      console.log("Edit ",data);
+  const handleEdit = (data: any) => {
+    //console.log("Edit ",data);
   };
 
-  const handleDelete = (data:any) => {
-      console.log("Delete ",data);
+  const handleDelete = (data: any) => {
+    //console.log("Delete ",data);
   };
 
   const renderCustomerCard = ({ item }: { item: Customer }) => (
@@ -95,35 +95,35 @@ export default function DeliveriesHome() {
       <View style={styles.cardHeader}>
         <Text style={styles.customerName}>{item.name}</Text>
         <View style={styles.cardActions}>
-         
-              <TouchableOpacity
-                // style={styles.uploadButton}
-                onPress={() => handleEdit(item)}
-              >
 
-                <View
-                //  style={styles.uploadIcon}
-                 >
-                  <Image
-                    source={require("@/assets/icons/EditFilledIcon.png")}
-                    // style={styles.img}
-                    width={20}
-                    resizeMode="contain"
-                  />
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                // style={styles.moreButton}
-                onPress={() => handleDelete(item)}
-              >
-                <Image
-                  source={require("@/assets/icons/DeleteIcon.png")}
-                  // style={styles.img}
-                  width={20}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-    
+          <TouchableOpacity
+            // style={styles.uploadButton}
+            onPress={() => handleEdit(item)}
+          >
+
+            <View
+            //  style={styles.uploadIcon}
+            >
+              <Image
+                source={require("@/assets/icons/EditFilledIcon.png")}
+                // style={styles.img}
+                width={20}
+                resizeMode="contain"
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            // style={styles.moreButton}
+            onPress={() => handleDelete(item)}
+          >
+            <Image
+              source={require("@/assets/icons/DeleteIcon.png")}
+              // style={styles.img}
+              width={20}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+
         </View>
       </View>
 

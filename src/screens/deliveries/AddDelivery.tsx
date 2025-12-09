@@ -1,10 +1,13 @@
+import { getModalsData } from "@/src/api/addDelivery";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
-import { globalStyles } from "@/src/styles";
+import { useAuth } from "@/src/contexts";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useModels } from "@/src/contexts/ModelsContext";
+import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -20,13 +23,10 @@ import {
   responsiveWidth,
 } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { styles } from "../../styles/deliveries/addDeliveryStyles";
 import { styles as paymentStyles } from "../../styles/deliveries/paymentModeStyles";
 import { allStyles } from "../../styles/global";
-import Toast from "react-native-toast-message";
-import { getModalsData } from "@/src/api/addDelivery";
-import { useAuth } from "@/src/contexts";
-import { useModels } from "@/src/contexts/ModelsContext";
 
 type DeliveryType = "New" | "Renew";
 type RTOLocationType = "sameCity" | "sameState" | "otherState";
@@ -60,9 +60,9 @@ export default function AddDelivery() {
 
   // Initialize context on component mount
   useEffect(() => {
-    console.log("AddDelivery mounted - currentDelivery:", currentDelivery);
+    //console.log("AddDelivery mounted - currentDelivery:", currentDelivery);
     if (!currentDelivery) {
-      console.log("No currentDelivery found, resetting to initial state");
+      //console.log("No currentDelivery found, resetting to initial state");
       resetCurrentDelivery();
     }
   }, []);
@@ -70,10 +70,10 @@ export default function AddDelivery() {
   // Initialize form fields from context data (similar to PaymentMode)
   useEffect(() => {
     if (currentDelivery) {
-      console.log(
-        "Initializing AddDelivery form from context:",
-        currentDelivery
-      );
+      // console.log(
+      //   "Initializing AddDelivery form from context:",
+      //   currentDelivery
+      // );
 
       // Set delivery type based on context
       setDeliveryType(currentDelivery.isRenewal ? "Renew" : "New");
@@ -97,7 +97,7 @@ export default function AddDelivery() {
 
   // Track currentDelivery changes
   useEffect(() => {
-    console.log("AddDelivery - currentDelivery updated:", currentDelivery);
+    //console.log("AddDelivery - currentDelivery updated:", currentDelivery);
   }, [currentDelivery]);
 
   // Only call getAllModels when user is available
@@ -106,11 +106,11 @@ export default function AddDelivery() {
       // console.log('User is available, fetching models...');
       getAllModels();
     } else {
-      console.log("User is null, skipping model fetch");
+      //console.log("User is null, skipping model fetch");
     }
   }, [user]);
   useEffect(() => {
-    console.log("Models data updated:", modelsData);
+    //console.log("Models data updated:", modelsData);
   }, [modelsData]);
   const getAllModels = async () => {
     // console.log('COMPONENT: getAllModels function called', { user });
@@ -124,10 +124,10 @@ export default function AddDelivery() {
         oemRef = (user as any)?.mainDealerRef?.oemRef?._id;
       }
 
-      console.log("COMPONENT: OEM Ref:", oemRef);
+      //console.log("COMPONENT: OEM Ref:", oemRef);
 
       if (!oemRef) {
-        console.log("COMPONENT: No OEM reference found in user data");
+        //console.log("COMPONENT: No OEM reference found in user data");
         Toast.show({
           type: "error",
           text1: "Configuration Error",
@@ -259,7 +259,7 @@ export default function AddDelivery() {
 
     setCurrentDelivery(deliveryData);
 
-    console.log("Form validated and stored in context:", deliveryData);
+    //console.log("Form validated and stored in context:", deliveryData);
     router.push("/document-screen");
   };
 
@@ -357,7 +357,7 @@ export default function AddDelivery() {
                   style={[
                     allStyles.toggleButtonText,
                     deliveryType === "Renew" &&
-                      allStyles.toggleButtonTextActive,
+                    allStyles.toggleButtonTextActive,
                     deliveryType === "Renew" && { color: COLORS.white },
                   ]}
                 >
@@ -470,7 +470,7 @@ export default function AddDelivery() {
               >
                 {selectedModel
                   ? modelsData.find((model) => model._id === selectedModel)
-                      ?.name || selectedModel
+                    ?.name || selectedModel
                   : "Select Model *"}
               </Text>
               <Ionicons name="chevron-down" size={20} color="#6C757D" />
@@ -570,7 +570,7 @@ export default function AddDelivery() {
                         style={[
                           styles.modalOptionText,
                           selectedModel === model._id &&
-                            styles.selectedOptionText,
+                          styles.selectedOptionText,
                         ]}
                       >
                         {model.name}

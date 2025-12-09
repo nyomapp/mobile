@@ -12,8 +12,14 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 
+import {
+  deleteDeliveryById,
+  getDeliveriesData,
+} from "@/src/api/deliveriesHome";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useDeliveryHomePageContext } from "@/src/contexts/DeliveryHomePageContext";
 import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -22,12 +28,6 @@ import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/deliveryHomeStyles";
 import { allStyles } from "../../styles/global";
-import {
-  deleteDeliveryById,
-  getDeliveriesData,
-} from "@/src/api/deliveriesHome";
-import { useDeliveryHomePageContext } from "@/src/contexts/DeliveryHomePageContext";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 
 export default function DeliveriesHome() {
   const {
@@ -71,7 +71,7 @@ export default function DeliveriesHome() {
       }
 
       const response = (await getDeliveriesData(status, page)) as any;
-      console.log("API Response:", response);
+      //console.log("API Response:", response);
 
       if (isLoadMore && page > 1) {
         // Append new results to existing ones
@@ -103,14 +103,14 @@ export default function DeliveriesHome() {
     }
   };
   useEffect(() => {
-    console.log("Deliveries Context Data:", deliveriesData);
-    console.log("Deliveries Results:", deliveriesData.results);
+    //console.log("Deliveries Context Data:", deliveriesData);
+    //console.log("Deliveries Results:", deliveriesData.results);
   }, [deliveriesData]);
 
   const loadMoreDeliveries = () => {
     if (!isLoadingMore && deliveriesData.page < deliveriesData.totalPages) {
       const nextPage = deliveriesData.page + 1;
-      console.log(`Loading more deliveries - Page ${nextPage}`);
+      //console.log(`Loading more deliveries - Page ${nextPage}`);
       getDeleverirsData(activeTab, nextPage, true);
     }
   };
@@ -145,11 +145,11 @@ export default function DeliveriesHome() {
   };
 
   const handleApplyFilter = () => {
-    console.log("Applying filter:", {
-      frameNumber,
-      mobileNumber,
-      selectedModel,
-    });
+    // console.log("Applying filter:", {
+    //   frameNumber,
+    //   mobileNumber,
+    //   selectedModel,
+    // });
     setShowFilterModal(false);
     // Apply filter logic here
   };
@@ -161,18 +161,18 @@ export default function DeliveriesHome() {
   };
 
   const handleUpload = (customerId: string) => {
-    console.log("Upload for customer:", customerId);
+    //("Upload for customer:", customerId);
     router.push("/other-documents");
     // Navigate to upload screen or show upload modal
   };
 
   const handleMoreOptions = (customerId: string) => {
-    console.log("More options for customer:", customerId);
+    //console.log("More options for customer:", customerId);
     // Show options menu
   };
 
   const handleEdit = (data: any) => {
-    console.log("Edit Raw Data:", data);
+    //console.log("Edit Raw Data:", data);
 
     // Clean the data before setting to context
     const {
@@ -193,7 +193,7 @@ export default function DeliveriesHome() {
       userRef: data.userRef?._id || data.userRef?.id || "",
     };
 
-    console.log("Cleaned Data for Context:", cleanedData);
+    //console.log("Cleaned Data for Context:", cleanedData);
 
     setCurrentDelivery(cleanedData as any);
     setDeliveryId(data.id);
@@ -202,7 +202,7 @@ export default function DeliveriesHome() {
   };
 
   const handleDelete = (data: any) => {
-    console.log("Delete ", data);
+    //console.log("Delete ", data);
     setSelectedDelivery(data);
     setShowDeleteModal(true);
   };

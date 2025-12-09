@@ -1,4 +1,6 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
+import { COLORS } from "@/src/constants";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -15,8 +17,6 @@ import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/amountStyles";
 import { allStyles } from "../../styles/global";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
-import { COLORS } from "@/src/constants";
 
 interface AmountField {
   id: string;
@@ -41,25 +41,25 @@ export default function AmountScreen() {
   ]);
 
   useEffect(() => {
-    console.log("Current delivery context:", currentDelivery);
-    console.log("All deliveries:", deliveries);
+    //console.log("Current delivery context:", currentDelivery);
+    //console.log("All deliveries:", deliveries);
   }, [currentDelivery, deliveries]);
 
   // Initialize amounts from context if available
   useEffect(() => {
     if (currentDelivery) {
-      console.log("Initializing amounts from context:", {
-        exShowAmount: currentDelivery.exShowAmount,
-        insuranceAmount: currentDelivery.insuranceAmount,
-        rtoAmount: currentDelivery.rtoAmount,
-        accessoriesAmount: currentDelivery.accessoriesAmount,
-        rsaAmount: currentDelivery.rsaAmount,
-        others1: currentDelivery.others1,
-        others2: currentDelivery.others2,
-        others3: currentDelivery.others3,
-        discount: currentDelivery.discount,
-        helmetAmount: currentDelivery.helmetAmount,
-      });
+      // console.log("Initializing amounts from context:", {
+      //   exShowAmount: currentDelivery.exShowAmount,
+      //   insuranceAmount: currentDelivery.insuranceAmount,
+      //   rtoAmount: currentDelivery.rtoAmount,
+      //   accessoriesAmount: currentDelivery.accessoriesAmount,
+      //   rsaAmount: currentDelivery.rsaAmount,
+      //   others1: currentDelivery.others1,
+      //   others2: currentDelivery.others2,
+      //   others3: currentDelivery.others3,
+      //   discount: currentDelivery.discount,
+      //   helmetAmount: currentDelivery.helmetAmount,
+      // });
 
       // Update local state with context values if they exist
       setAmounts((prev) =>
@@ -110,7 +110,7 @@ export default function AmountScreen() {
                 ...item,
                 value: currentDelivery.others3?.toString() || "",
               };
-               case "helmet":
+            case "helmet":
               return {
                 ...item,
                 value: currentDelivery.helmetAmount?.toString() || "",
@@ -148,7 +148,7 @@ export default function AmountScreen() {
 
   const handleNext = () => {
     // Validate and proceed
-    console.log("Amount data:", amounts);
+    //console.log("Amount data:", amounts);
 
     // Convert amounts to delivery context format
     const amountData: any = {};
@@ -170,7 +170,7 @@ export default function AmountScreen() {
         case "rsa":
           amountData.rsaAmount = value;
           break;
-           case "helmet":
+        case "helmet":
           amountData.helmetAmount = value;
           break;
         case "discount":
@@ -197,11 +197,11 @@ export default function AmountScreen() {
       });
     }
 
-    console.log("Amount data stored in context:", amountData);
-    console.log("Updated delivery context:", {
-      ...currentDelivery,
-      ...amountData,
-    });
+    //console.log("Amount data stored in context:", amountData);
+    // console.log("Updated delivery context:", {
+    //   ...currentDelivery,
+    //   ...amountData,
+    // });
     router.push("/payment-mode");
   };
 
@@ -212,7 +212,7 @@ export default function AmountScreen() {
   const handleSkip = () => {
     // Skip this step
 
-    console.log("Skipping amount entry");
+    //console.log("Skipping amount entry");
     router.push("/payment-mode");
     // router.push("/next-screen");
   };

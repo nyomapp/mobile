@@ -24,7 +24,7 @@ const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
   const { user, updateUser } = useAuth();
-  console.log("Current user:", user);
+  //console.log("Current user:", user);
 
   // Radial chart data
   const chartData = [
