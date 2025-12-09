@@ -85,7 +85,7 @@ export default function HomeScreen() {
           <View style={styles.headingTextContainer}>
             <Text style={styles.headingText}>
               <Text style={{ fontWeight: "700" }}>Hello,</Text>
-              {"\n"}Kartik Bisht 👋
+              {"\n"}{user?.name} 👋
             </Text>
           </View>
           <HeaderIcon />
