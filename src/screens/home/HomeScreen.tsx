@@ -4,7 +4,7 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -17,14 +17,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 
-import Svg, { Circle } from "react-native-svg";
+//import Svg, { Circle } from "react-native-svg";
 import { styles } from "../../styles/homeStyles";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
   const { user, updateUser } = useAuth();
-  console.log('Current user:', user);
+  console.log("Current user:", user);
 
   // Radial chart data
   const chartData = [
@@ -43,7 +43,7 @@ export default function HomeScreen() {
 
   const RadialChart = () => (
     <View style={styles.radialChartContainer}>
-      <Svg width={chartSize} height={chartSize} style={styles.radialChart}>
+      {/* <Svg width={chartSize} height={chartSize} style={styles.radialChart}>
         {chartData.map((item, index) => {
           const percentage = (item.value / total) * 100;
           const angle = (item.value / total) * 360;
@@ -70,7 +70,7 @@ export default function HomeScreen() {
             />
           );
         })}
-      </Svg>
+      </Svg> */}
     </View>
   );
 
@@ -191,11 +191,12 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <TouchableOpacity onPress={()=>router.push("/add-delivery")} style={allStyles.floatingButton}>
+      <TouchableOpacity
+        onPress={() => router.push("/add-delivery")}
+        style={allStyles.floatingButton}
+      >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
     </SafeAreaView>
   );
 }
-
-
