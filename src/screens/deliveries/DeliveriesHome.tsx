@@ -8,7 +8,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -18,28 +18,32 @@ import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  responsiveWidth
-} from "react-native-responsive-dimensions";
+import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/deliveryHomeStyles";
 import { allStyles } from "../../styles/global";
-import { deleteDeliveryById, getDeliveriesData } from "@/src/api/deliveriesHome";
+import {
+  deleteDeliveryById,
+  getDeliveriesData,
+} from "@/src/api/deliveriesHome";
 import { useDeliveryHomePageContext } from "@/src/contexts/DeliveryHomePageContext";
-interface Customer {
-  id: string;
-  name: string;
-  frameNumber: string;
-  mobileNumber: string;
-  model: string;
-  status: "uploaded" | "pending";
-}
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 
 export default function DeliveriesHome() {
-  const { 
-    data: deliveriesData, 
+  const {
+    currentDelivery,
+    deliveryId,
+    isEdit,
+    setCurrentDelivery,
+    setDeliveryId,
+    setIsEdit,
+    resetDeliveryId,
+    resetIsEdit,
+  } = useDeliveryContext();
+  const {
+    data: deliveriesData,
     resetData,
-    setData
+    setData,
   } = useDeliveryHomePageContext();
   const [activeTab, setActiveTab] = useState<"delivered" | "pending">(
     "delivered"
@@ -56,28 +60,35 @@ export default function DeliveriesHome() {
   useEffect(() => {
     getDeleverirsData(activeTab);
   }, [activeTab]);
-  const getDeleverirsData = async(status: any, page: number = 1, isLoadMore: boolean = false) => {
+  const getDeleverirsData = async (
+    status: any,
+    page: number = 1,
+    isLoadMore: boolean = false
+  ) => {
     try {
       if (isLoadMore) {
         setIsLoadingMore(true);
       }
-      
-      const response = await getDeliveriesData(status, page) as any;
+
+      const response = (await getDeliveriesData(status, page)) as any;
       console.log("API Response:", response);
-      
+
       if (isLoadMore && page > 1) {
         // Append new results to existing ones
         const currentData = deliveriesData;
         const newData = {
           ...response,
-          results: [...(currentData.results || []), ...(response.results || [])]
+          results: [
+            ...(currentData.results || []),
+            ...(response.results || []),
+          ],
         };
         setData(newData);
       } else {
         // Replace all data (first load or refresh)
         setData(response);
       }
-      
+
       setIsLoadingMore(false);
     } catch (error) {
       console.error("Error fetching deliveries:", error);
@@ -85,10 +96,12 @@ export default function DeliveriesHome() {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: (error as any).message || "An error occurred while fetching deliveries.",
+        text2:
+          (error as any).message ||
+          "An error occurred while fetching deliveries.",
       });
     }
-  }
+  };
   useEffect(() => {
     console.log("Deliveries Context Data:", deliveriesData);
     console.log("Deliveries Results:", deliveriesData.results);
@@ -111,7 +124,7 @@ export default function DeliveriesHome() {
   const handleEndReached = () => {
     loadMoreDeliveries();
   };
-  
+
   const models = [
     "Hero Splendor",
     "Honda Activa",
@@ -120,7 +133,7 @@ export default function DeliveriesHome() {
     "Yamaha FZ",
     "Royal Enfield",
     "KTM Duke",
-    "Suzuki Access"
+    "Suzuki Access",
   ];
 
   const handleBack = () => {
@@ -132,7 +145,11 @@ export default function DeliveriesHome() {
   };
 
   const handleApplyFilter = () => {
-    console.log("Applying filter:", { frameNumber, mobileNumber, selectedModel });
+    console.log("Applying filter:", {
+      frameNumber,
+      mobileNumber,
+      selectedModel,
+    });
     setShowFilterModal(false);
     // Apply filter logic here
   };
@@ -154,8 +171,34 @@ export default function DeliveriesHome() {
     // Show options menu
   };
 
-  const handleEdit = (data:any) => {
-      console.log("Edit ",data);
+  const handleEdit = (data: any) => {
+    console.log("Edit Raw Data:", data);
+
+    // Clean the data before setting to context
+    const {
+      id: _id,
+      updatedBy: _updatedBy,
+      status: _status,
+      modelRef,
+      financerRef,
+      ...restData
+    } = data;
+
+    const cleanedData = {
+      ...restData,
+      // Extract model ID from modelRef object
+      modelRef: modelRef?._id || modelRef?.id || "",
+      financerRef: financerRef?._id || financerRef?.id || "",
+      // Ensure userRef is set (required field)
+      userRef: data.userRef?._id || data.userRef?.id || "",
+    };
+
+    console.log("Cleaned Data for Context:", cleanedData);
+
+    setCurrentDelivery(cleanedData as any);
+    setDeliveryId(data.id);
+    setIsEdit(true);
+    router.push("/add-delivery");
   };
 
   const handleDelete = (data: any) => {
@@ -168,16 +211,16 @@ export default function DeliveriesHome() {
     try {
       // Delete the delivery from database
       await deleteDeliveryById(selectedDelivery.id);
-      
+
       // Refresh the data by calling API again to get latest data
       await getDeleverirsData(activeTab, 1, false);
-      
+
       Toast.show({
         type: "success",
         text1: "Success",
-        text2: "Delivery deleted successfully."
+        text2: "Delivery deleted successfully.",
       });
-      
+
       setShowDeleteModal(false);
       setSelectedDelivery(null);
     } catch (error) {
@@ -185,7 +228,9 @@ export default function DeliveriesHome() {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: (error as any).message || "An error occurred while deleting the delivery.",
+        text2:
+          (error as any).message ||
+          "An error occurred while deleting the delivery.",
       });
     }
   };
@@ -198,8 +243,10 @@ export default function DeliveriesHome() {
   const renderLoadingFooter = () => {
     if (!isLoadingMore) return null;
     return (
-      <View style={{ padding: 20, alignItems: 'center' }}>
-        <Text style={{ color: '#666', fontSize: 14 }}>Loading more deliveries...</Text>
+      <View style={{ padding: 20, alignItems: "center" }}>
+        <Text style={{ color: "#666", fontSize: 14 }}>
+          Loading more deliveries...
+        </Text>
       </View>
     );
   };
@@ -243,10 +290,9 @@ export default function DeliveriesHome() {
                 // style={styles.uploadButton}
                 onPress={() => handleEdit(item)}
               >
-
                 <View
                 //  style={styles.uploadIcon}
-                 >
+                >
                   <Image
                     source={require("@/assets/icons/EditFilledIcon.png")}
                     // style={styles.img}
@@ -378,9 +424,13 @@ export default function DeliveriesHome() {
             windowSize={10}
           />
         ) : (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>
-              {deliveriesData.results ? 'No deliveries found' : 'Loading deliveries...'}
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text style={{ fontSize: 16, color: "#666" }}>
+              {deliveriesData.results
+                ? "No deliveries found"
+                : "Loading deliveries..."}
             </Text>
           </View>
         )}
@@ -406,7 +456,10 @@ export default function DeliveriesHome() {
               </View>
 
               {/* Filter Form */}
-              <ScrollView style={styles.filterForm} showsVerticalScrollIndicator={false}>
+              <ScrollView
+                style={styles.filterForm}
+                showsVerticalScrollIndicator={false}
+              >
                 <TextInput
                   style={globalStyles.input}
                   placeholder="Frame Number"
@@ -433,16 +486,12 @@ export default function DeliveriesHome() {
                   <Text
                     style={[
                       styles.dropdownText,
-                      selectedModel ? { color: COLORS.black } : null
+                      selectedModel ? { color: COLORS.black } : null,
                     ]}
                   >
                     {selectedModel || "Select Model"}
                   </Text>
-                  <Ionicons
-                    name="chevron-down"
-                    size={20}
-                    color="#6C757D"
-                  />
+                  <Ionicons name="chevron-down" size={20} color="#6C757D" />
                 </TouchableOpacity>
               </ScrollView>
 
@@ -476,27 +525,36 @@ export default function DeliveriesHome() {
                   <Ionicons name="close" size={24} color="#6C757D" />
                 </TouchableOpacity>
               </View>
-              <ScrollView style={styles.modelScrollView} showsVerticalScrollIndicator={false}>
+              <ScrollView
+                style={styles.modelScrollView}
+                showsVerticalScrollIndicator={false}
+              >
                 {models.map((model, index) => (
                   <TouchableOpacity
                     key={index}
                     style={[
                       styles.modelOption,
-                      selectedModel === model && styles.selectedModelOption
+                      selectedModel === model && styles.selectedModelOption,
                     ]}
                     onPress={() => {
                       setSelectedModel(model);
                       setShowModelModal(false);
                     }}
                   >
-                    <Text style={[
-                      styles.modelOptionText,
-                      selectedModel === model && styles.selectedModelText
-                    ]}>
+                    <Text
+                      style={[
+                        styles.modelOptionText,
+                        selectedModel === model && styles.selectedModelText,
+                      ]}
+                    >
                       {model}
                     </Text>
                     {selectedModel === model && (
-                      <Ionicons name="checkmark" size={20} color={COLORS.primaryBlue} />
+                      <Ionicons
+                        name="checkmark"
+                        size={20}
+                        color={COLORS.primaryBlue}
+                      />
                     )}
                   </TouchableOpacity>
                 ))}
@@ -504,7 +562,7 @@ export default function DeliveriesHome() {
             </View>
           </View>
         </Modal>
-        
+
         {/* Delete Confirmation Modal */}
         <Modal
           animationType="fade"
@@ -513,64 +571,75 @@ export default function DeliveriesHome() {
           onRequestClose={cancelDelete}
         >
           <View style={styles.modelModalOverlay}>
-            <View style={[styles.modelModalContent, { width: '80%', maxHeight: 'auto' }]}>
+            <View
+              style={[
+                styles.modelModalContent,
+                { width: "80%", maxHeight: "auto" },
+              ]}
+            >
               <View style={styles.modelModalHeader}>
                 <Text style={styles.modelModalTitle}>Confirm Delete</Text>
               </View>
-              
+
               <View style={{ padding: responsiveWidth(5) }}>
-                <Text style={{ 
-                  fontSize: 16, 
-                  color: '#333', 
-                  textAlign: 'center',
-                  marginBottom: responsiveWidth(2)
-                }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: "#333",
+                    textAlign: "center",
+                    marginBottom: responsiveWidth(2),
+                  }}
+                >
                   Are you sure you want to delete this delivery?
                 </Text>
-                
+
                 {selectedDelivery && (
-                  <View style={{ 
-                    backgroundColor: '#f8f9fa', 
-                    padding: responsiveWidth(3),
-                    borderRadius: responsiveWidth(2),
-                    marginBottom: responsiveWidth(5)
-                  }}>
-                    <Text style={{ fontSize: 14, color: '#666' }}>
+                  <View
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: responsiveWidth(3),
+                      borderRadius: responsiveWidth(2),
+                      marginBottom: responsiveWidth(5),
+                    }}
+                  >
+                    <Text style={{ fontSize: 14, color: "#666" }}>
                       Customer: {selectedDelivery.customerName}
                     </Text>
-                    <Text style={{ fontSize: 14, color: '#666' }}>
+                    <Text style={{ fontSize: 14, color: "#666" }}>
                       Frame Number: {selectedDelivery.chassisNo}
                     </Text>
                   </View>
                 )}
-                
-                <View style={{ 
-                  flexDirection: 'row', 
-                  justifyContent: 'space-between',
-                  gap: responsiveWidth(3)
-                }}>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    gap: responsiveWidth(3),
+                  }}
+                >
                   <TouchableOpacity
                     style={[
                       allStyles.btn,
-                      { 
-                        flex: 1, 
-                        backgroundColor: '#6c757d',
-                        marginBottom: 0
-                      }
+                      {
+                        flex: 1,
+                        backgroundColor: "#6c757d",
+                        marginBottom: 0,
+                      },
                     ]}
                     onPress={cancelDelete}
                   >
                     <Text style={allStyles.btnText}>Cancel</Text>
                   </TouchableOpacity>
-                  
+
                   <TouchableOpacity
                     style={[
                       allStyles.btn,
-                      { 
-                        flex: 1, 
-                        backgroundColor: '#dc3545',
-                        marginBottom: 0
-                      }
+                      {
+                        flex: 1,
+                        backgroundColor: "#dc3545",
+                        marginBottom: 0,
+                      },
                     ]}
                     onPress={confirmDelete}
                   >
@@ -586,4 +655,3 @@ export default function DeliveriesHome() {
     </SafeAreaView>
   );
 }
-

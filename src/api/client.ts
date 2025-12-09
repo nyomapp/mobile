@@ -286,6 +286,18 @@ class APIClient {
     }
   }
 
+  async patch<T>(
+    endpoint: string,
+    data?: any,
+    headers?: Record<string, string>
+  ): Promise<APIResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+      headers,
+    });
+  }
+
 }
 
 export const apiClient = new APIClient();

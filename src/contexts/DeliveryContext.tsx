@@ -82,9 +82,17 @@ interface DeliveryContextType {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   
+  // Additional states
+  deliveryId: string | null;
+  setDeliveryId: (id: string | null) => void;
+  isEdit: boolean;
+  setIsEdit: (edit: boolean) => void;
+  
   // Helper functions
   updateDeliveryField: (field: keyof Delivery, value: any) => void;
   resetCurrentDelivery: () => void;
+  resetDeliveryId: () => void;
+  resetIsEdit: () => void;
   addDocument: (document: DownloadDocument) => void;
   removeDocument: (documentName: DocumentName) => void;
   calculateTotalAmount: () => number;
@@ -131,6 +139,8 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
   const [currentDelivery, setCurrentDelivery] = useState<Delivery | null>(null);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [deliveryId, setDeliveryId] = useState<string | null>(null);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const updateDeliveryField = (field: keyof Delivery, value: any) => {
     if (currentDelivery) {
@@ -142,6 +152,14 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
   const resetCurrentDelivery = () => {
     console.log('Resetting delivery context to initial state:', initialDelivery);
     setCurrentDelivery(initialDelivery as Delivery);
+  };
+
+  const resetDeliveryId = () => {
+    setDeliveryId(null);
+  };
+
+  const resetIsEdit = () => {
+    setIsEdit(false);
   };
 
   const addDocument = (document: DownloadDocument) => {
@@ -203,8 +221,14 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
     setDeliveries,
     isLoading,
     setIsLoading,
+    deliveryId,
+    setDeliveryId,
+    isEdit,
+    setIsEdit,
     updateDeliveryField,
     resetCurrentDelivery,
+    resetDeliveryId,
+    resetIsEdit,
     addDocument,
     removeDocument,
     calculateTotalAmount,

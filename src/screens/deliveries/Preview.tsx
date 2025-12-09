@@ -24,6 +24,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/previewStyles";
 import Toast from "react-native-toast-message";
+import { updateDeliveryById } from "@/src/api/deliveriesHome";
 interface DetailField {
   label: string;
   value: string;
@@ -35,7 +36,14 @@ interface DocumentItem {
 }
 
 export default function PreviewScreen() {
-  const { currentDelivery,resetCurrentDelivery } = useDeliveryContext();
+  const {
+    currentDelivery,
+    resetCurrentDelivery,
+    isEdit,
+    deliveryId,
+    resetDeliveryId,
+    resetIsEdit,
+  } = useDeliveryContext();
   const { data: masterData, setData: setMasterData } = useMasterData();
   const { data: financierData, setData: setFinancierData } = useFinancierData();
   const { models: modelsData, setModels } = useModels();
@@ -154,7 +162,9 @@ export default function PreviewScreen() {
     },
     {
       label: "Helmet",
-      value: `₹${currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"}`,
+      value: `₹${
+        currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"
+      }`,
     },
     {
       label: "Other 1",
@@ -189,13 +199,20 @@ export default function PreviewScreen() {
     })) || [];
   const handleSubmit = async () => {
     try {
-      await createDelivery(currentDelivery);
-      resetCurrentDelivery(); // Reset context after successful submission
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Delivery created successfully!",
-      });
+      if (isEdit) {
+        await updateDeliveryById(deliveryId, currentDelivery);
+        resetIsEdit();
+        resetDeliveryId();
+      } else {
+        await createDelivery(currentDelivery);
+        // Reset context after successful submission
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Delivery created successfully!",
+        });
+      }
+      resetCurrentDelivery();
       router.push("/(tabs)/deliveries");
     } catch (error) {
       Toast.show({
@@ -287,7 +304,7 @@ export default function PreviewScreen() {
           {renderDetailSection("More Details", moreDetailsData, true)}
 
           {/* Payment Mode Section - Only show if finance */}
-          
+
           {currentDelivery?.purchaseType === "finance" &&
             renderDetailSection("Payment Details", [
               { label: "Payment Mode:", value: "Finance" },
