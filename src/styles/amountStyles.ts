@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
   },
   totalAmountCard: {
     backgroundColor: COLORS.white,
+    paddingRight: responsiveWidth(1),
     // marginHorizontal: responsiveWidth(4),
     // marginBottom: responsiveWidth(4),
     // borderRadius: responsiveWidth(3),
@@ -66,14 +67,15 @@ export const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(4),
     paddingVertical: responsiveWidth(2),
     borderRadius: responsiveWidth(2),
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 3,
+    // elevation: 2,
   },
   amountInput: {
     flex: 1,
