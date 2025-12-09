@@ -1,0 +1,2 @@
+# Simple text file to replace favicon.ico (this will prevent the MIME error)
+# In a real app, you would use a proper .ico file

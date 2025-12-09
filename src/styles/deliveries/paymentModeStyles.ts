@@ -1,13 +1,13 @@
 import { StyleSheet } from "react-native";
 import {
-    responsiveFontSize,
-    responsiveWidth,
+  responsiveFontSize,
+  responsiveWidth,
 } from "react-native-responsive-dimensions";
 import { COLORS } from "../../constants";
 import { FONTS } from "../../constants/fonts";
 export const styles = StyleSheet.create({
   sectionContainer: {
-    flexWrap: "wrap",
+    // flexWrap: "wrap",
     marginBottom: responsiveWidth(6),
     paddingHorizontal: responsiveWidth(1),
   },

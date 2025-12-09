@@ -193,17 +193,27 @@ export default function PreviewScreen() {
         await updateDeliveryById(deliveryId, currentDelivery);
         resetIsEdit();
         resetDeliveryId();
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Delivery updated successfully!",
+        });
       } else {
         await createDelivery(currentDelivery);
-        // Reset context after successful submission
         Toast.show({
           type: "success",
           text1: "Success",
           text2: "Delivery created successfully!",
         });
       }
+      
+      // Reset context after successful submission
       resetCurrentDelivery();
-      router.push("/(tabs)/deliveries");
+      
+      // Add delay to allow toast to be visible before navigation
+      setTimeout(() => {
+        router.push("/(tabs)/deliveries");
+      }, 1000);
     } catch (error) {
       Toast.show({
         type: "error",
@@ -213,6 +223,8 @@ export default function PreviewScreen() {
           "An error occurred while submitting the delivery.",
       });
       console.error("Error creating delivery:", error);
+      // Reset context even on error to prevent stuck state
+      resetCurrentDelivery();
       return;
     }
   };

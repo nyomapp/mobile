@@ -9,7 +9,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: COLORS.primaryBlue,
           borderTopWidth: 0,
-          height: 50,
+          height: 60,
           paddingBottom: 5,
           marginTop: 0,
           paddingTop: 5,
@@ -17,10 +17,9 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontFamily: FONTS.Yellix,
           fontSize: 10,
-          color: COLORS.white,
           fontWeight: "300",
         },
-        tabBarActiveTintColor: COLORS.primaryBlue,
+        tabBarActiveTintColor: COLORS.white,
         tabBarInactiveTintColor: COLORS.white,
         headerShown: false,
       }}

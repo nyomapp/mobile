@@ -36,22 +36,16 @@ export default function LoginScreen() {
         if (user && user.id) {
           // User is logged in, redirect to home
           router.replace('/(tabs)/home');
-        } else {
-          // No user found, show onboarding
-          setTimeout(() => {
-            router.replace('/login');
-          }, 3000);
         }
+        // Remove the else block since we're already on the login screen
       } catch (error) {
-        // Error getting user, show onboarding
-        setTimeout(() => {
-          router.replace('/login');
-        }, 3000);
+        // Error getting user, stay on login screen (do nothing)
+        console.log('Error checking user:', error);
       }
     };
  
     checkUserAndRedirect();
-  }, [router]);
+  }, []); // Empty dependency array - only run once on mount
 
 
 
