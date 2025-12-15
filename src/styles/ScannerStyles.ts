@@ -112,14 +112,15 @@ export const styles = StyleSheet.create({
     backgroundColor:COLORS.white,
     borderRadius: responsiveWidth(2),
     marginBottom: responsiveWidth(4),
+    marginHorizontal: responsiveWidth(1),
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowRadius: 2,
+    elevation: 1,
   },
   uploadFromPhoneText: {
     fontSize: responsiveFontSize(1.8),
@@ -191,7 +192,7 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.Yellix,
   },
   bottomButtonsContainer: {
-    paddingHorizontal: responsiveWidth(4),
+    // paddingHorizontal: responsiveWidth(4),
     paddingBottom: responsiveWidth(4),
   },
 });

@@ -200,7 +200,7 @@ export default function DeliveriesHome() {
       userRef: data.userRef?._id || data.userRef?.id || "",
     };
 
-    //console.log("Cleaned Data for Context:", cleanedData);
+    console.log("Cleaned Data for Context:", cleanedData);
 
     setCurrentDelivery(cleanedData as any);
     setDeliveryId(data.id);

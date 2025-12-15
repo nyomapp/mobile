@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
   ADD_DELIVERY: {
     CREATE: '/deliveries',
     GET_MODELS: '/models?makeId={makeId}',
+    Upload_Documents:'upload/generate-upload-url'
   },
   AUTH: {
     Login: '/auth/login'

@@ -15,21 +15,50 @@ import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/documentsStyles";
 import { allStyles } from "../../styles/global";
+import { useDocumentUploadContext } from '@/src/contexts/DocumentUploadContext';
+import { useDocumentArray } from '@/src/contexts/DocumentArray1';
+import Toast from "react-native-toast-message";
+import { useEffect } from "react";
+
 
 export default function DocumentsScreen() {
-  const { currentDelivery, setCurrentDelivery } = useDeliveryContext();
+  const { currentDelivery, setCurrentDelivery, isEdit } = useDeliveryContext();
+  const { setUploadingDocument } = useDocumentUploadContext();
+  const { documentTypes, updateBulkDocuments } = useDocumentArray();
+
+  // On mount, if in edit mode and documents exist, populate the context
+  useEffect(() => {
+    if (isEdit && currentDelivery?.downloadDocuments && currentDelivery.downloadDocuments.length > 0) {
+      console.log("Edit mode detected. Loading existing documents:", currentDelivery.downloadDocuments);
+      updateBulkDocuments(currentDelivery.downloadDocuments as any);
+    }
+  }, [isEdit, currentDelivery?.downloadDocuments]);
 
   const handleBack = () => {
     router.push("/add-delivery");
   };
 
   const handleNext = () => {
-    // Navigate to next step
-    //console.log("Next button pressed");
+    // Check if all required documents are uploaded
+    const requiredDocuments = documentTypes.filter(
+      doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
+    );
+
+    const missingDocuments = requiredDocuments.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === "");
+
+    if (missingDocuments.length > 0) {
+      const missingNames = missingDocuments.map(doc => doc.title).join(", ");
+      Toast.show({
+        type: "error",
+        text1: "Missing Documents",
+        text2: `Please upload: ${missingNames}`,
+      });
+      return;
+    }
 
     // Transform documentTypes array to match DownloadDocument interface
     const downloadDocuments = documentTypes.map(doc => ({
-      documentName: doc.documentName,
+      documentName: doc.documentName as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "ODOMETER" | "CHASSIS" | "AADHAAR FRONT" | "AADHAAR BACK" | "Customer" | "TAX INVOICE" | "INSURANCE" | "HELMET INVOICE" | "FORM 20 1ST PAGE",
       fileUrl: doc.fileUrl,
       fileSize: doc.fileSize,
       fileType: doc.fileType as 'PDF' | 'JPG'
@@ -43,79 +72,24 @@ export default function DocumentsScreen() {
       });
     }
 
-    //console.log("Documents stored in context:", downloadDocuments);
-    //console.log("Full delivery context after documents:", currentDelivery);
+    // console.log("Documents stored in context:", downloadDocuments);
+    // console.log("Full delivery context after documents:", currentDelivery);
+    
+    Toast.show({
+      type: "success",
+      text1: "Success",
+      text2: "All documents uploaded successfully",
+    });
+    
     router.push("/amount");
   };
 
-  const handleDocumentUpload = (documentType: string) => {
-    //console.log(`Upload ${documentType}`);
+  const handleDocumentUpload = (document: any) => {
+    console.log(`Upload ${document}`);
+    setUploadingDocument(document)
     router.push("/document-scanner");
     // Implement document upload logic
   };
-
-  const documentTypes = [
-    {
-      id: 1,
-      title: "Vehicle Front Image",
-      icon: require("@/assets/icons/DocumentPageBikeFrontSideIcon.png"),
-      uploaded: false,
-      documentName: 'FRONT' as const,
-      fileUrl: 'https://example.com/document1.pdf',
-      fileSize: 390,
-      fileType: 'PDF',
-    },
-    {
-      id: 2,
-      title: "Vehicle Side Image",
-      icon: require("@/assets/icons/DocumentPageBikeSideWiseIcon.png"),
-      uploaded: false,
-      documentName: 'LEFT' as const,
-      fileUrl: 'https://example.com/document1.pdf',
-      fileSize: 390,
-      fileType: 'PDF',
-    },
-    {
-      id: 3,
-      title: "Vehicle Frame Image",
-      icon: require("@/assets/icons/DocumentPageFrameIcon.png"),
-      uploaded: false,
-      documentName: 'CHASSIS' as const,
-      fileUrl: 'https://example.com/document1.pdf',
-      fileSize: 390,
-      fileType: 'PDF',
-
-    },
-    {
-      id: 4,
-      title: "Customer Photo",
-      icon: require("@/assets/icons/DocumentPageCustomerPhotoIcon.png"),
-      uploaded: false,
-      documentName: 'Customer' as const,
-      fileUrl: 'https://example.com/document1.pdf',
-      fileSize: 390,
-      fileType: 'PDF',
-    },
-    {
-      id: 5,
-      title: "Aadhaar Front",
-      icon: require("@/assets/icons/DocumnetPageAdhaarFrontIcon.png"),
-      uploaded: false,
-      documentName: 'AADHAAR FRONT' as const,
-      fileUrl: 'https://example.com/document1.pdf',
-      fileSize: 390,
-      fileType: 'PDF',
-    },
-    {
-      id: 6,
-      title: "Aadhaar Back",
-      icon: require("@/assets/icons/DocumnetPageAdhaarBackIcon.png"),
-      documentName: 'AADHAAR BACK' as const,
-      fileUrl: 'https://example.com/document1.pdf',
-      fileSize: 390,
-      fileType: 'PDF',
-    },
-  ];
 
   return (
     <SafeAreaView style={[allStyles.safeArea]} edges={["top"]}>
@@ -124,7 +98,7 @@ export default function DocumentsScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={{ paddingTop: responsiveWidth(2) }}>
+        <View style={{ paddingTop: responsiveWidth(6) }}>
           <HeaderIcon />
         </View>
         <View style={allStyles.pageHeader}>
@@ -142,7 +116,7 @@ export default function DocumentsScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Documents Title */}
-          <Text style={[allStyles.Title,{marginTop: responsiveWidth(0)}]}>Documents</Text>
+          <Text style={allStyles.Title}>Documents</Text>
 
           {/* Document Upload Cards */}
           {documentTypes.map((doc) => (
@@ -153,7 +127,7 @@ export default function DocumentsScreen() {
                 styles.documentCard,
                 doc.uploaded && styles.documentUploadedCard,
               ]}
-              onPress={() => handleDocumentUpload(doc.title)}
+              onPress={() => handleDocumentUpload(doc)}
               activeOpacity={0.7}
             >
               <View style={styles.documentLeft}>
@@ -168,7 +142,7 @@ export default function DocumentsScreen() {
               </View>
               <TouchableOpacity
                 //   style={styles.uploadButton}
-                onPress={() => handleDocumentUpload(doc.title)}
+                onPress={() => handleDocumentUpload(doc)}
               >
                 <Image
                   source={
@@ -200,6 +174,7 @@ export default function DocumentsScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+      <Toast />
     </SafeAreaView>
   );
 }

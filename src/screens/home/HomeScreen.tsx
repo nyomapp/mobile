@@ -85,9 +85,12 @@ export default function HomeScreen() {
           <View style={styles.headingTextContainer}>
             <View style={[styles.headingText]}>
               <Text style={styles.UserStyle}>Hello</Text>
+             
               <Text style={styles.UserStyle}>{user?.name} 👋</Text>
             </View>
-            <Text style={styles.UserDealerStyle}>Jain Motorcycle</Text>
+             {user?.mainDealerRef?.name && (
+            <Text style={styles.UserDealerStyle}>{user?.mainDealerRef?.name}</Text>
+            )}
           </View>
           <HeaderIcon />
         </View>

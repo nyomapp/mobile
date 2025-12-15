@@ -353,7 +353,7 @@ export const allStyles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(3),
     paddingVertical: responsiveWidth(1.5),
     borderRadius: responsiveWidth(5),
-    minWidth: responsiveWidth(15),
+    minWidth: responsiveWidth(20),
     width: responsiveWidth(20),
     alignItems: "center",
     justifyContent: "center",

@@ -32,6 +32,7 @@ export const styles = StyleSheet.create({
   },
   headingTextContainer: {
     flex: 1,
+    flexDirection: "column",
     flexWrap: "wrap",
   },
   deliveryCard: {

@@ -25,6 +25,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/previewStyles";
+import { useDocumentArray } from '@/src/contexts/DocumentArray1';
 interface DetailField {
   label: string;
   value: string;
@@ -44,6 +45,7 @@ export default function PreviewScreen() {
     resetDeliveryId,
     resetIsEdit,
   } = useDeliveryContext();
+  const { resetDocuments } = useDocumentArray();
   const { data: masterData, setData: setMasterData } = useMasterData();
   const { data: financierData, setData: setFinancierData } = useFinancierData();
   const { models: modelsData, setModels } = useModels();
@@ -212,6 +214,7 @@ export default function PreviewScreen() {
 
       // Reset context after successful submission
       resetCurrentDelivery();
+      resetDocuments();
 
       // Add delay to allow toast to be visible before navigation
       setTimeout(() => {

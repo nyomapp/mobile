@@ -38,42 +38,42 @@ export default function OtherDocumentsScreen() {
     {
       id: 1,
       title: "Invoice",
-      icon: require("@/assets/icons/DocumentPageBikeFrontSideIcon.png"),
+      icon: require("@/assets/icons/InvoiceIcon.png"),
       uploaded: true,
     },
     {
       id: 2,
       title: "Insurance",
-      icon: require("@/assets/icons/DocumentPageBikeSideWiseIcon.png"),
+      icon: require("@/assets/icons/InsuranceIcon.png"),
       uploaded: false,
     },
     {
       id: 3,
       title: "Helmet Invoice",
-      icon: require("@/assets/icons/DocumentPageFrameIcon.png"),
+      icon: require("@/assets/icons/HelmetInvoiceIcon.png"),
       uploaded: false,
     },
     {
       id: 4,
       title: "Form 20 - 1",
-      icon: require("@/assets/icons/DocumentPageCustomerPhotoIcon.png"),
+      icon: require("@/assets/icons/Form 20 -1Icon.png"),
       uploaded: false,
     },
     {
       id: 5,
       title: "Form 20 - 2",
-      icon: require("@/assets/icons/DocumnetPageAdhaarFrontIcon.png"),
+      icon: require("@/assets/icons/Form 20 - 2Icon.png"),
       uploaded: false,
     },
     {
       id: 6,
       title: "Form 20 - 3",
-      icon: require("@/assets/icons/DocumnetPageAdhaarBackIcon.png"),
+      icon: require("@/assets/icons/Form 20 - 3Icon.png"),
     },
     {
       id: 7,
       title: "Form 20",
-      icon: require("@/assets/icons/DocumnetPageAdhaarBackIcon.png"),
+      icon: require("@/assets/icons/Form 21 Icon.png"),
     },
   ];
 
@@ -119,7 +119,7 @@ export default function OtherDocumentsScreen() {
                 <View style={styles.iconContainer}>
                   <Image
                     source={doc.icon}
-                    style={{ width: 24, height: 24 }}
+                    style={{ width: 32, height: 32 }}
                     resizeMode="contain"
                   />
                 </View>
@@ -135,7 +135,7 @@ export default function OtherDocumentsScreen() {
                       ? require("@/assets/icons/DocumentsPageTickIcon.png")
                       : require("@/assets/icons/DocumentPageUplaodIcon.png")
                   }
-                  style={{ width: 20, height: 20 }}
+                  style={{ width: 25, height: 25 }}
                   resizeMode="contain"
                 />
               </TouchableOpacity>

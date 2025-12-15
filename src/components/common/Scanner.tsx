@@ -1,93 +1,95 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
+import { CameraView } from "expo-camera";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/ScannerStyles";
-
+import Toast from "react-native-toast-message";
+import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import {
+  convertImageToPdfAndCompress,
+  getSizeLimitText,
+} from "@/src/utils/documentConversionUtils";
+import { uploadDocument } from "@/src/api/UploadDocument";
+import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 interface DocumentScannerProps {
   documentType?: string;
 }
 
-export default function DocumentScanner({
-  documentType = "Aadhaar Front",
-}: DocumentScannerProps) {
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
-
-  const requestCameraPermission = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Permission Required",
-        "Camera permission is required to take photos."
-      );
-      return false;
-    }
-    return true;
-  };
+export default function DocumentScanner({}: // documentType = "Aadhaar Front",
+DocumentScannerProps) {
+  const { uploadingDocument, resetUploadingDocument } =
+    useDocumentUploadContext();
+  const { currentDelivery, setCurrentDelivery } = useDeliveryContext();
+  const [capturedImage, setCapturedImage] = useState<any | null>(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [permissionGranted, setPermissionGranted] = useState(false);
+  const cameraRef = useRef<CameraView>(null);
+  const { documentTypes, updateDocumentStatus } = useDocumentArray();
+  useEffect(() => {
+    const requestCameraPermission = async () => {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status === "granted") {
+        setPermissionGranted(true);
+      } else {
+        setPermissionGranted(false);
+        Toast.show({
+          type: "error",
+          text1: "Permission Required",
+          text2:
+            "Camera permission is required to take photos. Please enable it in settings.",
+        });
+      }
+    };
+    requestCameraPermission();
+  }, []);
 
   const requestMediaLibraryPermission = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Permission Required",
-        "Photo library permission is required to select photos."
-      );
+      Toast.show({
+        type: "error",
+        text1: "Permission Required",
+        text2: "Photo library permission is required to select photos.",
+      });
       return false;
     }
     return true;
   };
 
-  const validateFileSize = async (imageUri: string): Promise<boolean> => {
-    try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      const fileSizeKB = blob.size / 1024; // Convert bytes to KB
-
-      if (fileSizeKB > 300) {
-        Alert.alert(
-          "File Size Too Large",
-          `The selected image is ${fileSizeKB.toFixed(1)}KB. Please select an image smaller than 300KB.`
-        );
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.error("Error checking file size:", error);
-      Alert.alert("Error", "Could not validate file size. Please try again.");
-      return false;
-    }
-  };
-
   const takePhoto = async () => {
-    const hasPermission = await requestCameraPermission();
-    if (!hasPermission) return;
+    if (!cameraRef.current) return;
 
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.7, // Reduced quality to help with file size
-    });
+    try {
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.7,
+        base64: false,
+      });
 
-    if (!result.canceled) {
-      const imageUri = result.assets[0].uri;
-      const isValidSize = await validateFileSize(imageUri);
-
-      if (isValidSize) {
-        setCapturedImage(imageUri);
+      if (photo) {
+        setCapturedImage(photo.uri);
       }
+    } catch (error) {
+      console.error("Error taking photo:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to take photo. Please try again.",
+      });
     }
   };
 
@@ -97,33 +99,106 @@ export default function DocumentScanner({
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
+      allowsEditing: false,
       quality: 0.7, // Reduced quality to help with file size
     });
 
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
-      const isValidSize = await validateFileSize(imageUri);
-
-      if (isValidSize) {
-        setCapturedImage(imageUri);
-      }
+      setCapturedImage(imageUri);
     }
   };
 
-  const handleUpload = () => {
-    if (capturedImage) {
-      // Process the upload
-      //console.log("Uploading image:", capturedImage);
-
-    } else {
-      Alert.alert(
-        "No Image",
-        "Please take a photo or select from gallery first."
-      );
+  const handleUpload = async () => {
+    if (!capturedImage) {
+      Toast.show({
+        type: "error",
+        text1: "No Image Selected",
+        text2: "Please take a photo or select from gallery first.",
+      });
+      return;
     }
-    router.back();
+
+    try {
+      const resolvedDocumentType =
+        (uploadingDocument as any)?.documentName || Date.now().toString();
+      const frameNumber = currentDelivery?.chassisNo || "";
+
+      // Convert image to PDF and compress
+      const processedDocument = await convertImageToPdfAndCompress(
+        capturedImage,
+        resolvedDocumentType,
+        frameNumber,
+        frameNumber
+      );
+
+      if (processedDocument) {
+        // console.log("Processed Document:", processedDocument);
+
+        try {
+          const { fileUri, fileSize, ...finalObject } = processedDocument;
+
+          // Step 1: Get upload URL from server
+          const response = await uploadDocument(finalObject);
+          console.log("Upload response:", response);
+          // Step 2: Read the file from fileUri
+          const fileResponse = await fetch((response as any).uploadUrl);
+          const fileBlob = await fileResponse.blob();
+          console.log("File blob size:", fileBlob.size, "bytes");
+
+          // Step 3: Upload file to the presigned URL with file as body
+          const finalUploadedResponse = await fetch(
+            (response as any).uploadUrl,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": finalObject.contentType || "application/pdf",
+              },
+              body: fileBlob,
+            }
+          );
+
+          if (!finalUploadedResponse.ok) {
+            throw new Error(
+              `Upload failed with status ${finalUploadedResponse.status}`
+            );
+          }
+
+          // console.log("Document uploaded successfully", finalUploadedResponse);
+
+          updateDocumentStatus(
+            (uploadingDocument as any)?.documentName,
+            true,
+            (response as any).fileKey
+          );
+
+          Toast.show({
+            type: "success",
+            text1: "Success",
+            text2: `${resolvedDocumentType} uploaded successfully`,
+          });
+
+          // Navigate back after successful upload
+          setTimeout(() => {
+            router.push("/document-screen");
+          }, 1000);
+        } catch (error) {
+          console.error("Upload error:", error);
+          Toast.show({
+            type: "error",
+            text1: "Upload Failed",
+            text2: (error as Error).message || "Failed to upload document.",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to process and upload document.",
+      });
+    }
   };
 
   const handleBack = () => {
@@ -141,99 +216,132 @@ export default function DocumentScanner({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={[allStyles.pageHeader, { paddingTop: responsiveWidth(4) }]}>
+        <View
+          style={[allStyles.pageHeader, { paddingTop: responsiveWidth(4) }]}
+        >
           <View>
-            <Text style={styles.headerTitle}>{documentType}</Text>
+            <Text style={styles.headerTitle}>
+              {(uploadingDocument as any)?.title}
+            </Text>
           </View>
           <HeaderIcon />
         </View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={allStyles.scrollContent}
+        >
+          <View style={{ flex: 1, width: "100%" }}>
+            {/* Camera/Preview Area */}
+            {permissionGranted ? (
+              <View
+                style={[
+                  styles.cameraContainer,
+                  capturedImage ? styles.cameraContainerWithImage : null,
+                  { width: "100%", marginHorizontal: 0, paddingHorizontal: 0 },
+                ]}
+              >
+                {capturedImage ? (
+                  /* Captured Image Preview */
+                  <Image
+                    source={{ uri: capturedImage }}
+                    style={styles.previewImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  /* Camera Feed */
+                  <>
+                    <CameraView
+                      ref={cameraRef}
+                      style={styles.previewImage}
+                      onCameraReady={() => setCameraReady(true)}
+                    />
+                    {/* Corner Overlays */}
+                    <View style={styles.cornerTopLeft} />
+                    <View style={styles.cornerTopRight} />
+                    <View style={styles.cornerBottomLeft} />
+                    <View style={styles.cornerBottomRight} />
+                  </>
+                )}
 
-        <View>
-          {/* Camera/Preview Area */}
-          <View style={[styles.cameraContainer, capturedImage ? styles.cameraContainerWithImage : null]}>
-            {!capturedImage && (
-              <>
-                {/* Corner Overlays */}
-                <View style={styles.cornerTopLeft} />
-                <View style={styles.cornerTopRight} />
-                <View style={styles.cornerBottomLeft} />
-                <View style={styles.cornerBottomRight} />
-              </>)}
-
-            {capturedImage ? (
-              /* Captured Image Preview */
-              <Image
-                source={{ uri: capturedImage }}
-                style={styles.previewImage}
-                resizeMode="contain"
-              />
+                {/* Capture Button - Only show when no image is captured */}
+                {!capturedImage && cameraReady && permissionGranted && (
+                  <TouchableOpacity
+                    style={styles.captureButton}
+                    onPress={takePhoto}
+                  >
+                    <View style={styles.captureInner} />
+                  </TouchableOpacity>
+                )}
+              </View>
             ) : (
-              /* Document Placeholder */
-              <View style={styles.sampleContainer}>
-                <View style={styles.placeholderCard}>
-                  <Text style={styles.placeholderText}>
-                    Position your {documentType} here
-                  </Text>
-                  <Text style={styles.placeholderSubtext}>
-                    Make sure all corners are visible
-                  </Text>
-                </View>
+              <View
+                style={[
+                  styles.cameraContainer,
+                  { justifyContent: "center", alignItems: "center" },
+                ]}
+              >
+                <Text
+                  style={{ fontSize: 16, color: "#666", textAlign: "center" }}
+                >
+                  Camera permission denied. Please enable camera permission in
+                  settings to use this feature.
+                </Text>
               </View>
             )}
 
-            {/* Capture Button - Only show when no image is captured */}
-            {!capturedImage && (
-              <TouchableOpacity style={styles.captureButton} onPress={takePhoto}>
-                <View style={styles.captureInner} />
-              </TouchableOpacity>
+            {/* Retake Button - Show when image is captured */}
+            {capturedImage && (
+              <View style={styles.retakeButtonContainer}>
+                <TouchableOpacity
+                  style={styles.retakeButtonMain}
+                  onPress={retakePhoto}
+                >
+                  <Text style={styles.retakeButtonMainText}>Retake</Text>
+                </TouchableOpacity>
+              </View>
             )}
-          </View>
 
-          {/* Retake Button - Show when image is captured */}
-          {capturedImage && (
-            <View style={styles.retakeButtonContainer}>
-              <TouchableOpacity style={styles.retakeButtonMain} onPress={retakePhoto}>
-                <Text style={styles.retakeButtonMainText}>Retake</Text>
+            {/* Upload from Phone Option */}
+            <TouchableOpacity
+              style={styles.uploadFromPhoneContainer}
+              onPress={pickFromGallery}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Text style={styles.uploadFromPhoneText}>
+                  Upload from phone
+                </Text>
+                <Text style={styles.uploadFromPhoneSubtext}>
+                  ( Max File Size - 300Kb )
+                </Text>
+              </View>
+              <Image
+                source={require("@/assets/icons/DocumentPageUplaodIcon.png")}
+                style={{ width: 24, height: 24 }}
+                // width={24}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            {/* Spacer to push buttons to bottom */}
+            <View style={{ flex: 1 }} />
+
+            {/* Action Buttons */}
+            <View style={styles.bottomButtonsContainer}>
+              <TouchableOpacity style={allStyles.btn} onPress={handleUpload}>
+                <Text style={allStyles.btnText}>Upload</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={allStyles.backButton}
+                onPress={handleBack}
+              >
+                <Text style={allStyles.backButtonText}>← Back</Text>
               </TouchableOpacity>
             </View>
-          )}
-
-          {/* Upload from Phone Option */}
-          <TouchableOpacity
-            style={styles.uploadFromPhoneContainer}
-            onPress={pickFromGallery}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <Text style={styles.uploadFromPhoneText}>Upload from phone</Text>
-              <Text style={styles.uploadFromPhoneSubtext}>
-                ( Max File Size - 300Kb )
-              </Text>
-            </View>
-            <Image
-              source={require("@/assets/icons/DocumentPageUplaodIcon.png")}
-              // style={styles.img}
-              width={24}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-
-          {/* Spacer to push buttons to bottom */}
-          <View style={{ flex: 1 }} />
-
-          {/* Action Buttons */}
-          <View style={styles.bottomButtonsContainer}>
-            <TouchableOpacity style={allStyles.btn} onPress={handleUpload}>
-              <Text style={allStyles.btnText}>Upload</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={allStyles.backButton} onPress={handleBack}>
-              <Text style={allStyles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
           </View>
-        </View>
+        </ScrollView>
+        <Toast />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-

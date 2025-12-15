@@ -27,6 +27,7 @@ import Toast from "react-native-toast-message";
 import { styles } from "../../styles/deliveries/addDeliveryStyles";
 import { styles as paymentStyles } from "../../styles/deliveries/paymentModeStyles";
 import { allStyles } from "../../styles/global";
+import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 
 type DeliveryType = "New" | "Renew";
 type RTOLocationType = "sameCity" | "sameState" | "otherState";
@@ -46,7 +47,7 @@ export default function AddDelivery() {
     isLoading,
     setLoading,
   } = useModels();
-
+   const { resetDocuments } = useDocumentArray();
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("New");
   const [customerName, setCustomerName] = useState("");
   const [frameNumber, setFrameNumber] = useState("");
@@ -98,6 +99,7 @@ export default function AddDelivery() {
   // Track currentDelivery changes
   useEffect(() => {
     //console.log("AddDelivery - currentDelivery updated:", currentDelivery);
+    
   }, [currentDelivery]);
 
   // Only call getAllModels when user is available
@@ -264,6 +266,8 @@ export default function AddDelivery() {
   };
 
   const handleBack = () => {
+    resetCurrentDelivery();
+    resetDocuments();
     router.back();
   };
 
