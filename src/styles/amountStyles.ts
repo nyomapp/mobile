@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(4),
   },
   totalAmountCard: {
-    backgroundColor: COLORS.white,
+    // backgroundColor: COLORS.white,
     paddingRight: responsiveWidth(1),
     // marginHorizontal: responsiveWidth(4),
     // marginBottom: responsiveWidth(4),
@@ -19,6 +19,7 @@ export const styles = StyleSheet.create({
     // padding: responsiveWidth(5),
     flexDirection: "column",
     // textAlign: "left",
+    
   },
   totalAmountDisplay: {
     flexDirection: "row",
@@ -44,12 +45,12 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: responsiveWidth(0.5),
+    marginBottom: responsiveWidth(5),
     paddingRight: responsiveWidth(1),
   },
   amountLabel: {
-    fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontSize: responsiveFontSize(2.1),
+    fontFamily: FONTS.YellixThin,
     // color: "#6B7280",
     flex: 1,
     marginRight: responsiveWidth(4),
@@ -59,23 +60,24 @@ export const styles = StyleSheet.create({
   },
   totalAmountLabel: {
     fontSize: responsiveFontSize(2),
-    maxWidth: responsiveWidth(35),
-    minWidth: responsiveWidth(35),
+    // maxWidth: responsiveWidth(35),
+    // minWidth: responsiveWidth(35),
     fontFamily: FONTS.Yellix,
-    color: COLORS.black,
+    color:"#646566",
     marginLeft: "auto",
     paddingHorizontal: responsiveWidth(4),
     paddingVertical: responsiveWidth(2),
     borderRadius: responsiveWidth(2),
-    borderWidth: 1,
-    // shadowColor: "#000",
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 1,
-    // },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 3,
-    // elevation: 2,
+    backgroundColor: COLORS.white,
+    // borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 1,
   },
   amountInput: {
     flex: 1,
@@ -84,6 +86,8 @@ export const styles = StyleSheet.create({
     paddingVertical: responsiveWidth(2),
     paddingHorizontal: responsiveWidth(2),
     backgroundColor: "transparent",
+    borderColor: "#E2E2E2",
+    marginBottom:0,
   },
   bottomNavigation: {
     flexDirection: "row",
@@ -105,7 +109,7 @@ export const styles = StyleSheet.create({
   },
   nextButton: {
     paddingHorizontal: responsiveWidth(8),
-    paddingVertical: responsiveWidth(3),
+    // paddingVertical: responsiveWidth(3),
     flex: 1,
     maxWidth: responsiveWidth(30),
     alignItems: "center",
@@ -124,7 +128,7 @@ export const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     // color: "#6B7280",
   },
 });

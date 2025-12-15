@@ -10,15 +10,24 @@ export default function TabLayout() {
           backgroundColor: COLORS.primaryBlue,
           borderTopWidth: 0,
           height: 60,
-          paddingBottom: 5,
+          paddingBottom: 3,
           marginTop: 0,
-          paddingTop: 5,
+          paddingTop: 3,
         },
         tabBarLabelStyle: {
           fontFamily: FONTS.Yellix,
           fontSize: 10,
           fontWeight: "300",
+          textAlign: 'center',
+          // marginTop: 2,
         },
+        tabBarItemStyle: {
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        // tabBarIconStyle: {
+        //   marginBottom: 2,
+        // },
         tabBarActiveTintColor: COLORS.white,
         tabBarInactiveTintColor: COLORS.white,
         headerShown: false,
@@ -31,7 +40,7 @@ export default function TabLayout() {
 
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <View style={{}}>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               <Image
                 source={
                   focused
@@ -39,8 +48,8 @@ export default function TabLayout() {
                     : require("../../assets/icons/HomeTabIcon.png")
                 }
                 style={{
-                  width: 25,
-                  height: 25,
+                  width: 24,
+                  height: 24,
                   // tintColor: focused ? COLORS.primaryBlue : "#666",
                 }}
               />
@@ -77,7 +86,7 @@ export default function TabLayout() {
           title: "Search",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <View style={{}}>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               <Image
                 source={
                   focused
@@ -85,8 +94,8 @@ export default function TabLayout() {
                     : require("../../assets/icons/searchTabIcon.png")
                 }
                 style={{
-                  width: 25,
-                  height: 25,
+                  width: 24,
+                  height: 24,
                   // tintColor: focused ? COLORS.primaryBlue : "#666",
                 }}
               />
@@ -101,11 +110,11 @@ export default function TabLayout() {
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <View
-              style={
-                {
-                  // backgroundColor: focused ? "#fff" : "#fff",
-                }
-              }
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                // backgroundColor: focused ? "#fff" : "#fff",
+              }}
             >
               <Image
                 source={
@@ -114,8 +123,8 @@ export default function TabLayout() {
                     : require("../../assets/icons/settingsTabIcon.png")
                 }
                 style={{
-                  width: 25,
-                  height: 25,
+                  width: 24,
+                  height: 24,
                   // tintColor: focused ? COLORS.primaryBlue : "#666",
                 }}
               />

@@ -91,8 +91,8 @@ export const styles = StyleSheet.create({
     color: '#333'
   },
     radioRow: {
-    flexDirection: "row",
-    gap: responsiveWidth(5),
+    flexDirection: "column",
+    // gap: responsiveWidth(1),
     paddingHorizontal: responsiveWidth(2),
   },
   radioContainer: {
@@ -120,8 +120,8 @@ export const styles = StyleSheet.create({
   },
 
   radioText: {
-    fontSize: responsiveFontSize(1.6),
-    fontFamily: FONTS.Yellix,
+    fontSize: responsiveFontSize(1.8),
+    fontFamily: FONTS.YellixThin,
     color: COLORS.black,
   },
 });

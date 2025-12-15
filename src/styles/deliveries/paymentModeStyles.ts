@@ -8,7 +8,8 @@ import { FONTS } from "../../constants/fonts";
 export const styles = StyleSheet.create({
   sectionContainer: {
     // flexWrap: "wrap",
-    marginBottom: responsiveWidth(6),
+    paddingVertical: responsiveWidth(2),
+    // marginBottom: responsiveWidth(6),
     paddingHorizontal: responsiveWidth(1),
   },
 
@@ -51,7 +52,7 @@ export const styles = StyleSheet.create({
 
   radioText: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: COLORS.black,
   },
 

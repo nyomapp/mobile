@@ -6,7 +6,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -14,9 +14,7 @@ import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  responsiveWidth
-} from "react-native-responsive-dimensions";
+import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/searchScreenStyles";
@@ -28,6 +26,7 @@ interface Customer {
   mobileNumber: string;
   model: string;
   status: "uploaded" | "pending";
+  date: string;
 }
 
 export default function DeliveriesHome() {
@@ -39,8 +38,6 @@ export default function DeliveriesHome() {
   const [frameNumber, setFrameNumber] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
-
 
   const handleBack = () => {
     router.back();
@@ -55,6 +52,7 @@ export default function DeliveriesHome() {
       mobileNumber: "5555858665172",
       model: "Hero Splendor",
       status: "pending",
+      date: "20-10-20215"
     },
     {
       id: "2",
@@ -63,6 +61,7 @@ export default function DeliveriesHome() {
       mobileNumber: "5555858665172",
       model: "Hero Splendor",
       status: "pending",
+      date: "20-10-20215"
     },
     {
       id: "3",
@@ -71,6 +70,7 @@ export default function DeliveriesHome() {
       mobileNumber: "5555858665172",
       model: "Hero Splendor",
       status: "pending",
+      date: "20-10-20215"
     },
     {
       id: "4",
@@ -79,6 +79,7 @@ export default function DeliveriesHome() {
       mobileNumber: "5555858665172",
       model: "Hero Splendor",
       status: "pending",
+      date: "20-10-20215"
     },
   ];
 
@@ -91,58 +92,75 @@ export default function DeliveriesHome() {
   };
 
   const renderCustomerCard = ({ item }: { item: Customer }) => (
-    <View style={styles.customerCard}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.customerName}>{item.name}</Text>
-        <View style={styles.cardActions}>
-
-          <TouchableOpacity
-            // style={styles.uploadButton}
-            onPress={() => handleEdit(item)}
-          >
-
-            <View
-            //  style={styles.uploadIcon}
-            >
-              <Image
-                source={require("@/assets/icons/EditFilledIcon.png")}
-                // style={styles.img}
-                width={20}
-                resizeMode="contain"
-              />
+      <View style={allStyles.customerCard}>
+        <View style={allStyles.cardHeader}>
+          <View style={allStyles.cardContent}>
+            <View style={allStyles.avatar}>
+              <Text style={allStyles.avatarText}>
+                {item.name?.charAt(0)?.toUpperCase() || "A"}
+              </Text>
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            // style={styles.moreButton}
-            onPress={() => handleDelete(item)}
-          >
-            <Image
-              source={require("@/assets/icons/DeleteIcon.png")}
-              // style={styles.img}
-              width={20}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-
+            <View style={allStyles.customerInfo}>
+              <Text style={allStyles.customerName}>{item.name}</Text>
+              <Text style={allStyles.detailValue}>{item.model}</Text>
+            </View>
+          </View>
+          <View style={allStyles.cardActions}>
+              <>
+                <TouchableOpacity
+                  style={{ alignItems: "center" }}
+                  onPress={() => handleEdit(item)}
+                >
+                  <View
+                  //  style={styles.uploadIcon}
+                  >
+                    <Image
+                      source={require("@/assets/icons/EditIcon.png")}
+                      style={{
+                        width: 22,
+                        height: 22,
+                      }}
+                      // width={20}
+                      resizeMode="contain"
+                    />
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  // style={styles.moreButton}
+                  onPress={() => handleDelete(item)}
+                >
+                  <Image
+                    source={require("@/assets/icons/DeleteIcon.png")}
+                    style={{ width: 16, height: 16 }}
+                    // width={20}
+  
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </>
+          </View>
+        </View>
+  
+        <View style={allStyles.customerDetails}>
+          <View style={allStyles.detailText}>
+            <Text style={allStyles.detailLabel}>Frame Number</Text>
+            <Text style={allStyles.detailValue}>{item.frameNumber}</Text>
+          </View>
+          <View style={allStyles.verticalLine}></View>
+          <View style={allStyles.detailText}>
+            <Text style={allStyles.detailLabel}>Mobile Number</Text>
+            <Text style={allStyles.detailValue}>{item.mobileNumber}</Text>
+          </View>
+          <View style={allStyles.verticalLine}></View>
+          <View style={allStyles.detailText}>
+            <Text style={allStyles.detailLabel}>Date</Text>
+            <Text style={allStyles.detailValue}>
+              {item.date}
+            </Text>
+          </View>
         </View>
       </View>
-
-      <View style={styles.customerDetails}>
-        <Text style={styles.detailText}>
-          <Text style={styles.detailLabel}>Frame Number: </Text>
-          <Text style={styles.detailValue}>{item.frameNumber}</Text>
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.detailLabel}>Mobile Number: </Text>
-          <Text style={styles.detailValue}>{item.mobileNumber}</Text>
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.detailLabel}>Model: </Text>
-          <Text style={styles.detailValue}>{item.model}</Text>
-        </Text>
-      </View>
-    </View>
-  );
+    );
 
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top", "bottom"]}>
@@ -152,12 +170,12 @@ export default function DeliveriesHome() {
       >
         {/* Header */}
         <View style={allStyles.headerContainer}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={handleBack}
             style={[allStyles.backButton, allStyles.backButtonBackgroundStyle]}
           >
             <Text style={allStyles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <HeaderIcon />
         </View>
 
@@ -183,29 +201,35 @@ export default function DeliveriesHome() {
             <TouchableOpacity style={styles.searchButton}>
               <Image
                 source={require("@/assets/icons/SearchIcon.png")}
-                // style={styles.img}
+                style={{
+                  width: 20,
+                  height: 20,
+                }}
                 // width={10}
                 resizeMode="contain"
               />
             </TouchableOpacity>
           </View>
         </View>
-
-        {/* Customer List */}
-        <FlatList
-          data={customers}
-          renderItem={renderCustomerCard}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          style={[
-            allStyles.scrollContent,
-            { paddingHorizontal: responsiveWidth(0.5) },
-          ]}
-        />
+        {customers.length !== 0 ? (
+          <FlatList
+            data={customers}
+            renderItem={renderCustomerCard}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+            style={[
+              allStyles.scrollContent,
+              { paddingHorizontal: responsiveWidth(0.5) },
+            ]}
+          />
+        ) : (
+          <View style={styles.noResultsContainer}>
+            <Text style={styles.noResultsText}>No results found</Text>
+          </View>
+        )}
       </KeyboardAvoidingView>
       <Toast />
     </SafeAreaView>
   );
 }
-

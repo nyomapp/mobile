@@ -47,12 +47,12 @@ export default function SettingsScreen() {
       >
         {/* Header */}
         <View style={allStyles.headerContainer}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={handleBack}
             style={[allStyles.backButton, allStyles.backButtonBackgroundStyle]}
           >
             <Text style={allStyles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <HeaderIcon />
         </View>
 

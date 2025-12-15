@@ -26,16 +26,29 @@ export const styles = StyleSheet.create({
     elevation: 2,
   },
   filterIcon: {
-    fontSize: responsiveFontSize(2),
+    // fontSize: responsiveFontSize(2),
     backgroundColor: COLORS.white,
+    width:20,
+    height:20
   },
   tabContainer: {
     flexDirection: "row",
     // marginHorizontal: responsiveWidth(4),
     marginBottom: responsiveWidth(4),
-    backgroundColor: "#F3F4F6",
-    borderRadius: responsiveWidth(6),
+    backgroundColor:COLORS.white,
+    // backgroundColor: "#F3F4F6",
+    // borderWidth:1,
+    borderColor:"#BCBCBC",
+    borderRadius: responsiveWidth(5),
     padding: responsiveWidth(1),
+      shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
   },
   tab: {
     flex: 1,
@@ -57,55 +70,34 @@ export const styles = StyleSheet.create({
   },
   listContainer: {
     // paddingHorizontal: responsiveWidth(4),
+    paddingTop: responsiveWidth(2),
     paddingBottom: responsiveWidth(4),
   },
-  customerCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: responsiveWidth(3),
-    padding: responsiveWidth(4),
-    marginBottom: responsiveWidth(4),
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: responsiveWidth(3),
-    borderBottomColor:COLORS.black,
-    borderBottomWidth: 0.5,
-    paddingBottom: responsiveWidth(2),
-  },
-  customerName: {
-    fontSize: responsiveFontSize(2.2),
-    fontFamily: FONTS.Yellix,
-    color: COLORS.black,
-    // fontWeight: "600",
-  },
-  cardActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: responsiveWidth(2),
-  },
-  uploadButton: {
+  
+  HeaderStatus:{
+    paddingHorizontal: responsiveWidth(2),
+    paddingVertical: responsiveWidth(1),
+    borderRadius: responsiveWidth(2),
     backgroundColor: COLORS.primaryBlue,
+  },
+ 
+  uploadButton: {
+    backgroundColor: COLORS.lightBlue,
     borderRadius: responsiveWidth(2),
     paddingHorizontal: responsiveWidth(3),
     paddingVertical: responsiveWidth(1),
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: responsiveWidth(1),
+    width: "100%",
+    marginTop: responsiveWidth(3),
   },
   uploadButtonText: {
     fontSize: responsiveFontSize(1.6),
     fontFamily: FONTS.Yellix,
     color: COLORS.white,
+    textAlign: "center",
   },
   uploadIcon: {
     // backgroundColor: "rgba(255,255,255,0.3)",
@@ -121,7 +113,7 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   moreButton: {
-    backgroundColor: "#898989",
+    // backgroundColor: "#898989",
     borderRadius: responsiveWidth(4),
     width: responsiveWidth(8),
     height: responsiveWidth(8),
@@ -134,22 +126,31 @@ export const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   customerDetails: {
-    gap: responsiveWidth(2),
+    // gap: responsiveWidth(3),
+    paddingVertical: responsiveWidth(3),
+    flexDirection:"row",
+    justifyContent:"space-between",
+    flex:1,
   },
   detailText: {
-    flexDirection: "row",
+    flexDirection: "column",
+    paddingVertical: responsiveWidth(1.5),
+    gap: responsiveWidth(1.2),
   },
   detailLabel: {
-    fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.Yellix,
-    color: COLORS.black,
+    fontSize: responsiveFontSize(1.5),
+    fontFamily: FONTS.YellixMedium,
+    color: "#374151",
+    // minWidth: responsiveWidth(25),
   },
-  detailValue: {
-    fontSize: responsiveFontSize(1.8),
-    fontFamily: FONTS.Yellix,
-    color: "#6B7280",
+  
+  verticalLine: {
+    width: 1,
+    height: responsiveWidth(7),
+    backgroundColor: "#D1D5DB",
+    marginHorizontal: responsiveWidth(3),
+    alignSelf: "center",
   },
-
   // Filter Modal Styles (Bottom sliding modal)
   filterModalOverlay: {
     flex: 1,

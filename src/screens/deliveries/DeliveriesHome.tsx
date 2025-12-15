@@ -57,7 +57,12 @@ export default function DeliveriesHome() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
+    setIsLoading(true);
+    // Clear previous data when switching tabs to prevent showing wrong data
+    resetData();
     getDeleverirsData(activeTab);
   }, [activeTab]);
   const getDeleverirsData = async (
@@ -90,9 +95,11 @@ export default function DeliveriesHome() {
       }
 
       setIsLoadingMore(false);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching deliveries:", error);
       setIsLoadingMore(false);
+      setIsLoading(false);
       Toast.show({
         type: "error",
         text1: "Error",
@@ -252,34 +259,32 @@ export default function DeliveriesHome() {
   };
 
   const renderCustomerCard = (item: any) => (
-    <View style={styles.customerCard}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.customerName}>{item.customerName}</Text>
-        <View style={styles.cardActions}>
+    <View style={allStyles.customerCard}>
+      <View style={allStyles.cardHeader}>
+        <View style={allStyles.cardContent}>
+          <View style={allStyles.avatar}>
+            <Text style={allStyles.avatarText}>
+              {item.customerName?.charAt(0)?.toUpperCase() || "A"}
+            </Text>
+          </View>
+          <View style={allStyles.customerInfo}>
+            <Text style={allStyles.customerName}>{item.customerName}</Text>
+            <Text style={allStyles.detailValue}>{item.modelRef?.name}</Text>
+          </View>
+        </View>
+        <View style={allStyles.cardActions}>
           {activeTab === "delivered" ? (
             <>
-              <TouchableOpacity
-                style={styles.uploadButton}
-                onPress={() => handleUpload(item.id)}
-              >
-                <Text style={styles.uploadButtonText}>Upload</Text>
-                <View style={styles.uploadIcon}>
-                  <Image
-                    source={require("@/assets/icons/UploadWhiteColoricon.png")}
-                    // style={styles.img}
-                    width={20}
-                    resizeMode="contain"
-                  />
-                </View>
-              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.moreButton}
                 onPress={() => handleMoreOptions(item.id)}
               >
                 <Image
-                  source={require("@/assets/icons/importIcon.png")}
-                  // style={styles.img}
-                  width={20}
+                  source={require("@/assets/icons/PDFDownloadIcon.png")}
+                  style={{
+                    width: 22,
+                    height: 22,
+                  }}
                   resizeMode="contain"
                 />
               </TouchableOpacity>
@@ -287,16 +292,19 @@ export default function DeliveriesHome() {
           ) : (
             <>
               <TouchableOpacity
-                // style={styles.uploadButton}
+                style={{ alignItems: "center" }}
                 onPress={() => handleEdit(item)}
               >
                 <View
                 //  style={styles.uploadIcon}
                 >
                   <Image
-                    source={require("@/assets/icons/EditFilledIcon.png")}
-                    // style={styles.img}
-                    width={20}
+                    source={require("@/assets/icons/EditIcon.png")}
+                    style={{
+                      width: 22,
+                      height: 22,
+                    }}
+                    // width={20}
                     resizeMode="contain"
                   />
                 </View>
@@ -307,8 +315,9 @@ export default function DeliveriesHome() {
               >
                 <Image
                   source={require("@/assets/icons/DeleteIcon.png")}
-                  // style={styles.img}
-                  width={20}
+                  style={{ width: 16, height: 16 }}
+                  // width={20}
+
                   resizeMode="contain"
                 />
               </TouchableOpacity>
@@ -317,20 +326,42 @@ export default function DeliveriesHome() {
         </View>
       </View>
 
-      <View style={styles.customerDetails}>
-        <Text style={styles.detailText}>
-          <Text style={styles.detailLabel}>Frame Number: </Text>
-          <Text style={styles.detailValue}>{item.chassisNo}</Text>
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.detailLabel}>Mobile Number: </Text>
-          <Text style={styles.detailValue}>{item.mobileNumber}</Text>
-        </Text>
-        <Text style={styles.detailText}>
-          <Text style={styles.detailLabel}>Model: </Text>
-          <Text style={styles.detailValue}>{item.modelRef?.name}</Text>
-        </Text>
+      <View style={allStyles.customerDetails}>
+        <View style={allStyles.detailText}>
+          <Text style={allStyles.detailLabel}>Frame Number</Text>
+          <Text style={allStyles.detailValue}>{item.chassisNo}</Text>
+        </View>
+        <View style={allStyles.verticalLine}></View>
+        <View style={allStyles.detailText}>
+          <Text style={allStyles.detailLabel}>Mobile Number</Text>
+          <Text style={allStyles.detailValue}>{item.mobileNumber}</Text>
+        </View>
+        <View style={allStyles.verticalLine}></View>
+        <View style={allStyles.detailText}>
+          <Text style={allStyles.detailLabel}>Date</Text>
+          <Text style={allStyles.detailValue}>
+            {item.modelRef?.createdAt
+              ? new Date(item.modelRef.createdAt).toLocaleDateString("en-GB")
+              : "N/A"}
+          </Text>
+        </View>
       </View>
+      {activeTab === "delivered" ? (
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={() => handleUpload(item.id)}
+        >
+          <Text style={styles.uploadButtonText}>Upload</Text>
+          <View style={styles.uploadIcon}>
+            <Image
+              source={require("@/assets/icons/UploadWhiteIcon.png")}
+              style={{ width: 15, height: 15 }}
+              // width={20}
+              resizeMode="contain"
+            />
+          </View>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 
@@ -341,13 +372,15 @@ export default function DeliveriesHome() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={allStyles.headerContainer}>
-          <TouchableOpacity
+        <View
+          style={[allStyles.headerContainer, { justifyContent: "flex-end" }]}
+        >
+          {/* <TouchableOpacity
             onPress={handleBack}
             style={[allStyles.backButton, allStyles.backButtonBackgroundStyle]}
           >
             <Text style={allStyles.backButtonText}>← Back</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <HeaderIcon />
         </View>
 
@@ -363,7 +396,7 @@ export default function DeliveriesHome() {
           >
             <Image
               source={require("@/assets/icons/FilterIcon.png")}
-              width={24}
+              // width={24}
               style={styles.filterIcon}
               resizeMode="contain"
             />
@@ -401,7 +434,17 @@ export default function DeliveriesHome() {
         </View>
 
         {/* Customer List */}
-        {deliveriesData.results && deliveriesData.results.length > 0 ? (
+        {isLoading ? (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text style={{ fontSize: 16, color: "#666" }}>
+              Loading deliveries...
+            </Text>
+          </View>
+        ) : deliveriesData &&
+          deliveriesData.results &&
+          deliveriesData.results.length > 0 ? (
           <FlatList
             data={deliveriesData.results}
             renderItem={({ item }) => renderCustomerCard(item)}
@@ -428,9 +471,7 @@ export default function DeliveriesHome() {
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
             <Text style={{ fontSize: 16, color: "#666" }}>
-              {deliveriesData.results
-                ? "No deliveries found"
-                : "Loading deliveries..."}
+              No deliveries found
             </Text>
           </View>
         )}
@@ -463,7 +504,7 @@ export default function DeliveriesHome() {
                 <TextInput
                   style={globalStyles.input}
                   placeholder="Frame Number"
-                  placeholderTextColor={COLORS.black}
+                  // placeholderTextColor={COLORS.black}
                   value={frameNumber}
                   onChangeText={setFrameNumber}
                 />
@@ -471,7 +512,7 @@ export default function DeliveriesHome() {
                 <TextInput
                   style={globalStyles.input}
                   placeholder="Mobile Number"
-                  placeholderTextColor={COLORS.black}
+                  // placeholderTextColor={COLORS.black}
                   value={mobileNumber}
                   onChangeText={setMobileNumber}
                   keyboardType="numeric"

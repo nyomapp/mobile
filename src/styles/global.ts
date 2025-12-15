@@ -11,12 +11,12 @@ export const allStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
     fontFamily: FONTS.Yellix,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.appBackground,
   },
   headerContainer: {
-    paddingTop: responsiveWidth(6),
+    paddingTop: responsiveWidth(2),
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
     // paddingHorizontal: responsiveWidth(4),
   },
@@ -25,7 +25,7 @@ export const allStyles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: responsiveWidth(4),
+    paddingHorizontal: responsiveWidth(3.2),
     // paddingVertical: responsiveWidth(6),
   },
   scrollContent: {
@@ -62,7 +62,7 @@ export const allStyles = StyleSheet.create({
   // Button
   btn: {
     backgroundColor: COLORS.primaryBlue,
-    paddingVertical: responsiveWidth(4),
+    paddingVertical: responsiveWidth(2),
     borderRadius: responsiveWidth(2),
     alignItems: "center",
     fontFamily: FONTS.Yellix,
@@ -72,8 +72,8 @@ export const allStyles = StyleSheet.create({
 
   btnText: {
     color: COLORS.white,
-    fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontSize: responsiveFontSize(2.2),
+    fontFamily: FONTS.YellixThin,
   },
 
   // Soild Button
@@ -238,7 +238,7 @@ export const allStyles = StyleSheet.create({
   },
 
   statCard: {
-    backgroundColor: "#E0F7FA",
+    // backgroundColor: "#E0F7FA",
     borderRadius: responsiveWidth(4),
     padding: responsiveWidth(4),
     width: "48%",
@@ -268,7 +268,7 @@ export const allStyles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
-    elevation: 8,
+    elevation: 1.5,
   },
 
   // Section titles
@@ -301,10 +301,11 @@ export const allStyles = StyleSheet.create({
   dropdown: {
     backgroundColor: COLORS.white,
     borderRadius: responsiveWidth(2),
-    paddingHorizontal: responsiveWidth(6),
-    paddingVertical: responsiveWidth(4),
+    paddingHorizontal: responsiveWidth(4),
+    paddingVertical: responsiveWidth(3),
     marginBottom: responsiveWidth(4),
-    borderWidth: 1,
+    borderWidth: 0.75,
+    borderColor: "#CED4DA",
     // shadowColor: "#000",
     // shadowOffset: {
     //   width: 0,
@@ -319,20 +320,24 @@ export const allStyles = StyleSheet.create({
   },
 
   dropdownText: {
-    fontSize: responsiveFontSize(2),
+    fontSize: responsiveFontSize(1.8),
     fontFamily: FONTS.Yellix,
-    // color: "#6C757D",
+    color: "#757575",
   },
 
   toggleContainer: {
     flexDirection: "row",
-    backgroundColor: "#F8F9FA",
+    backgroundColor: COLORS.white,
+    // backgroundColor: "#EDF2F4", // 50% opacity (80 in hex = 128/255 ≈ 50%)
+    padding: responsiveWidth(1),
     borderRadius: responsiveWidth(6),
+    // borderWidth: 1,
+    borderColor:"#BCBCBC",
     // padding: responsiveWidth(1),
     // marginBottom: responsiveWidth(6),
     alignSelf: "flex-end",
-    borderWidth: 1,
-    borderColor: "#E9ECEF",
+    // borderWidth: 1,
+    // borderColor: "transparent",
     // minHeight: responsiveWidth(10),
     shadowColor: "#000",
     shadowOffset: {
@@ -341,19 +346,20 @@ export const allStyles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 1,
   },
 
   toggleButton: {
-    paddingHorizontal: responsiveWidth(4),
+    paddingHorizontal: responsiveWidth(3),
     paddingVertical: responsiveWidth(1.5),
     borderRadius: responsiveWidth(5),
-    minWidth: responsiveWidth(20),
+    minWidth: responsiveWidth(15),
+    width: responsiveWidth(20),
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "transparent",
     marginHorizontal: responsiveWidth(0.5),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
   },
 
   toggleButtonActive: {
@@ -371,7 +377,7 @@ export const allStyles = StyleSheet.create({
   },
 
   toggleButtonText: {
-    fontSize: responsiveFontSize(2),
+    fontSize: responsiveFontSize(1.9),
 
     color: "#6C757D",
     textAlign: "center",
@@ -386,9 +392,10 @@ export const allStyles = StyleSheet.create({
 
   Title: {
     fontSize: responsiveFontSize(3.5),
-    fontFamily: FONTS.Yellix,
-    color: COLORS.black,
-    marginBottom: responsiveWidth(4),
+    fontFamily: FONTS.YellixThin,
+    color: "#191A1A",
+    marginTop: responsiveWidth(2),
+    marginBottom: responsiveWidth(6),
   },
 
   // nextButton: {
@@ -420,7 +427,7 @@ export const allStyles = StyleSheet.create({
   backButtonText: {
     color: COLORS.black,
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
   },
 
   pageHeader: {
@@ -432,7 +439,7 @@ export const allStyles = StyleSheet.create({
   },
 
   pageTitle: {
-    fontSize: responsiveFontSize(5.5),
+    fontSize: responsiveFontSize(5),
     // paddingTop: responsiveWidth(5),
     fontFamily: FONTS.Yellix,
     // fontWeight:"200",
@@ -446,5 +453,101 @@ export const allStyles = StyleSheet.create({
   },
   headerSecondaryText: {
     fontFamily: FONTS.Yellix,
+  },
+  yellix_medium: {
+    fontFamily: FONTS.YellixMedium,
+  },
+  yellix_thin: {
+    fontFamily: FONTS.YellixThin,
+  },
+  customerDetails: {
+    // gap: responsiveWidth(3),
+    paddingTop: responsiveWidth(3),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flex: 1,
+    flexWrap: "wrap",
+  },
+  detailText: {
+    flexDirection: "column",
+    paddingVertical: responsiveWidth(1.5),
+    gap: responsiveWidth(1.2),
+  },
+  detailLabel: {
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: FONTS.YellixMedium,
+    color: "#374151",
+    // minWidth: responsiveWidth(25),
+  },
+  detailValue: {
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: FONTS.YellixThin,
+    color: "#111827",
+    flex: 1,
+  },
+  verticalLine: {
+    width: 1,
+    height: responsiveWidth(7),
+    backgroundColor: "#D1D5DB",
+    // marginHorizontal: responsiveWidth(1),
+    alignSelf: "center",
+  },
+  customerCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: responsiveWidth(4),
+    paddingHorizontal: responsiveWidth(6),
+    paddingVertical: responsiveWidth(5),
+    marginBottom: responsiveWidth(5),
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingBottom: responsiveWidth(4),
+    borderBottomWidth: 0.5,
+    borderColor:"#ABABAB"
+  },
+  cardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  customerName: {
+    fontSize: responsiveFontSize(2.2),
+    fontFamily: FONTS.YellixMedium,
+    color: COLORS.black,
+    marginBottom: responsiveWidth(1),
+  },
+  customerInfo: {
+    flex: 1,
+    marginLeft: responsiveWidth(2),
+  },
+  avatar: {
+    width: responsiveWidth(12),
+    height: responsiveWidth(12),
+    borderRadius: responsiveWidth(6),
+    backgroundColor: COLORS.primaryBlue,
+    justifyContent: "center",
+    alignItems: "center",
+    opacity: 0.8,
+  },
+  avatarText: {
+    fontSize: responsiveFontSize(2.2),
+    fontFamily: FONTS.YellixMedium,
+    color: COLORS.white,
+    fontWeight: "bold",
+  },
+   cardActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: responsiveWidth(3),
+    paddingLeft: responsiveWidth(2),
   },
 });

@@ -1,5 +1,4 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
-import { COLORS } from "@/src/constants";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
@@ -225,13 +224,17 @@ export default function AmountScreen() {
       >
         {/* Header */}
         <View
-          style={[allStyles.pageHeader, { paddingTop: responsiveWidth(6) }]}
+         style={{ paddingTop: responsiveWidth(2) }}
+         >
+          <HeaderIcon />
+        <View
+          style={[allStyles.pageHeader]}
         >
-          <View style={{ paddingBottom: responsiveWidth(5) }}>
-            <Text style={allStyles.pageTitle}>
-              <Text style={{ fontWeight: "bold" }}>Add</Text>
+          <View style={[{ paddingBottom: responsiveWidth(5) }]}>
+            <Text style={[allStyles.pageTitle,allStyles.yellix_medium, {lineHeight:responsiveWidth(10)}]}>
+              <Text>Add</Text>
               {"\n"}
-              <Text style={allStyles.headerSecondaryText}>Delivery</Text>
+              <Text style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}>Delivery</Text>
             </Text>
           </View>
           <View
@@ -242,7 +245,7 @@ export default function AmountScreen() {
               gap: responsiveWidth(5),
             }}
           >
-            <HeaderIcon />
+            
             {/* Total Amount Card */}
 
             <View style={styles.totalAmountCard}>
@@ -254,6 +257,7 @@ export default function AmountScreen() {
               <View style={styles.totalAmountDisplay} />
             </View>
           </View>
+        </View>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -272,7 +276,7 @@ export default function AmountScreen() {
                 <TextInput
                   style={[globalStyles.input, styles.amountInput]}
                   placeholder="Amount"
-                  placeholderTextColor={COLORS.black}
+                  placeholderTextColor="#BDB9BA"
                   value={item.value}
                   onChangeText={(value) => handleAmountChange(item.id, value)}
                   keyboardType="decimal-pad"

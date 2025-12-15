@@ -54,7 +54,7 @@ export default function AddDelivery() {
   const [selectedModel, setSelectedModel] = useState("");
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [selectedRTOLocation, setSelectedRTOLocation] =
-    useState<RTOLocationType>("sameCity");
+    useState<RTOLocationType>();
   const [showModelModal, setShowModelModal] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -91,7 +91,7 @@ export default function AddDelivery() {
       }
 
       // Set RTO location
-      setSelectedRTOLocation(currentDelivery.rtoLocation || "sameCity");
+      // setSelectedRTOLocation(currentDelivery.rtoLocation || "sameCity");
     }
   }, [currentDelivery]);
 
@@ -293,15 +293,17 @@ export default function AddDelivery() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={{ paddingTop: responsiveWidth(6) }}>
+        <View
+         style={{ paddingTop: responsiveWidth(2) }}
+         >
           <HeaderIcon />
         </View>
         <View style={allStyles.pageHeader}>
           <View>
-            <Text style={allStyles.pageTitle}>
-              <Text style={{ fontWeight: "bold" }}>Add</Text>
+            <Text style={[allStyles.pageTitle, { lineHeight:responsiveWidth(10) }]}>
+              <Text style={[allStyles.yellix_medium]}>Add</Text>
               {"\n"}
-              <Text style={allStyles.headerSecondaryText}>Delivery</Text>
+              <Text style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}>Delivery</Text>
             </Text>
           </View>
           <View
@@ -333,6 +335,7 @@ export default function AddDelivery() {
                     allStyles.toggleButtonText,
                     deliveryType === "New" && allStyles.toggleButtonTextActive,
                     deliveryType === "New" && { color: COLORS.white },
+                    allStyles.yellix_thin,
                   ]}
                 >
                   New
@@ -359,6 +362,7 @@ export default function AddDelivery() {
                     deliveryType === "Renew" &&
                     allStyles.toggleButtonTextActive,
                     deliveryType === "Renew" && { color: COLORS.white },
+                    allStyles.yellix_thin,
                   ]}
                 >
                   Renew
@@ -388,7 +392,7 @@ export default function AddDelivery() {
               errors.customerName ? { borderColor: "red", borderWidth: 1 } : {},
             ]}
             placeholder="Customer Name *"
-            placeholderTextColor={COLORS.black}
+            // placeholderTextColor={COLORS.black}
             value={customerName}
             onChangeText={(text) => {
               setCustomerName(text);
@@ -408,7 +412,7 @@ export default function AddDelivery() {
                   : {},
               ]}
               placeholder="Frame Number (Last 6 characters) *"
-              placeholderTextColor={COLORS.black}
+              // placeholderTextColor={COLORS.black}
               value={frameNumber}
               onChangeText={handleFrameNumberChange}
               autoCapitalize="characters"
@@ -422,7 +426,7 @@ export default function AddDelivery() {
               errors.mobileNumber ? { borderColor: "red", borderWidth: 1 } : {},
             ]}
             placeholder="Mobile Number (10 digits) *"
-            placeholderTextColor={COLORS.black}
+            // placeholderTextColor={COLORS.black}
             value={mobileNumber}
             onChangeText={handleMobileNumberChange}
             keyboardType="numeric"
@@ -438,7 +442,7 @@ export default function AddDelivery() {
                   : {},
               ]}
               placeholder="Registration Number *"
-              placeholderTextColor={COLORS.black}
+              // placeholderTextColor={COLORS.black}
               value={registrationNumber}
               onChangeText={(text) => {
                 setRegistrationNumber(text);
@@ -481,7 +485,7 @@ export default function AddDelivery() {
           {/* {deliveryType === "New" && ( */}
           <View style={paymentStyles.sectionContainer}>
             <Text
-              style={[allStyles.Title, { fontSize: responsiveFontSize(2.5) }]}
+              style={[allStyles.Title, { fontSize: responsiveFontSize(3) }]}
             >
               RTO Location
             </Text>
@@ -497,7 +501,7 @@ export default function AddDelivery() {
                     <View style={styles.radioSelected} />
                   )}
                 </View>
-                <Text style={styles.radioText}>Same City</Text>
+                <Text style={styles.radioText}>Same City & Same State</Text>
               </TouchableOpacity>
 
               {/* Same State Option */}
@@ -510,7 +514,7 @@ export default function AddDelivery() {
                     <View style={styles.radioSelected} />
                   )}
                 </View>
-                <Text style={styles.radioText}>Same State</Text>
+                <Text style={styles.radioText}>Other City & Same State</Text>
               </TouchableOpacity>
 
               {/* Other State Option */}

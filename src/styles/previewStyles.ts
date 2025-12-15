@@ -4,10 +4,10 @@ import { COLORS } from "../constants";
 import { FONTS } from "../constants/fonts";
 export const styles = StyleSheet.create({
   headerContainer: {
-    paddingTop: responsiveWidth(6),
+    paddingTop: responsiveWidth(2),
   },
   section: {
-    marginBottom: responsiveWidth(6),
+    marginBottom: responsiveWidth(10),
 
   },
   sectionHeader: {
@@ -16,11 +16,12 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 0.5,
     borderBottomColor: COLORS.black,
-    paddingBottom: responsiveWidth(4),
+    paddingBottom: responsiveWidth(2.5),
+    marginBottom: responsiveWidth(4),
   },
   sectionTitle: {
     fontSize: responsiveFontSize(3),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: COLORS.black,
     // fontWeight: "600",
   },
@@ -44,15 +45,16 @@ export const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixMedium,
+  
     
-    color: COLORS.black,
+    color:"#646566",
     // flex: 1,
   },
   detailValue: {
     fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
-    // color: "#6B7280",
+    fontFamily: FONTS.YellixThin,
+    color: "#646566",
     textAlign: "right",
     // flex: 1,
   },
@@ -60,9 +62,9 @@ export const styles = StyleSheet.create({
     marginVertical: responsiveWidth(4),
   },
   documentTitle: {
-    fontSize: responsiveFontSize(2.3),
+    fontSize: responsiveFontSize(2.5),
     fontFamily: FONTS.Yellix,
-    color: COLORS.black,
+    color:"#646566",
     marginBottom: responsiveWidth(5),
   },
   documentImageContainer: {
@@ -147,6 +149,7 @@ export const styles = StyleSheet.create({
   paddingVertical: responsiveWidth(2.5),
   minWidth: responsiveWidth(35),
   borderWidth: 1,
+  borderColor: "#E2E2E2",
   // shadowColor: COLORS.black,
     // shadowOffset: {
     //   width: 0,
@@ -159,6 +162,6 @@ export const styles = StyleSheet.create({
 amountPlaceholder: {
   fontSize: responsiveFontSize(1.6),
   fontFamily: FONTS.Yellix,
-  // color: "#9CA3AF",
+  color: "#958c8c",
 },
 });

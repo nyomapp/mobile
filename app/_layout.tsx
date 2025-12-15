@@ -15,6 +15,7 @@ export default function RootLayout() {
     MontserratSemiBold: require("../assets/fonts/montserrat/Montserrat-SemiBold.ttf"),
     Yellix: require("../assets/fonts/yellix/Yellix-Regular.otf"),
     "Yellix-Bold": require("../assets/fonts/yellix/Yellix-Bold.otf"),
+    "Yellix-Medium": require("../assets/fonts/yellix/Yellix-Medium.otf"),
     "Yellix-Thin": require("../assets/fonts/yellix/Yellix-Thin.otf"),
   });
 
@@ -27,6 +28,7 @@ export default function RootLayout() {
         ClashDisplay: 'ClashDisplay',
         Yellix: 'Yellix', 
         'Yellix-Bold': 'Yellix-Bold',
+        'Yellix-Medium': 'Yellix-Medium',
         'Yellix-Thin': 'Yellix-Thin',
         MontserratRegular: 'MontserratRegular',
         MontserratBold: 'MontserratBold',

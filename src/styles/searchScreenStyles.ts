@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import {
-    responsiveFontSize,
-    responsiveWidth,
+  responsiveFontSize,
+  responsiveWidth,
 } from "react-native-responsive-dimensions";
 import { COLORS } from "../constants";
 import { FONTS } from "../constants/fonts";
@@ -64,17 +64,17 @@ export const styles = StyleSheet.create({
   },
   customerCard: {
     backgroundColor: COLORS.white,
-    borderRadius: responsiveWidth(3),
-    padding: responsiveWidth(4),
-    marginBottom: responsiveWidth(4),
+    borderRadius: responsiveWidth(4),
+    padding: responsiveWidth(6),
+    marginBottom: responsiveWidth(5),
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 1,
   },
   cardHeader: {
     flexDirection: "row",
@@ -122,17 +122,17 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: COLORS.white,
-    borderRadius: responsiveWidth(2),
+    borderRadius: responsiveWidth(5),
     paddingHorizontal: responsiveWidth(4),
-    paddingVertical: responsiveWidth(3),
+    // paddingVertical: responsiveWidth(1),
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 3,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 1,
   },
   searchInput: {
     flex: 1,
@@ -146,5 +146,15 @@ export const styles = StyleSheet.create({
   },
   searchButton: {
     padding: responsiveWidth(1),
+  },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noResultsText: {
+    fontSize: responsiveFontSize(2),
+    fontFamily: FONTS.Yellix,
+    color: "#6B7280",
   },
 });

@@ -11,7 +11,6 @@ import { responsiveWidth } from "react-native-responsive-dimensions";
 import Toast from "react-native-toast-message";
 
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
-import { COLORS } from "@/src/constants";
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -43,7 +42,7 @@ export default function ChangePassword() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={allStyles.headerContainer}>
+        <View style={[allStyles.headerContainer,{justifyContent: 'space-between'}]}>
           <TouchableOpacity
             onPress={handleBack}
             style={[allStyles.backButton, allStyles.backButtonBackgroundStyle]}
@@ -73,7 +72,7 @@ export default function ChangePassword() {
               <TextInput
                 style={globalStyles.input}
                 placeholder="New Password"
-                placeholderTextColor={COLORS.black}
+                // placeholderTextColor={COLORS.black}
                 value={newPassword}
                 onChangeText={setNewPassword}
                 secureTextEntry
@@ -85,7 +84,7 @@ export default function ChangePassword() {
               <TextInput
                 style={globalStyles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor={COLORS.black}
+                // placeholderTextColor={COLORS.black}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry

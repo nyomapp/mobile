@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import {
-    responsiveFontSize,
-    responsiveWidth,
+  responsiveFontSize,
+  responsiveWidth,
 } from "react-native-responsive-dimensions";
 import { COLORS } from "../constants";
 import { FONTS } from "../constants/fonts";
@@ -25,14 +25,14 @@ export const settingsStyles = StyleSheet.create({
   },
 
   userName: {
-    fontSize: responsiveFontSize(2.4),
+    fontSize: responsiveFontSize(2.8),
     fontFamily: FONTS.Yellix,
     color: COLORS.black,
     marginBottom: responsiveWidth(1),
   },
 
   companyName: {
-    fontSize: responsiveFontSize(1.6),
+    fontSize: responsiveFontSize(1.8),
     fontFamily: FONTS.Yellix,
     color: "#9CA3AF",
     marginBottom: responsiveWidth(4),
@@ -49,7 +49,7 @@ export const settingsStyles = StyleSheet.create({
   },
 
   editProfileText: {
-    fontSize: responsiveFontSize(1.4),
+    fontSize: responsiveFontSize(1.6),
     fontFamily: FONTS.Yellix,
     color: COLORS.white,
   },
@@ -88,14 +88,14 @@ export const settingsStyles = StyleSheet.create({
   },
 
   contactLabel: {
-    fontSize: responsiveFontSize(2),
+    fontSize: responsiveFontSize(1.8),
     fontFamily: FONTS.Yellix,
     color: "#9CA3AF",
     marginBottom: responsiveWidth(0.5),
   },
 
   contactValue: {
-    fontSize: responsiveFontSize(2.1),
+    fontSize: responsiveFontSize(2),
     fontFamily: FONTS.Yellix,
     color: COLORS.black,
   },

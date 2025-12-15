@@ -20,7 +20,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { responsiveWidth } from "react-native-responsive-dimensions";
+import { responsiveFontSize, responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { allStyles } from "../../styles/global";
@@ -53,7 +53,6 @@ export default function PreviewScreen() {
     financierName: "",
     financierPlan1Name: "",
   });
-
 
   // Load API data and resolve names
   useEffect(() => {
@@ -130,13 +129,15 @@ export default function PreviewScreen() {
   const moreDetailsData: DetailField[] = [
     {
       label: "Ex-Showroom",
-      value: `₹${currentDelivery?.exShowAmount?.toLocaleString("en-IN") || "0"
-        }`,
+      value: `₹${
+        currentDelivery?.exShowAmount?.toLocaleString("en-IN") || "0"
+      }`,
     },
     {
       label: "Insurance",
-      value: `₹${currentDelivery?.insuranceAmount?.toLocaleString("en-IN") || "0"
-        }`,
+      value: `₹${
+        currentDelivery?.insuranceAmount?.toLocaleString("en-IN") || "0"
+      }`,
     },
     {
       label: "RTO",
@@ -144,8 +145,9 @@ export default function PreviewScreen() {
     },
     {
       label: "Accessories",
-      value: `₹${currentDelivery?.accessoriesAmount?.toLocaleString("en-IN") || "0"
-        }`,
+      value: `₹${
+        currentDelivery?.accessoriesAmount?.toLocaleString("en-IN") || "0"
+      }`,
     },
     {
       label: "RSA",
@@ -153,8 +155,9 @@ export default function PreviewScreen() {
     },
     {
       label: "Helmet",
-      value: `₹${currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"
-        }`,
+      value: `₹${
+        currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"
+      }`,
     },
     {
       label: "Other 1",
@@ -206,10 +209,10 @@ export default function PreviewScreen() {
           text2: "Delivery created successfully!",
         });
       }
-      
+
       // Reset context after successful submission
       resetCurrentDelivery();
-      
+
       // Add delay to allow toast to be visible before navigation
       setTimeout(() => {
         router.push("/(tabs)/deliveries");
@@ -240,12 +243,16 @@ export default function PreviewScreen() {
   ) => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{title}</Text>
+        <Text style={[allStyles.Title, { marginTop:0,marginBottom:0,fontSize:responsiveFontSize(3) }]}>
+          {title}
+        </Text>
         <TouchableOpacity>
           <Image
             source={require("@/assets/icons/previewPageEditIcon.png")}
-            // style={styles.img}
-            width={24}
+            style={{
+              width: 27,
+              height: 27,
+            }}
             resizeMode="contain"
           />
         </TouchableOpacity>
@@ -258,7 +265,7 @@ export default function PreviewScreen() {
           <Text
             style={[
               styles.detailLabel,
-              showAsInputs ? { fontFamily: FONTS.Yellix } : null,
+              showAsInputs ? { fontFamily: FONTS.YellixThin } : null,
             ]}
           >
             {item.label}
@@ -285,19 +292,19 @@ export default function PreviewScreen() {
         <View style={styles.headerContainer}>
           <HeaderIcon />
         </View>
-        <View
-          style={[allStyles.pageHeader, { paddingTop: responsiveWidth(2) }]}
-        >
+        <View style={[allStyles.pageHeader]}>
           <View>
-            <Text style={[allStyles.pageTitle]}>Preview</Text>
+            <Text style={[allStyles.pageTitle]}>
+              Preview
+            </Text>
           </View>
         </View>
 
         {/* Scrollable Content */}
         <ScrollView
-          style={allStyles.scrollContent}
+          style={[allStyles.scrollContent, { marginTop: responsiveWidth(4) }]}
           showsVerticalScrollIndicator={false}
-        //   contentContainerStyle={styles.scrollContent}
+          //   contentContainerStyle={styles.scrollContent}
         >
           {/* Details Section */}
           {renderDetailSection("Details", detailsData)}
@@ -316,8 +323,9 @@ export default function PreviewScreen() {
               },
               {
                 label: "Finance Amount:",
-                value: `₹${currentDelivery?.financeAmount?.toLocaleString("en-IN") || "0"
-                  }`,
+                value: `₹${
+                  currentDelivery?.financeAmount?.toLocaleString("en-IN") || "0"
+                }`,
               },
               {
                 label: "Financier Plan 1:",
@@ -341,8 +349,10 @@ export default function PreviewScreen() {
               <TouchableOpacity>
                 <Image
                   source={require("@/assets/icons/previewPageEditIcon.png")}
-                  // style={styles.img}
-                  width={24}
+                  style={{
+                    width: 27,
+                    height: 27,
+                  }}
                   resizeMode="contain"
                 />
               </TouchableOpacity>

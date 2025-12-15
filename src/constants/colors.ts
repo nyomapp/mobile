@@ -7,8 +7,9 @@ export const COLORS = {
   success: '#00ff00',
   black: '#000000',
   grey:'#D9D9D91A',
-  blue: '#5C5EE7',
+  lightBlue: '#1C6DA3',
   pale: '#D0DFF4',
+  appBackground: '#F9FDFF',
   text: {
     primary: '#FFFFFF',
     secondary: '#999',

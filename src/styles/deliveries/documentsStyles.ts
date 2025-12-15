@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: responsiveWidth(2),
+    paddingVertical: responsiveWidth(1.5),
   },
   documentUploadedCard: {
     backgroundColor: "#89898926",
@@ -26,8 +26,8 @@ export const styles = StyleSheet.create({
     marginRight: responsiveWidth(3),
   },
   documentTitle: {
-    fontSize: responsiveFontSize(2),
-    fontFamily: FONTS.Yellix,
+    fontSize: responsiveFontSize(1.9),
+    fontFamily: FONTS.YellixThin,
     color: COLORS.black,
     flex: 1,
   },

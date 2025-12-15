@@ -172,10 +172,10 @@ export default function PaymentMode() {
         </View>
         <View style={allStyles.pageHeader}>
           <View>
-            <Text style={allStyles.pageTitle}>
-              <Text style={{ fontWeight: "bold" }}>Add</Text>
+            <Text style={[allStyles.pageTitle,allStyles.yellix_medium, { lineHeight: 40 }]}>
+              <Text>Add</Text>
               {"\n"}
-              <Text style={allStyles.headerSecondaryText}>Delivery</Text>
+              <Text style={[allStyles.headerSecondaryText,allStyles.yellix_thin]}>Delivery</Text>
             </Text>
           </View>
         </View>
@@ -246,7 +246,7 @@ export default function PaymentMode() {
                   <Ionicons
                     name="chevron-down"
                     size={20}
-                    color={COLORS.black}
+                    color="#6C757D"
                   />
                 </TouchableOpacity>
               </View>
@@ -263,7 +263,7 @@ export default function PaymentMode() {
                         : {},
                     ]}
                     placeholder="Enter finance amount"
-                    placeholderTextColor={COLORS.black}
+                    // placeholderTextColor={COLORS.black}
                     value={financeAmount}
                     onChangeText={(text) => {
                       const numericValue = text.replace(/[^0-9]/g, "");
@@ -305,7 +305,7 @@ export default function PaymentMode() {
                   <Ionicons
                     name="chevron-down"
                     size={20}
-                    color={COLORS.black}
+                    color="#6C757D"
                   />
                 </TouchableOpacity>
               </View>
@@ -322,7 +322,7 @@ export default function PaymentMode() {
                         : {},
                     ]}
                     placeholder="Financier Plan 2"
-                    placeholderTextColor={COLORS.black}
+                    // placeholderTextColor={COLORS.black}
                     value={financierPlan2}
                     onChangeText={(text) => {
                       const numericValue = text.replace(/[^0-9]/g, "");

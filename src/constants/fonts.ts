@@ -4,6 +4,7 @@ export const FONTS = {
   ClashDisplay: 'ClashDisplay',
   Yellix: 'Yellix',
   YellixBold: 'Yellix-Bold',
+  YellixMedium: 'Yellix-Medium',
   YellixThin: 'Yellix-Thin',
   // Montserrat variants
   MontserratRegular: 'MontserratRegular',

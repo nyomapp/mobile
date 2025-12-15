@@ -5,11 +5,23 @@ import {
 } from "react-native-responsive-dimensions";
 import { COLORS, FONTS } from "../constants";
 export const styles = StyleSheet.create({
+  UserStyle:{
+    fontSize: responsiveFontSize(4),
+    fontWeight:700,
+    color: COLORS.primaryBlue,
+    fontFamily: FONTS.Yellix,
+  },
+  UserDealerStyle:{
+    fontSize: responsiveFontSize(2.2),
+    fontFamily:FONTS.Yellix
+  },
   headingText: {
     fontSize: responsiveFontSize(3.5),
     fontFamily: FONTS.Yellix,
     color: COLORS.primaryBlue,
     lineHeight: responsiveFontSize(4),
+    flexDirection:"row",
+    gap: responsiveWidth(2),
   },
   headingContainer: {
     flexDirection: "row",
@@ -20,6 +32,7 @@ export const styles = StyleSheet.create({
   },
   headingTextContainer: {
     flex: 1,
+    flexWrap: "wrap",
   },
   deliveryCard: {
     marginBottom: responsiveWidth(6),
@@ -61,17 +74,17 @@ export const styles = StyleSheet.create({
     marginBottom: responsiveWidth(2),
   },
   statLabel: {
-    fontSize: responsiveFontSize(1.6),
-    color: "#666",
+    fontSize: responsiveFontSize(1.8),
+    color: COLORS.white,
     fontFamily: FONTS.MontserratRegular,
     marginBottom: responsiveWidth(2),
     lineHeight: responsiveFontSize(2),
   },
   statValue: {
-    fontSize: responsiveFontSize(2.2),
-    color: COLORS.black,
-    fontFamily: FONTS.Yellix,
-    fontWeight: "600",
+    fontSize: responsiveFontSize(2.6),
+    color: COLORS.white,
+    fontFamily: FONTS.YellixMedium,
+    // fontWeight: "600",
   },
   chartContainer: {
     alignItems: "center",
@@ -87,9 +100,9 @@ export const styles = StyleSheet.create({
     alignSelf: "center",
   },
   img: {
-    width: 27,
-    height: 33,
-    marginRight: responsiveWidth(3),
+    width: 35,
+    height: 35,
+    // marginRight: responsiveWidth(1),
   },
   statCardHeader: {
     width: "100%",

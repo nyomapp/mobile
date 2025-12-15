@@ -124,15 +124,15 @@ export default function DocumentsScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={{ paddingTop: responsiveWidth(6) }}>
+        <View style={{ paddingTop: responsiveWidth(2) }}>
           <HeaderIcon />
         </View>
         <View style={allStyles.pageHeader}>
           <View>
-            <Text style={allStyles.pageTitle}>
-              <Text style={{ fontWeight: 'bold' }}>Add</Text>
+            <Text style={[allStyles.pageTitle, { lineHeight:responsiveWidth(10) }]}>
+              <Text style={[allStyles.yellix_medium]}>Add</Text>
               {"\n"}
-              <Text style={allStyles.headerSecondaryText}>Delivery</Text>
+              <Text style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}>Delivery</Text>
             </Text>
           </View>
         </View>
@@ -142,7 +142,7 @@ export default function DocumentsScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Documents Title */}
-          <Text style={allStyles.Title}>Documents</Text>
+          <Text style={[allStyles.Title,{marginTop: responsiveWidth(0)}]}>Documents</Text>
 
           {/* Document Upload Cards */}
           {documentTypes.map((doc) => (
@@ -160,7 +160,7 @@ export default function DocumentsScreen() {
                 <View style={styles.iconContainer}>
                   <Image
                     source={doc.icon}
-                    style={{ width: 24, height: 24 }}
+                    style={{ width: 32, height: 32 }}
                     resizeMode="contain"
                   />
                 </View>
@@ -176,7 +176,7 @@ export default function DocumentsScreen() {
                       ? require("@/assets/icons/DocumentsPageTickIcon.png")
                       : require("@/assets/icons/DocumentPageUplaodIcon.png")
                   }
-                  style={{ width: 20, height: 20 }}
+                  style={{ width: 25, height: 25 }}
                   resizeMode="contain"
                 />
               </TouchableOpacity>

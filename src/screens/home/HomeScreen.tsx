@@ -83,10 +83,11 @@ export default function HomeScreen() {
         {/* Header Section */}
         <View style={styles.headingContainer}>
           <View style={styles.headingTextContainer}>
-            <Text style={styles.headingText}>
-              <Text style={{ fontWeight: "700" }}>Hello,</Text>
-              {"\n"}{user?.name} 👋
-            </Text>
+            <View style={[styles.headingText]}>
+              <Text style={styles.UserStyle}>Hello</Text>
+              <Text style={styles.UserStyle}>{user?.name} 👋</Text>
+            </View>
+            <Text style={styles.UserDealerStyle}>Jain Motorcycle</Text>
           </View>
           <HeaderIcon />
         </View>
@@ -129,7 +130,9 @@ export default function HomeScreen() {
         <Text style={allStyles.sectionHeader}>Total Sales</Text>
         <View style={allStyles.statsContainer}>
           <LinearGradient
-            colors={["#C0DAF7", "#BEE2FC", "#F9FDFE"]}
+            colors={["#183B64", "#3077CA",]}
+            start={{ x: 0 , y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={[allStyles.statCard, styles.gradientCard]}
           >
             <View style={styles.statCardHeader}>
@@ -144,7 +147,9 @@ export default function HomeScreen() {
           </LinearGradient>
 
           <LinearGradient
-            colors={["#24D2FF", "#98E4F8", "#D7F6FF"]}
+            colors={["#183B64", "#3077CA",]}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 1 }}
             style={[allStyles.statCard, styles.gradientCard]}
           >
             <View style={styles.statCardHeader}>
@@ -158,8 +163,10 @@ export default function HomeScreen() {
             <Text style={styles.statValue}>Rs 30,000</Text>
           </LinearGradient>
 
-          <LinearGradient
-            colors={["#DCF4FA", "#BEE4EE", "#93CCDA"]}
+         <LinearGradient
+            colors={["#183B64", "#3077CA",]}
+            start={{ x: 0, y: 1 }}
+            end={{ x: 1, y: 0 }}
             style={[allStyles.statCard, styles.gradientCard]}
           >
             <View style={styles.statCardHeader}>
@@ -173,8 +180,10 @@ export default function HomeScreen() {
             <Text style={styles.statValue}>30</Text>
           </LinearGradient>
 
-          <LinearGradient
-            colors={["#E2FFFA", "#9AF0E7", "#5FE1D0"]}
+           <LinearGradient
+            colors={["#183B64", "#3077CA",]}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 1 }}
             style={[allStyles.statCard, styles.gradientCard]}
           >
             <View style={styles.statCardHeader}>
