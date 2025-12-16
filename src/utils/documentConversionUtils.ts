@@ -11,15 +11,39 @@ export interface ProcessedDocument {
 }
 
 /**
+ * Map document names to API-expected format
+ */
+const mapDocumentTypeToApiFormat = (documentType: string): string => {
+  const documentTypeMap: { [key: string]: string } = {
+    "AADHAAR FRONT": "AADHAAR FRONT",
+    "AADHAAR BACK": "AADHAAR BACK",
+    FRONT: "FRONT",
+    LEFT: "LEFT",
+    CHASSIS: "CHASSIS",
+    Customer: "Customer",
+    "TAX INVOICE": "TAX INVOICE",
+    INSURANCE: "INSURANCE",
+    "HELMET INVOICE": "HELMET INVOICE",
+    "FORM 20 1ST PAGE": "FORM 20 1ST PAGE",
+    "FORM 20 2ND PAGE": "FORM 20 2ND PAGE",
+    "FORM 20 3RD PAGE": "FORM 20 3RD PAGE",
+    "FORM 21": "FORM 21",
+    "FORM 22": "FORM 22",
+    AFFIDAVIT: "AFFIDAVIT",
+  };
+  return documentTypeMap[documentType] || documentType;
+};
+
+/**
  * Get max file size in KB based on document type
  */
 const getMaxFileSizeByDocumentType = (documentType: string): number => {
-  if (documentType === "Aadhaar Front" || documentType === "Aadhaar Back") {
+  if (documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK") {
     return 195; // 195KB
   } else if (
-    documentType === "Form 20 - 1" ||
-    documentType === "Form 20 - 2" ||
-    documentType === "Form 20 - 3"
+    documentType === "FORM 20 1ST PAGE" ||
+    documentType === "FORM 20 2ND PAGE" ||
+    documentType === "FORM 20 3RD PAGE"
   ) {
     return 130; // 130KB
   } else {
@@ -45,7 +69,9 @@ export const convertImageToPdfAndCompress = async (
     let imageSizeKB = imageBlob.size / 1024;
 
     console.log(
-      `Original image size: ${imageSizeKB.toFixed(2)}KB (Max allowed: ${maxSizeKB}KB)`
+      `Original image size: ${imageSizeKB.toFixed(
+        2
+      )}KB (Max allowed: ${maxSizeKB}KB)`
     );
 
     let compressedImageUri = imageUri;
@@ -57,17 +83,18 @@ export const convertImageToPdfAndCompress = async (
       let compressed = false;
 
       while (quality > 0.1) {
-        const result = await ImageManipulator.manipulateAsync(
-          imageUri,
-          [],
-          { compress: quality, format: ImageManipulator.SaveFormat.JPEG }
-        );
+        const result = await ImageManipulator.manipulateAsync(imageUri, [], {
+          compress: quality,
+          format: ImageManipulator.SaveFormat.JPEG,
+        });
 
         const response = await fetch(result.uri);
         const blob = await response.blob();
         finalSizeKB = blob.size / 1024;
 
-        console.log(`Compressed at quality ${quality}: ${finalSizeKB.toFixed(2)}KB`);
+        console.log(
+          `Compressed at quality ${quality}: ${finalSizeKB.toFixed(2)}KB`
+        );
 
         if (finalSizeKB <= maxSizeKB) {
           compressedImageUri = result.uri;
@@ -92,10 +119,17 @@ export const convertImageToPdfAndCompress = async (
         finalSizeKB = finalBlob.size / 1024;
 
         if (finalSizeKB > maxSizeKB) {
+          console.log(
+            `Image is ${finalSizeKB.toFixed(
+              2
+            )}KB. Cannot compress to ${maxSizeKB}KB limit.`
+          );
           Toast.show({
             type: "error",
             text1: "Compression Failed",
-            text2: `Image is ${finalSizeKB.toFixed(2)}KB. Cannot compress to ${maxSizeKB}KB limit.`,
+            text2: `Image is ${finalSizeKB.toFixed(
+              2
+            )}KB. Cannot compress to ${maxSizeKB}KB limit.`,
           });
           return null;
         }
@@ -105,13 +139,17 @@ export const convertImageToPdfAndCompress = async (
     }
 
     // Step 3: Create processed document object
-    const fileName = `${documentType.replace(/\s+/g, "_")}_${Date.now()}.pdf`;
+    const apiFormattedDocumentType = mapDocumentTypeToApiFormat(documentType);
+    const fileName = `${apiFormattedDocumentType.replace(
+      /\s+/g,
+      "_"
+    )}_${Date.now()}.pdf`;
 
     const processedDocument: ProcessedDocument = {
       fileName: fileName,
       contentType: "application/pdf",
       frameNumber: frameNumber || chassisNo,
-      documentType: documentType,
+      documentType: apiFormattedDocumentType,
       fileUri: compressedImageUri, // Use the compressed image URI
       fileSize: Math.round(finalSizeKB * 1024), // Size in bytes
     };

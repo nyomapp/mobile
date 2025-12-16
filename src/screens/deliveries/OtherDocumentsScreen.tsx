@@ -1,5 +1,6 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { globalStyles } from "@/src/styles";
+import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 import { router } from "expo-router";
 import {
   Image,
@@ -8,74 +9,105 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import {
-  responsiveWidth
-} from "react-native-responsive-dimensions";
+import { responsiveWidth } from "react-native-responsive-dimensions";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/documentsStyles";
 import { allStyles } from "../../styles/global";
+import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
+import { useEffect, useState } from "react";
+import { updateDeliveryById } from "@/src/api/UploadDocument";
+import Toast from "react-native-toast-message";
 
 export default function OtherDocumentsScreen() {
+  const {
+    currentDelivery,
+    setCurrentDelivery,
+    isEdit,
+    deliveryId,
+    resetDeliveryId,
+  } = useDeliveryContext();
+  const { documentTypes, setIsOtherDocumentsUpload, resetDocuments } =
+    useDocumentArray2();
+  const { setUploadingDocument } = useDocumentUploadContext();
+  const [finalUploadDocumentsArray, setFinalUploadDocumentsArray] = useState<
+    any[]
+  >([]);
   const handleBack = () => {
-    router.back();
+    router.push("/(tabs)/deliveries");
   };
-
-  const handleNext = () => {
+  useEffect(() => {
+    setFinalUploadDocumentsArray(currentDelivery?.downloadDocuments || []);
+  }, [currentDelivery?.downloadDocuments]);
+  const handleNext = async () => {
     // Navigate to next step
-    //console.log("Next button pressed");
-    router.push("/amount");
+
+    // Transform documentTypes array to match DownloadDocument interface
+    const newDownloadDocuments = documentTypes.map((doc) => ({
+      documentName: doc.documentName as
+        | "FRONT"
+        | "LEFT"
+        | "RIGHT"
+        | "BACK"
+        | "ODOMETER"
+        | "CHASSIS"
+        | "AADHAAR FRONT"
+        | "AADHAAR BACK"
+        | "Customer"
+        | "TAX INVOICE"
+        | "INSURANCE"
+        | "HELMET INVOICE"
+        | "FORM 20 1ST PAGE",
+      fileUrl: doc.fileUrl,
+      fileSize: doc.fileSize,
+      fileType: doc.fileType as "PDF" | "JPG",
+    }));
+    console.log("newDownloadDocuments", newDownloadDocuments);
+
+    // Merge previous documents with new ones
+    const mergedDocuments = [
+      ...(finalUploadDocumentsArray || []),
+      ...newDownloadDocuments,
+    ];
+
+    console.log("mergedDocuments", JSON.stringify(mergedDocuments, null, 2));
+    // console.log("deliveryId", deliveryId);
+    try {
+      await updateDeliveryById(deliveryId, mergedDocuments);
+      Toast.show({
+        type: "success",
+        text1: "Update Successful",
+        text2: "Delivery documents have been updated successfully.",
+      });
+      resetDocuments();
+      resetDeliveryId();
+      setTimeout(() => {
+        router.push("/(tabs)/deliveries");
+      }, 1000);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Update Failed",
+        text2:
+          (error as any).message ||
+          "An error occurred while updating delivery documents.",
+      });
+    }
   };
 
-  const handleDocumentUpload = (documentType: string) => {
-    //console.log(`Upload ${documentType}`);
+  const handleDocumentUpload = (document: any) => {
+    console.log("=== Document object structure ===");
+    console.log("Full document:", JSON.stringify(document, null, 2));
+    console.log("Setting uploadingDocument to:", document?.documentName);
+
+    setUploadingDocument(document);
+    setIsOtherDocumentsUpload(true);
+
+    console.log("About to navigate to document-scanner");
     router.push("/document-scanner");
-    // Implement document upload logic
   };
-
-  const documentTypes = [
-    {
-      id: 1,
-      title: "Invoice",
-      icon: require("@/assets/icons/InvoiceIcon.png"),
-      uploaded: true,
-    },
-    {
-      id: 2,
-      title: "Insurance",
-      icon: require("@/assets/icons/InsuranceIcon.png"),
-      uploaded: false,
-    },
-    {
-      id: 3,
-      title: "Helmet Invoice",
-      icon: require("@/assets/icons/HelmetInvoiceIcon.png"),
-      uploaded: false,
-    },
-    {
-      id: 4,
-      title: "Form 20 - 1",
-      icon: require("@/assets/icons/Form 20 -1Icon.png"),
-      uploaded: false,
-    },
-    {
-      id: 5,
-      title: "Form 20 - 2",
-      icon: require("@/assets/icons/Form 20 - 2Icon.png"),
-      uploaded: false,
-    },
-    {
-      id: 6,
-      title: "Form 20 - 3",
-      icon: require("@/assets/icons/Form 20 - 3Icon.png"),
-    },
-    {
-      id: 7,
-      title: "Form 20",
-      icon: require("@/assets/icons/Form 21 Icon.png"),
-    },
-  ];
 
   return (
     <SafeAreaView style={[allStyles.safeArea]} edges={["top"]}>
@@ -84,13 +116,19 @@ export default function OtherDocumentsScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={[allStyles.pageHeader, { paddingTop: responsiveWidth(6) }]}>
+        <View
+          style={[allStyles.pageHeader, { paddingTop: responsiveWidth(6) }]}
+        >
           <View>
             {/* <Text style={allStyles.pageTitle}>
             <b>Add</b>
             {"\n"}Delivery
           </Text> */}
-            <Text style={[allStyles.Title, { marginBottom: responsiveWidth(0) }]}>Documents</Text>
+            <Text
+              style={[allStyles.Title, { marginBottom: responsiveWidth(0) }]}
+            >
+              Documents
+            </Text>
           </View>
 
           <HeaderIcon />
@@ -102,7 +140,6 @@ export default function OtherDocumentsScreen() {
         >
           {/* Documents Title */}
 
-
           {/* Document Upload Cards */}
           {documentTypes.map((doc) => (
             <TouchableOpacity
@@ -112,7 +149,7 @@ export default function OtherDocumentsScreen() {
                 styles.documentCard,
                 doc.uploaded && styles.documentUploadedCard,
               ]}
-              onPress={() => handleDocumentUpload(doc.title)}
+              onPress={() => handleDocumentUpload(doc)}
               activeOpacity={0.7}
             >
               <View style={styles.documentLeft}>
@@ -127,7 +164,7 @@ export default function OtherDocumentsScreen() {
               </View>
               <TouchableOpacity
                 //   style={styles.uploadButton}
-                onPress={() => handleDocumentUpload(doc.title)}
+                onPress={() => handleDocumentUpload(doc)}
               >
                 <Image
                   source={
@@ -159,8 +196,7 @@ export default function OtherDocumentsScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+      <Toast />
     </SafeAreaView>
   );
 }
-
-

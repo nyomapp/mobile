@@ -19,13 +19,13 @@ import { useDocumentUploadContext } from '@/src/contexts/DocumentUploadContext';
 import { useDocumentArray } from '@/src/contexts/DocumentArray1';
 import Toast from "react-native-toast-message";
 import { useEffect } from "react";
-
+import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 
 export default function DocumentsScreen() {
   const { currentDelivery, setCurrentDelivery, isEdit } = useDeliveryContext();
   const { setUploadingDocument } = useDocumentUploadContext();
   const { documentTypes, updateBulkDocuments } = useDocumentArray();
-
+    const {setIsOtherDocumentsUpload } = useDocumentArray2();
   // On mount, if in edit mode and documents exist, populate the context
   useEffect(() => {
     if (isEdit && currentDelivery?.downloadDocuments && currentDelivery.downloadDocuments.length > 0) {
@@ -85,10 +85,15 @@ export default function DocumentsScreen() {
   };
 
   const handleDocumentUpload = (document: any) => {
-    console.log(`Upload ${document}`);
+    // console.log("=== Document object structure ===");
+    // console.log("Full document:", JSON.stringify(document, null, 2));
+    // console.log("documentName:", document?.documentName);
+    // console.log("title:", document?.title);
+    // console.log("id:", document?.id);
+    // console.log("================================");
     setUploadingDocument(document)
+    setIsOtherDocumentsUpload(false);
     router.push("/document-scanner");
-    // Implement document upload logic
   };
 
   return (

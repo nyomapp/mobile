@@ -6,7 +6,7 @@ import {
 import { COLORS, FONTS } from "../constants";
 export const styles = StyleSheet.create({
   UserStyle:{
-    fontSize: responsiveFontSize(4),
+    fontSize: responsiveFontSize(3),
     fontWeight:700,
     color: COLORS.primaryBlue,
     fontFamily: FONTS.Yellix,

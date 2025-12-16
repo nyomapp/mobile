@@ -8,6 +8,7 @@ import { FinancierDataProvider } from "./FinancierDataContext";
 import { DeliveryHomePageProvider } from "./DeliveryHomePageContext";
 import { DocumentUploadProvider } from "./DocumentUploadContext";
 import { DocumentArrayProvider } from "./DocumentArray1";
+import { DocumentArray2Provider } from "./DocumentArray2";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -24,9 +25,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                 <DeliveryHomePageProvider>
                   <DocumentUploadProvider>
                     <DocumentArrayProvider>
-                      <DocumentUploadProvider>
+                      <DocumentArray2Provider>
                         {children}
-                      </DocumentUploadProvider>
+                      </DocumentArray2Provider>
                     </DocumentArrayProvider>
                   </DocumentUploadProvider>
                 </DeliveryHomePageProvider>

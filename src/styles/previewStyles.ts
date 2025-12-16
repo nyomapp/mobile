@@ -67,6 +67,12 @@ export const styles = StyleSheet.create({
     color:"#646566",
     marginBottom: responsiveWidth(5),
   },
+   documentPreviewTitle: {
+    fontSize: responsiveFontSize(1.9),
+    fontFamily: FONTS.YellixThin,
+    color: COLORS.black,
+    flex: 1,
+  },
   documentImageContainer: {
     // alignItems: "center",
   },
@@ -164,4 +170,31 @@ amountPlaceholder: {
   fontFamily: FONTS.Yellix,
   color: "#958c8c",
 },
+  documentCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: responsiveWidth(1.5),
+  },
+  documentUploadedCard: {
+    backgroundColor: "#89898926",
+  },
+  documentLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  iconContainer: {
+    width: responsiveWidth(10),
+    height: responsiveWidth(10),
+    borderRadius: responsiveWidth(5),
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: responsiveWidth(3),
+  },
+  documentRightButtons:{
+    flexDirection:"row",
+    alignItems:"center",
+    gap:responsiveWidth(6),
+  }
 });

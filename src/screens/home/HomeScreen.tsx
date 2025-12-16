@@ -86,7 +86,7 @@ export default function HomeScreen() {
             <View style={[styles.headingText]}>
               <Text style={styles.UserStyle}>Hello</Text>
              
-              <Text style={styles.UserStyle}>{user?.name} 👋</Text>
+              <Text style={styles.UserStyle}>{user?.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase() : ""}</Text>
             </View>
              {user?.mainDealerRef?.name && (
             <Text style={styles.UserDealerStyle}>{user?.mainDealerRef?.name}</Text>

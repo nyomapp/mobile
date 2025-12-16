@@ -26,6 +26,9 @@ export const API_ENDPOINTS = {
     GET_MODELS: '/models?makeId={makeId}',
     Upload_Documents:'upload/generate-upload-url'
   },
+  PREVIEW:{
+    GET_PDF_URL:'upload/generate-download-url/:fileKey'
+  },
   AUTH: {
     Login: '/auth/login'
   },

@@ -26,6 +26,7 @@ import {
 } from "@/src/utils/documentConversionUtils";
 import { uploadDocument } from "@/src/api/UploadDocument";
 import { useDocumentArray } from "@/src/contexts/DocumentArray1";
+import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 interface DocumentScannerProps {
   documentType?: string;
 }
@@ -40,6 +41,21 @@ DocumentScannerProps) {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const { documentTypes, updateDocumentStatus } = useDocumentArray();
+  const {
+    isOtherDocumentsUpload,
+    setIsOtherDocumentsUpload,
+    updateDocumentStatus: updateOtherDocumentStatus,
+  } = useDocumentArray2();
+
+  // Debug: Log uploadingDocument on mount and when it changes
+  // useEffect(() => {
+  //   console.log("=== SCANNER COMPONENT MOUNTED ===");
+  //   console.log("uploadingDocument:", uploadingDocument);
+  //   console.log("uploadingDocument.documentName:", (uploadingDocument as any)?.documentName);
+  //   console.log("isOtherDocumentsUpload:", isOtherDocumentsUpload);
+  //   console.log("====================================");
+  // }, [uploadingDocument, isOtherDocumentsUpload]);
+
   useEffect(() => {
     const requestCameraPermission = async () => {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -120,8 +136,25 @@ DocumentScannerProps) {
     }
 
     try {
+      // console.log("=== DOCUMENT TYPE RESOLUTION ===");
+      // console.log("uploadingDocument object:", JSON.stringify(uploadingDocument, null, 2));
+      // console.log("uploadingDocument.documentName:", (uploadingDocument as any)?.documentName);
+      // console.log("uploadingDocument.title:", (uploadingDocument as any)?.title);
+      // console.log("==================================");
+
+      // Use documentName if available, otherwise try title, otherwise throw error
       const resolvedDocumentType =
-        (uploadingDocument as any)?.documentName || Date.now().toString();
+        (uploadingDocument as any)?.documentName ||
+        (uploadingDocument as any)?.title ||
+        undefined;
+
+      if (!resolvedDocumentType) {
+        throw new Error(
+          "Document type is missing. uploadingDocument: " +
+            JSON.stringify(uploadingDocument)
+        );
+      }
+
       const frameNumber = currentDelivery?.chassisNo || "";
 
       // Convert image to PDF and compress
@@ -138,9 +171,15 @@ DocumentScannerProps) {
         try {
           const { fileUri, fileSize, ...finalObject } = processedDocument;
 
+          console.log("Full metadata:", JSON.stringify(finalObject, null, 2));
+
+          if (!finalObject.documentType) {
+            throw new Error("Document type is missing or invalid");
+          }
+
           // Step 1: Get upload URL from server
           const response = await uploadDocument(finalObject);
-          console.log("Upload response:", response);
+          // console.log("Upload response:", response);
           // Step 2: Read the file from fileUri
           const fileResponse = await fetch((response as any).uploadUrl);
           const fileBlob = await fileResponse.blob();
@@ -165,12 +204,19 @@ DocumentScannerProps) {
           }
 
           // console.log("Document uploaded successfully", finalUploadedResponse);
-
-          updateDocumentStatus(
-            (uploadingDocument as any)?.documentName,
-            true,
-            (response as any).fileKey
-          );
+          if (isOtherDocumentsUpload) {
+            updateOtherDocumentStatus(
+              (uploadingDocument as any)?.documentName,
+              true,
+              (response as any).fileKey
+            );
+          } else {
+            updateDocumentStatus(
+              (uploadingDocument as any)?.documentName,
+              true,
+              (response as any).fileKey
+            );
+          }
 
           Toast.show({
             type: "success",
@@ -180,7 +226,11 @@ DocumentScannerProps) {
 
           // Navigate back after successful upload
           setTimeout(() => {
-            router.push("/document-screen");
+            if (isOtherDocumentsUpload) {
+              router.push("/other-documents");
+            } else {
+              router.push("/document-screen");
+            }
           }, 1000);
         } catch (error) {
           console.error("Upload error:", error);
@@ -202,7 +252,11 @@ DocumentScannerProps) {
   };
 
   const handleBack = () => {
-    router.push("/document-screen");
+    if (isOtherDocumentsUpload) {
+      router.push("/other-documents");
+    } else {
+      router.push("/document-screen");
+    }
   };
 
   const retakePhoto = () => {

@@ -167,8 +167,30 @@ export default function DeliveriesHome() {
     setSelectedModel("");
   };
 
-  const handleUpload = (customerId: string) => {
-    //("Upload for customer:", customerId);
+  const handleUpload = (data: any) => {
+    // Clean the data before setting to context
+    const {
+      id: _id,
+      updatedBy: _updatedBy,
+      status: _status,
+      modelRef,
+      financerRef,
+      ...restData
+    } = data;
+
+    const cleanedData = {
+      ...restData,
+      // Extract model ID from modelRef object
+      modelRef: modelRef?._id || modelRef?.id || "",
+      financerRef: financerRef?._id || financerRef?.id || "",
+      // Ensure userRef is set (required field)
+      userRef: data.userRef?._id || data.userRef?.id || "",
+    };
+
+    console.log("Cleaned Data for Context:", cleanedData);
+
+    setCurrentDelivery(cleanedData as any);
+    setDeliveryId(data.id);
     router.push("/other-documents");
     // Navigate to upload screen or show upload modal
   };
@@ -349,7 +371,7 @@ export default function DeliveriesHome() {
       {activeTab === "delivered" ? (
         <TouchableOpacity
           style={styles.uploadButton}
-          onPress={() => handleUpload(item.id)}
+          onPress={() => handleUpload(item)}
         >
           <Text style={styles.uploadButtonText}>Upload</Text>
           <View style={styles.uploadIcon}>

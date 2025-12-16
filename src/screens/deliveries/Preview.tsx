@@ -14,18 +14,24 @@ import { useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { responsiveFontSize, responsiveWidth } from "react-native-responsive-dimensions";
+import {
+  responsiveFontSize,
+  responsiveWidth,
+} from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/previewStyles";
-import { useDocumentArray } from '@/src/contexts/DocumentArray1';
+import { useDocumentArray } from "@/src/contexts/DocumentArray1";
+import { globalStyles } from "@/src/styles";
+import { getPdfUrl } from "@/src/api/preview";
 interface DetailField {
   label: string;
   value: string;
@@ -45,6 +51,7 @@ export default function PreviewScreen() {
     resetDeliveryId,
     resetIsEdit,
   } = useDeliveryContext();
+  const { documentTypes, updateBulkDocuments } = useDocumentArray();
   const { resetDocuments } = useDocumentArray();
   const { data: masterData, setData: setMasterData } = useMasterData();
   const { data: financierData, setData: setFinancierData } = useFinancierData();
@@ -192,6 +199,90 @@ export default function PreviewScreen() {
         .replace(/\b\w/g, (l) => l.toUpperCase()),
       image: null, // Image URL would be doc.fileUrl in real implementation
     })) || [];
+
+  const handleDownload = async(doc: any) => {
+    try {
+      Toast.show({
+        type: "info",
+        text1: "Downloading",
+        text2: "Preparing your document...",
+      });
+
+      const response = await getPdfUrl(doc.fileUrl);
+      const fileUrl = (response as any).data;
+
+      if (!fileUrl) {
+        throw new Error("No URL received from server");
+      }
+
+      console.log("Opening PDF for download from:", fileUrl);
+
+      // Try to open with native viewer which allows download/save
+      const canOpen = await Linking.canOpenURL(fileUrl);
+      
+      if (canOpen) {
+        await Linking.openURL(fileUrl);
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Document opened. Use your app's download option to save.",
+        });
+      } else {
+        throw new Error("Cannot open document. No viewer app found.");
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Download Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while opening the document.",
+      });
+      console.error("Error downloading document:", error);
+    }
+  };
+
+  const handleView = async (doc: any) => {
+    try {
+      Toast.show({
+        type: "info",
+        text1: "Loading",
+        text2: "Opening document...",
+      });
+
+      const response = await getPdfUrl(doc.fileUrl);
+      const fileUrl = (response as any).data;
+
+      if (!fileUrl) {
+        throw new Error("No URL received from server");
+      }
+
+      console.log("Opening PDF from URL:", fileUrl);
+
+      // Try to open with the native PDF viewer
+      const canOpen = await Linking.canOpenURL(fileUrl);
+      
+      if (canOpen) {
+        await Linking.openURL(fileUrl);
+        Toast.show({
+          type: "success",
+          text1: "Opening",
+          text2: "Document opened in viewer",
+        });
+      } else {
+        throw new Error("Cannot open PDF. No viewer app found.");
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "View Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while opening the document.",
+      });
+      console.error("Error viewing document:", error);
+    }
+  };
   const handleSubmit = async () => {
     try {
       if (isEdit) {
@@ -246,7 +337,12 @@ export default function PreviewScreen() {
   ) => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={[allStyles.Title, { marginTop:0,marginBottom:0,fontSize:responsiveFontSize(3) }]}>
+        <Text
+          style={[
+            allStyles.Title,
+            { marginTop: 0, marginBottom: 0, fontSize: responsiveFontSize(3) },
+          ]}
+        >
           {title}
         </Text>
         <TouchableOpacity>
@@ -297,9 +393,7 @@ export default function PreviewScreen() {
         </View>
         <View style={[allStyles.pageHeader]}>
           <View>
-            <Text style={[allStyles.pageTitle]}>
-              Preview
-            </Text>
+            <Text style={[allStyles.pageTitle]}>Preview</Text>
           </View>
         </View>
 
@@ -311,6 +405,75 @@ export default function PreviewScreen() {
         >
           {/* Details Section */}
           {renderDetailSection("Details", detailsData)}
+
+          {/* Documents Section */}
+          <View style={styles.section}>
+            <View style={[styles.sectionHeader,{marginBottom:responsiveWidth(8)}]}>
+              <Text style={[styles.sectionTitle]}>Documents</Text>
+              <TouchableOpacity>
+                <Image
+                  source={require("@/assets/icons/previewPageEditIcon.png")}
+                  style={{
+                    width: 27,
+                    height: 27,
+                  }}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </View>
+            {documentTypes.map((doc) => (
+              <TouchableOpacity
+                key={doc.id}
+                style={[
+                  globalStyles.input,
+                  styles.documentCard,
+                  doc.uploaded && styles.documentUploadedCard,
+                ]}
+                // onPress={() => handleDocumentUpload(doc)}
+
+                activeOpacity={1}
+              >
+                <View style={styles.documentLeft}>
+                  <View style={styles.iconContainer}>
+                    <Image
+                      source={doc.icon}
+                      style={{ width: 32, height: 32 }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                  <Text style={styles.documentPreviewTitle}>{doc.title}</Text>
+                </View>
+                <View style={styles.documentRightButtons}>
+                  {doc.uploaded && (
+                  <TouchableOpacity
+                    //   style={styles.uploadButton}
+                    onPress={() => handleView(doc)}
+                  >
+                    <Image
+                      source={require("@/assets/icons/ViewIcon.png")}
+                      style={{ width: 20, height: 20 }}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                  )}
+                  <TouchableOpacity
+                    //   style={styles.uploadButton}
+                    onPress={() => handleDownload(doc)}
+                  >
+                    <Image
+                      source={
+                        doc.uploaded
+                          ? require("@/assets/icons/DowmloadIconPreviewPage.png")
+                          : require("@/assets/icons/DocumentPageUplaodIcon.png")
+                      }
+                      style={{ width: 20, height: 20 }}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
 
           {/* More Details Section */}
           {renderDetailSection("More Details", moreDetailsData, true)}
@@ -344,53 +507,6 @@ export default function PreviewScreen() {
             renderDetailSection("Payment Details", [
               { label: "Payment Mode:", value: "Cash" },
             ])}
-
-          {/* Documents Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Documents</Text>
-              <TouchableOpacity>
-                <Image
-                  source={require("@/assets/icons/previewPageEditIcon.png")}
-                  style={{
-                    width: 27,
-                    height: 27,
-                  }}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-            </View>
-            {documentsData.map((doc, index) => (
-              <View key={index} style={styles.documentItem}>
-                <Text style={styles.documentTitle}>{doc.title}</Text>
-                <View style={styles.documentImageContainer}>
-                  {doc.image ? (
-                    <Image source={doc.image} style={styles.documentImage} />
-                  ) : (
-                    <View style={styles.placeholderImage}>
-                      <View style={styles.placeholderContent}>
-                        <View style={styles.placeholderHeader}>
-                          <View style={styles.placeholderFlag} />
-                          <Text style={styles.placeholderText}>
-                            GOVERNMENT OF INDIA
-                          </Text>
-                        </View>
-                        <View style={styles.placeholderBody}>
-                          <View style={styles.placeholderPhoto} />
-                          <View style={styles.placeholderInfo}>
-                            <View style={styles.placeholderLine} />
-                            <View style={styles.placeholderLine} />
-                            <View style={styles.placeholderLineShort} />
-                          </View>
-                        </View>
-                        <View style={styles.placeholderQR} />
-                      </View>
-                    </View>
-                  )}
-                </View>
-              </View>
-            ))}
-          </View>
         </ScrollView>
 
         {/* Bottom Buttons */}
