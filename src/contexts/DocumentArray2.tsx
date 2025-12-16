@@ -106,7 +106,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 8,
     title: "Form 22",
-    icon: require("@/assets/icons/Form 21 Icon.png"),
+    icon: require("@/assets/icons/Form 22Icon.png"),
     uploaded: false,
     documentName: "FORM 22",
     fileUrl: "",
@@ -116,7 +116,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 9,
     title: "AFFIDAVIT",
-    icon: require("@/assets/icons/Form 21 Icon.png"),
+    icon: require("@/assets/icons/AffidavitIcon.png"),
     uploaded: false,
     documentName: "AFFIDAVIT",
     fileUrl: "",
