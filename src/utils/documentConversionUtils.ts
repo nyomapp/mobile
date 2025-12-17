@@ -207,7 +207,6 @@ export const convertImageToPdfAndCompress = async (
     let finalSizeKB = imageSizeKB;
 
     // Step 2: Always process image to strip EXIF data (which can cause rotation)
-    // Then compress if needed
     const processedResult = await ImageManipulator.manipulateAsync(imageUri, [], {
       compress: 1.0, // No compression initially, just strip EXIF
       format: ImageManipulator.SaveFormat.JPEG,
@@ -222,12 +221,41 @@ export const convertImageToPdfAndCompress = async (
     console.log(`After EXIF stripping: ${finalSizeKB.toFixed(2)}KB`);
 
     // Step 3: Compress image if needed
+    let compressed = finalSizeKB <= maxSizeKB; // FIX: Set to true if already within limit
+    
     if (finalSizeKB > maxSizeKB) {
-      let quality = 0.8;
-      let compressed = false;
+      let quality = 0.9;
 
-      while (quality > 0.1) {
-        const result = await ImageManipulator.manipulateAsync(compressedImageUri, [], {
+      // First, try to resize the image if it's very large
+      let currentImageUri = compressedImageUri;
+      const { width, height } = await getImageDimensions(currentImageUri);
+      
+      // If image is larger than 1920x1080, resize it first
+      if (width > 1920 || height > 1080) {
+        const resizeResult = await ImageManipulator.manipulateAsync(currentImageUri, [
+          { resize: { width: Math.min(width, 1920), height: Math.min(height, 1080) } }
+        ], {
+          compress: 0.9,
+          format: ImageManipulator.SaveFormat.JPEG,
+        });
+        currentImageUri = resizeResult.uri;
+        
+        const resizedResponse = await fetch(currentImageUri);
+        const resizedBlob = await resizedResponse.blob();
+        finalSizeKB = resizedBlob.size / 1024;
+        
+        console.log(`After resizing: ${finalSizeKB.toFixed(2)}KB`);
+        
+        // Check if resizing alone was enough
+        if (finalSizeKB <= maxSizeKB) {
+          compressedImageUri = currentImageUri;
+          compressed = true;
+        }
+      }
+
+      // Now compress with quality adjustment if still needed
+      while (quality > 0.05 && finalSizeKB > maxSizeKB && !compressed) {
+        const result = await ImageManipulator.manipulateAsync(currentImageUri, [], {
           compress: quality,
           format: ImageManipulator.SaveFormat.JPEG,
         });
@@ -246,39 +274,60 @@ export const convertImageToPdfAndCompress = async (
           break;
         }
 
-        quality -= 0.1;
+        // Reduce quality more aggressively for Aadhaar documents
+        if (documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK") {
+          quality -= 0.1;
+        } else {
+          quality -= 0.05;
+        }
       }
 
-      // If compression didn't work
-      if (!compressed) {
-        // Try one more time with lowest quality
+      // If still not compressed enough, try additional resize
+      if (!compressed && finalSizeKB > maxSizeKB) {
         const finalResult = await ImageManipulator.manipulateAsync(
-          compressedImageUri,
-          [],
-          { compress: 0.1, format: ImageManipulator.SaveFormat.JPEG }
+          currentImageUri,
+          [{ resize: { width: Math.floor(width * 0.8), height: Math.floor(height * 0.8) } }],
+          { compress: 0.05, format: ImageManipulator.SaveFormat.JPEG }
         );
 
         const finalResponse = await fetch(finalResult.uri);
         const finalBlob = await finalResponse.blob();
         finalSizeKB = finalBlob.size / 1024;
 
-        if (finalSizeKB > maxSizeKB) {
-          console.log(
-            `Image is ${finalSizeKB.toFixed(
-              2
-            )}KB. Cannot compress to ${maxSizeKB}KB limit.`
-          );
-          Toast.show({
-            type: "error",
-            text1: "Compression Failed",
-            text2: `Image is ${finalSizeKB.toFixed(
-              2
-            )}KB. Cannot compress to ${maxSizeKB}KB limit.`,
-          });
-          return null;
+        if (finalSizeKB <= maxSizeKB) {
+          compressedImageUri = finalResult.uri;
+          compressed = true;
+          console.log(`Final compression with resize: ${finalSizeKB.toFixed(2)}KB`);
         }
+      }
+    }
 
-        compressedImageUri = finalResult.uri;
+    // If compression still didn't work
+    if (!compressed) {
+      console.log(
+        `Image is ${finalSizeKB.toFixed(
+          2
+        )}KB. Cannot compress to ${maxSizeKB}KB limit.`
+      );
+      
+      // For Aadhaar, allow slightly higher limit as fallback
+      if ((documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK") && finalSizeKB <= 250) {
+        console.log("Using relaxed limit for Aadhaar document");
+        compressed = true; // FIX: Set to true when using fallback
+        Toast.show({
+          type: "info",
+          text1: "Compression Notice",
+          text2: `Document compressed to ${finalSizeKB.toFixed(2)}KB (slightly above limit)`,
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Compression Failed",
+          text2: `Image is ${finalSizeKB.toFixed(
+            2
+          )}KB. Cannot compress to ${maxSizeKB}KB limit.`,
+        });
+        return null;
       }
     }
 

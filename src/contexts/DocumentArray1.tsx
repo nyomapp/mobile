@@ -97,6 +97,7 @@ export const DocumentArrayProvider: React.FC<DocumentArrayProviderProps> = ({ ch
     uploaded: boolean,
     fileUrl: string,
   ) => {
+    // console.log(`Updating document status: ${documentName} -> uploaded: ${uploaded}, fileUrl: ${fileUrl}`);
     setDocumentTypes(prevDocs =>
       prevDocs.map(doc =>
         doc.documentName === documentName
@@ -130,6 +131,7 @@ export const DocumentArrayProvider: React.FC<DocumentArrayProviderProps> = ({ ch
             fileUrl: hasFileUrl ? matchingDoc.fileUrl : '',
             fileSize: hasFileUrl ? matchingDoc.fileSize : doc.fileSize,
           };
+          console.log(`Updated document ${doc.documentName}:`, newDoc);
           return newDoc;
         }
         return doc;

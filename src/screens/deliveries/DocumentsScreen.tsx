@@ -18,14 +18,16 @@ import { allStyles } from "../../styles/global";
 import { useDocumentUploadContext } from '@/src/contexts/DocumentUploadContext';
 import { useDocumentArray } from '@/src/contexts/DocumentArray1';
 import Toast from "react-native-toast-message";
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 
 export default function DocumentsScreen() {
   const { currentDelivery, setCurrentDelivery, isEdit } = useDeliveryContext();
   const { setUploadingDocument } = useDocumentUploadContext();
   const { documentTypes, updateBulkDocuments } = useDocumentArray();
-    const {setIsOtherDocumentsUpload } = useDocumentArray2();
+  const {setIsOtherDocumentsUpload } = useDocumentArray2();
+  const syncInProgress = useRef(false);
+  
   // On mount, if in edit mode and documents exist, populate the context
   useEffect(() => {
     if (isEdit && currentDelivery?.downloadDocuments && currentDelivery.downloadDocuments.length > 0) {
@@ -33,6 +35,56 @@ export default function DocumentsScreen() {
       updateBulkDocuments(currentDelivery.downloadDocuments as any);
     }
   }, [isEdit, currentDelivery?.downloadDocuments]);
+
+  // Memoize the document data to avoid unnecessary updates
+  const currentDocumentData = useMemo(() => {
+    return documentTypes
+      .filter(doc => doc.uploaded && doc.fileUrl)
+      .map(doc => ({
+        documentName: doc.documentName,
+        fileUrl: doc.fileUrl,
+        fileSize: doc.fileSize,
+        fileType: doc.fileType
+      }));
+  }, [documentTypes]);
+
+  // Sync DocumentArray1 changes back to DeliveryContext (only in edit mode)
+  useEffect(() => {
+    if (!isEdit || !currentDelivery || syncInProgress.current) {
+      return;
+    }
+
+    // Check if the document data has actually changed
+    const existingDocs = currentDelivery.downloadDocuments || [];
+    const hasChanges = currentDocumentData.length !== existingDocs.length ||
+      currentDocumentData.some(newDoc => {
+        const existingDoc = existingDocs.find(existing => existing.documentName === newDoc.documentName);
+        return !existingDoc || existingDoc.fileUrl !== newDoc.fileUrl;
+      });
+
+    if (hasChanges) {
+      syncInProgress.current = true;
+      
+      const updatedDownloadDocuments = currentDocumentData.map(doc => ({
+        documentName: doc.documentName as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "ODOMETER" | "CHASSIS" | "AADHAAR FRONT" | "AADHAAR BACK" | "Customer" | "TAX INVOICE" | "INSURANCE" | "HELMET INVOICE" | "FORM 20 1ST PAGE",
+        fileUrl: doc.fileUrl,
+        fileSize: doc.fileSize,
+        fileType: doc.fileType as 'PDF' | 'JPG'
+      }));
+
+      setCurrentDelivery({
+        ...currentDelivery,
+        downloadDocuments: updatedDownloadDocuments
+      });
+
+      console.log("Synced DocumentArray1 changes to DeliveryContext:", updatedDownloadDocuments);
+      
+      // Reset the flag after a short delay
+      setTimeout(() => {
+        syncInProgress.current = false;
+      }, 100);
+    }
+  }, [currentDocumentData, isEdit]); // Remove currentDelivery from dependencies to prevent loop
 
   const handleBack = () => {
     router.push("/add-delivery");
@@ -72,8 +124,7 @@ export default function DocumentsScreen() {
       });
     }
 
-    // console.log("Documents stored in context:", downloadDocuments);
-    // console.log("Full delivery context after documents:", currentDelivery);
+    console.log("Documents stored in context:", downloadDocuments);
     
     Toast.show({
       type: "success",
@@ -85,12 +136,6 @@ export default function DocumentsScreen() {
   };
 
   const handleDocumentUpload = (document: any) => {
-    // console.log("=== Document object structure ===");
-    // console.log("Full document:", JSON.stringify(document, null, 2));
-    // console.log("documentName:", document?.documentName);
-    // console.log("title:", document?.title);
-    // console.log("id:", document?.id);
-    // console.log("================================");
     setUploadingDocument(document)
     setIsOtherDocumentsUpload(false);
     router.push("/document-scanner");
@@ -146,7 +191,6 @@ export default function DocumentsScreen() {
                 <Text style={styles.documentTitle}>{doc.title}</Text>
               </View>
               <TouchableOpacity
-                //   style={styles.uploadButton}
                 onPress={() => handleDocumentUpload(doc)}
               >
                 <Image
@@ -167,7 +211,6 @@ export default function DocumentsScreen() {
         <View
           style={[
             allStyles.bottomContainer,
-            // { paddingHorizontal: responsiveWidth(4) },
           ]}
         >
           <TouchableOpacity style={allStyles.btn} onPress={handleNext}>

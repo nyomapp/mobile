@@ -23,6 +23,7 @@ import { useDashBoard } from "@/src/contexts/DashBoardContext";
 import { useCallback, useEffect } from "react";
 import Toast from "react-native-toast-message";
 import { getDashBoardData } from "@/src/api/dashBoard";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -36,6 +37,15 @@ export default function HomeScreen() {
   addNotification,
   isLoading 
 } = useDashBoard();
+const {
+    currentDelivery,
+    resetCurrentDelivery,
+    isEdit,
+    deliveryId,
+    resetDeliveryId,
+    setIsEdit,
+    resetIsEdit,
+  } = useDeliveryContext();
   //console.log("Current user:", user);
  
  useFocusEffect(
@@ -240,7 +250,9 @@ export default function HomeScreen() {
 
       {/* Floating Action Button */}
       <TouchableOpacity
-        onPress={() => router.push("/add-delivery")}
+        onPress={() => {
+          setIsEdit(false)
+          router.push("/add-delivery")}}
         style={allStyles.floatingButton}
       >
         <Ionicons name="add" size={32} color="white" />
