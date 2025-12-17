@@ -9,6 +9,8 @@ import { DeliveryHomePageProvider } from "./DeliveryHomePageContext";
 import { DocumentUploadProvider } from "./DocumentUploadContext";
 import { DocumentArrayProvider } from "./DocumentArray1";
 import { DocumentArray2Provider } from "./DocumentArray2";
+import { SearchProvider } from "./SearchContext";
+import DashBoardContext, { DashBoardProvider } from "./DashBoardContext";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -26,7 +28,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                   <DocumentUploadProvider>
                     <DocumentArrayProvider>
                       <DocumentArray2Provider>
-                        {children}
+                        <SearchProvider>
+                          <DashBoardProvider>{children}</DashBoardProvider>
+                        </SearchProvider>
                       </DocumentArray2Provider>
                     </DocumentArrayProvider>
                   </DocumentUploadProvider>

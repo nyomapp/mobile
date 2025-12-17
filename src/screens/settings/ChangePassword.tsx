@@ -13,26 +13,109 @@ import Toast from "react-native-toast-message";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/changePasswordStyles";
 import { allStyles } from "../../styles/global";
+import { changePassword } from "@/src/api/editProfile";
+import { useAuth } from "@/src/contexts/AuthContext";
 
 export default function ChangePassword() {
+  const { user } = useAuth();
+  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  useEffect(() => {
+    return () => {
+      console.log("Cleaning up ChangePassword screen...");
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    };
+  }, []);
 
   const handleBack = () => {
-    router.back();
+    router.push("/(tabs)/settings");
+  };
+  // handle validation
+  const validatePasswords = () => {
+    if (!oldPassword.trim()) {
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please enter your old password",
+      });
+      return false;
+    }
+
+    if (!newPassword.trim()) {
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please enter your new password",
+      });
+      return false;
+    }
+
+    if (!confirmPassword.trim()) {
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "Please confirm your new password",
+      });
+      return false;
+    }
+
+    if (oldPassword === newPassword) {
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "New password must be different from old password",
+      });
+      return false;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: "New password and confirm password don't match",
+      });
+      return false;
+    }
+
+    return true;
   };
 
-  const handleSavePassword = () => {
-    if (newPassword !== confirmPassword) {
-      //console.log("Passwords don't match");
+  const handleSavePassword = async () => {
+    if (!validatePasswords()) {
       return;
     }
-    //console.log("Password changed successfully");
-    // Handle password change logic
+    try {
+      const formData = {
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      };
+      await changePassword(formData, user?.id);
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Password changed successfully",
+      });
+      setTimeout(() => {
+        router.push("/(tabs)/settings");
+      }, 1000);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while changing the password",
+      });
+    }
+    // console.log("Password changed successfully");
+    // Handle password change logic here
   };
 
   return (
@@ -42,7 +125,12 @@ export default function ChangePassword() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View style={[allStyles.headerContainer,{justifyContent: 'space-between'}]}>
+        <View
+          style={[
+            allStyles.headerContainer,
+            { justifyContent: "space-between" },
+          ]}
+        >
           <TouchableOpacity
             onPress={handleBack}
             style={[allStyles.backButton, allStyles.backButtonBackgroundStyle]}
@@ -68,6 +156,16 @@ export default function ChangePassword() {
               paddingHorizontal: responsiveWidth(1),
             }}
           >
+            <View style={allStyles.formContainer}>
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Old Password"
+                value={oldPassword}
+                onChangeText={setOldPassword}
+                secureTextEntry
+                autoCorrect={false}
+              />
+            </View>
             <View style={allStyles.formContainer}>
               <TextInput
                 style={globalStyles.input}

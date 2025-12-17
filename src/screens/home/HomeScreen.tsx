@@ -15,16 +15,52 @@ import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 
 //import Svg, { Circle } from "react-native-svg";
 import { styles } from "../../styles/homeStyles";
+import { useDashBoard } from "@/src/contexts/DashBoardContext";
+import { useCallback, useEffect } from "react";
+import Toast from "react-native-toast-message";
+import { getDashBoardData } from "@/src/api/dashBoard";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
   const { user, updateUser } = useAuth();
+  const { 
+  dashBoardData,
+  setDashBoardData,
+  setTotalDeliveries,
+  getTotalRevenue,
+  addNotification,
+  isLoading 
+} = useDashBoard();
   //console.log("Current user:", user);
+ 
+ useFocusEffect(
+    useCallback(() => {
+      console.log("Home screen focused - fetching dashboard data");
+      fetchDashBoardData();
+    }, [])
+  );
+ const fetchDashBoardData = async() => {
+  try {
+    const response=await getDashBoardData();
+    setDashBoardData(response as any)
+  } catch (error) {
+    Toast.show({
+      type: "error",
+      text1: "Dashboard Error",
+      text2: (error as any).message || "An error occurred while fetching dashboard data.",
+    });
+  }
+ }
+
+ useEffect(() => {
+    
+      console.log("Dashboard data updated:", dashBoardData);
+  }, [dashBoardData]);
 
   // Radial chart data
   const chartData = [
@@ -146,7 +182,7 @@ export default function HomeScreen() {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>100</Text>
+            <Text style={styles.statValue}>{(dashBoardData as any)?.totalSales}</Text>
           </LinearGradient>
 
           <LinearGradient
@@ -163,7 +199,7 @@ export default function HomeScreen() {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>Rs 30,000</Text>
+            <Text style={styles.statValue}>{(dashBoardData as any)?.avgDiscount}</Text>
           </LinearGradient>
 
          <LinearGradient
@@ -180,7 +216,7 @@ export default function HomeScreen() {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>30</Text>
+            <Text style={styles.statValue}>{(dashBoardData as any)?.totalAccessories}</Text>
           </LinearGradient>
 
            <LinearGradient
@@ -197,7 +233,7 @@ export default function HomeScreen() {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>50</Text>
+            <Text style={styles.statValue}>{(dashBoardData as any)?.noOfHelmets}</Text>
           </LinearGradient>
         </View>
       </ScrollView>
@@ -209,6 +245,7 @@ export default function HomeScreen() {
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
+      <Toast />
     </SafeAreaView>
   );
 }

@@ -15,8 +15,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { allStyles } from "../../styles/global";
 import { settingsStyles } from "../../styles/settingsStyles";
+import { responsiveFontSize, responsiveWidth } from "react-native-responsive-dimensions";
 export default function SettingsScreen() {
-  const { login, logout } = useAuth();
+  const {user, logout } = useAuth();
   const handleBack = () => {
     router.back();
   };
@@ -59,16 +60,23 @@ export default function SettingsScreen() {
         <ScrollView style={allStyles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Profile Section */}
           <View style={settingsStyles.profileSection}>
-            <Image style={settingsStyles.profileImage} />
+            <View style={[allStyles.avatar,{  width: responsiveWidth(20),
+                height: responsiveWidth(20),borderRadius: responsiveWidth(10)}]}>
+              <Text style={[allStyles.avatarText,{fontSize: responsiveFontSize(3)}]}>
+                {user?.name?.charAt(0)?.toUpperCase() || "A"}
+              </Text>
+            </View>
             <View>
-              <Text style={settingsStyles.userName}>Sivesh Kumar</Text>
-              <Text style={settingsStyles.companyName}>Company Name</Text>
-              <TouchableOpacity
+              <Text style={settingsStyles.userName}>{user?.name}</Text>
+              {user?.mainDealerRef?.name && (
+              <Text style={settingsStyles.companyName}>{user?.mainDealerRef?.name}</Text>
+              )}
+              {/* <TouchableOpacity
                 style={settingsStyles.editProfileButton}
                 onPress={handleEditProfile}
               >
                 <Text style={settingsStyles.editProfileText}>Edit Profile</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
 
@@ -85,7 +93,7 @@ export default function SettingsScreen() {
               </View>
               <View style={settingsStyles.contactInfo}>
                 <Text style={settingsStyles.contactLabel}>Email</Text>
-                <Text style={settingsStyles.contactValue}>Sivesh200@gmail.com</Text>
+                <Text style={settingsStyles.contactValue}>{user?.email}</Text>
               </View>
             </View>
 
@@ -100,7 +108,7 @@ export default function SettingsScreen() {
               </View>
               <View style={settingsStyles.contactInfo}>
                 <Text style={settingsStyles.contactLabel}>Mobile</Text>
-                <Text style={settingsStyles.contactValue}>9205722137</Text>
+                <Text style={settingsStyles.contactValue}>{user?.contactPersonMobile}</Text>
               </View>
             </View>
           </View>

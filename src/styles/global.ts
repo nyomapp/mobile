@@ -484,6 +484,7 @@ export const allStyles = StyleSheet.create({
     fontFamily: FONTS.YellixThin,
     color: "#111827",
     flex: 1,
+    flexWrap: "wrap",
   },
   verticalLine: {
     width: 1,

@@ -13,11 +13,14 @@ import Toast from "react-native-toast-message";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/searchScreenStyles";
+import { getAllSearchedData } from "@/src/api/search";
+import { useSearchContext } from "@/src/contexts/SearchContext";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 interface Customer {
   id: string;
@@ -29,84 +32,76 @@ interface Customer {
   date: string;
 }
 
+
 export default function DeliveriesHome() {
   const [activeTab, setActiveTab] = useState<"delivery" | "pending">(
     "delivery"
   );
+  const { 
+  searchFilters, 
+  updateSearchFilter, 
+  searchResults, 
+  setSearchResults,
+  searchQuery,
+  setSearchQuery,
+  resetAll 
+} = useSearchContext();
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showModelModal, setShowModelModal] = useState(false);
-  const [frameNumber, setFrameNumber] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [frameNumber, setFrameNumber] = useState("");
+  // const [mobileNumber, setMobileNumber] = useState("");
 
-  const handleBack = () => {
-    router.back();
-  };
+ 
+const getData= async(query: string = searchQuery)=>{
+ try {
+   console.log("API call with query:", query);
+   const response = await getAllSearchedData(query);
+   setSearchResults(response as any);
+ } catch (error) {
+   console.error("Search API error:", error);
+   Toast.show({
+     type: "error",
+     text1: "Search Error",
+     text2: (error as any).message || "An error occurred while searching.",
+   });
+ }
+};
 
-  // Sample data
-  const customers: Customer[] = [
-    {
-      id: "1",
-      name: "Customer 1",
-      frameNumber: "5555858665172",
-      mobileNumber: "5555858665172",
-      model: "Hero Splendor",
-      status: "pending",
-      date: "20-10-20215"
-    },
-    {
-      id: "2",
-      name: "Customer 1",
-      frameNumber: "5555858665172",
-      mobileNumber: "5555858665172",
-      model: "Hero Splendor",
-      status: "pending",
-      date: "20-10-20215"
-    },
-    {
-      id: "3",
-      name: "Customer 1",
-      frameNumber: "5555858665172",
-      mobileNumber: "5555858665172",
-      model: "Hero Splendor",
-      status: "pending",
-      date: "20-10-20215"
-    },
-    {
-      id: "4",
-      name: "Customer 1",
-      frameNumber: "5555858665172",
-      mobileNumber: "5555858665172",
-      model: "Hero Splendor",
-      status: "pending",
-      date: "20-10-20215"
-    },
-  ];
-
-  const handleEdit = (data: any) => {
-    //console.log("Edit ",data);
-  };
-
-  const handleDelete = (data: any) => {
-    //console.log("Delete ",data);
-  };
-
-  const renderCustomerCard = ({ item }: { item: Customer }) => (
+const handleSearchChange = (text: string) => {
+  setSearchQuery(text);
+  
+  // Call API only if search query length is greater than 5
+  if (text.length > 5) {
+    getData(text); // Pass the current text directly to avoid stale state
+  } else if (text.length === 0) {
+    // Clear results when search is empty
+    setSearchResults([]);
+  }
+};
+ useEffect(() => {
+    // Cleanup function runs when component unmounts
+    return () => {
+      console.log("Cleaning up search screen...");
+      resetAll();
+      setSearchQuery("");
+    };
+  },[]);
+  const renderCustomerCard = ({ item }: { item: any }) => (
       <View style={allStyles.customerCard}>
         <View style={allStyles.cardHeader}>
           <View style={allStyles.cardContent}>
             <View style={allStyles.avatar}>
               <Text style={allStyles.avatarText}>
-                {item.name?.charAt(0)?.toUpperCase() || "A"}
+                {item.firstName?.charAt(0)?.toUpperCase() || "A"}
               </Text>
             </View>
             <View style={allStyles.customerInfo}>
-              <Text style={allStyles.customerName}>{item.name}</Text>
-              <Text style={allStyles.detailValue}>{item.model}</Text>
+              <Text style={allStyles.customerName}>{item.firstName + " " + item.lastName}</Text>
+              <Text style={allStyles.detailValue}>{item.vehicleModelRef?.name}</Text>
             </View>
           </View>
           <View style={allStyles.cardActions}>
-              <>
+              {/* <>
                 <TouchableOpacity
                   style={{ alignItems: "center" }}
                   onPress={() => handleEdit(item)}
@@ -137,14 +132,14 @@ export default function DeliveriesHome() {
                     resizeMode="contain"
                   />
                 </TouchableOpacity>
-              </>
+              </> */}
           </View>
         </View>
   
         <View style={allStyles.customerDetails}>
           <View style={allStyles.detailText}>
             <Text style={allStyles.detailLabel}>Frame Number</Text>
-            <Text style={allStyles.detailValue}>{item.frameNumber}</Text>
+            <Text style={allStyles.detailValue}>{item.chassisNumber}</Text>
           </View>
           <View style={allStyles.verticalLine}></View>
           <View style={allStyles.detailText}>
@@ -155,7 +150,7 @@ export default function DeliveriesHome() {
           <View style={allStyles.detailText}>
             <Text style={allStyles.detailLabel}>Date</Text>
             <Text style={allStyles.detailValue}>
-              {item.date}
+              {item.serviceStartDate ? new Date(item.serviceStartDate).toLocaleDateString('en-GB') : '02/11/2025'}
             </Text>
           </View>
         </View>
@@ -192,13 +187,13 @@ export default function DeliveriesHome() {
           <View style={styles.searchInputContainer}>
             <TextInput
               style={styles.searchInput}
-              placeholder="Search customers..."
+              placeholder="Enter last 6 digits of Frame Number"
               placeholderTextColor={COLORS.black}
               value={searchQuery}
-              onChangeText={setSearchQuery}
+              onChangeText={handleSearchChange}
               autoCorrect={false}
             />
-            <TouchableOpacity style={styles.searchButton}>
+            <TouchableOpacity style={styles.searchButton} activeOpacity={1}>
               <Image
                 source={require("@/assets/icons/SearchIcon.png")}
                 style={{
@@ -211,9 +206,9 @@ export default function DeliveriesHome() {
             </TouchableOpacity>
           </View>
         </View>
-        {customers.length !== 0 ? (
+        {searchResults.length !== 0 ? (
           <FlatList
-            data={customers}
+            data={searchResults as any}
             renderItem={renderCustomerCard}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContainer}
