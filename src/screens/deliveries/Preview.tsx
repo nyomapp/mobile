@@ -617,9 +617,9 @@ const handleView = async (doc: any) => {
             paddingVertical: responsiveWidth(3), 
             backgroundColor: "#fff",
             borderBottomWidth: 1,
-            borderBottomColor: "#e0e0e0"
+            borderBottomColor: "#e0e0e0",
           }}>
-            <Text style={{ fontSize: 18, fontWeight: "bold", color: "#333" }}>PDF Viewer</Text>
+            <Text style={{ fontSize: 18, color: "#333",fontFamily:FONTS.YellixMedium }}>PDF Viewer</Text>
             <TouchableOpacity 
               onPress={() => setPdfModalVisible(false)}
               style={{
@@ -629,14 +629,19 @@ const handleView = async (doc: any) => {
                 borderRadius: 6
               }}
             >
-              <Text style={{ fontSize: 14, color: "#fff", fontWeight: "bold" }}>Close</Text>
+              <Text style={{ fontSize: 14, color: "#fff", fontFamily: FONTS.YellixThin }}>Close</Text>
             </TouchableOpacity>
           </View>
           <WebView
             source={{ 
               uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}` 
             }}
-            style={{ flex: 1, backgroundColor: "#fff" }}
+            style={{ 
+              flex: 1, 
+              backgroundColor: "#fff",
+              marginTop: responsiveWidth(4),
+              // marginHorizontal: responsiveWidth(2)
+            }}
             onError={(syntheticEvent) => {
               const { nativeEvent } = syntheticEvent;
               console.log("WebView Error:", nativeEvent);
