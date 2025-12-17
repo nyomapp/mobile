@@ -64,7 +64,7 @@ export interface Delivery {
   financierPlan2?: number;
   helmetAmount?: number;
   //   status?: 'pending' | 'delivered';
-  rtoLocation?: 'sameCity' | 'sameState' | 'otherState';
+  rtoLocation?: string | null;
   //   updatedBy: string;
 }
 
@@ -124,7 +124,7 @@ const initialDelivery: Partial<Delivery> = {
   financierPlan1: '',
   financierPlan2: undefined,
   //   status: 'pending',
-  rtoLocation: 'sameCity',
+  rtoLocation: null,
 };
 
 // Create context

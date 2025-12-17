@@ -109,10 +109,6 @@ export default function DeliveriesHome() {
       });
     }
   };
-  useEffect(() => {
-    //console.log("Deliveries Context Data:", deliveriesData);
-    //console.log("Deliveries Results:", deliveriesData.results);
-  }, [deliveriesData]);
 
   const loadMoreDeliveries = () => {
     if (!isLoadingMore && deliveriesData.page < deliveriesData.totalPages) {

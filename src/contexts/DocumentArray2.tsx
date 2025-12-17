@@ -156,41 +156,27 @@ export const DocumentArray2Provider: React.FC<DocumentArrayProviderProps> = ({
   };
 
   const updateBulkDocuments = (
-    downloadDocuments: Array<{
-      documentName: string;
-      fileUrl: string;
-      fileSize: number;
-      fileType: "PDF" | "JPG";
-    }>
+    downloadDocuments: Array<{ documentName: string; fileUrl: string; fileSize: number; fileType: 'PDF' | 'JPG' }>
   ) => {
-    console.log("Updating bulk documents:", downloadDocuments);
-
+    console.log('Updating bulk documents:', downloadDocuments);
+    
     // Filter downloadDocuments to only include documents that exist in documentTypes
-    const validDocumentNames = initialDocumentTypes.map(
-      (doc) => doc.documentName
+    const validDocumentNames = initialDocumentTypes.map(doc => doc.documentName);
+    const filteredDownloadDocuments = downloadDocuments.filter(
+      doc => validDocumentNames.includes(doc.documentName)
     );
-    const filteredDownloadDocuments = downloadDocuments.filter((doc) =>
-      validDocumentNames.includes(doc.documentName)
-    );
-
-    console.log(
-      "Filtered documents (only existing keys):",
-      filteredDownloadDocuments
-    );
-
-    setDocumentTypes((prevDocs) =>
-      prevDocs.map((doc) => {
-        const matchingDoc = filteredDownloadDocuments.find(
-          (d) => d.documentName === doc.documentName
-        );
+    
+    console.log('Filtered documents (only existing keys):', filteredDownloadDocuments);
+    
+    setDocumentTypes(prevDocs =>
+      prevDocs.map(doc => {
+        const matchingDoc = filteredDownloadDocuments.find(d => d.documentName === doc.documentName);
         if (matchingDoc) {
-          const hasFileUrl = !!(
-            matchingDoc.fileUrl && matchingDoc.fileUrl.trim() !== ""
-          );
+          const hasFileUrl = !!(matchingDoc.fileUrl && matchingDoc.fileUrl.trim() !== '');
           const newDoc: DocumentType = {
             ...doc,
             uploaded: hasFileUrl,
-            fileUrl: hasFileUrl ? matchingDoc.fileUrl : "",
+            fileUrl: hasFileUrl ? matchingDoc.fileUrl : '',
             fileSize: hasFileUrl ? matchingDoc.fileSize : doc.fileSize,
           };
           return newDoc;

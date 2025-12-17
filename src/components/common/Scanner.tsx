@@ -166,7 +166,7 @@ DocumentScannerProps) {
       );
 
       if (processedDocument) {
-        // console.log("Processed Document:", processedDocument);
+        console.log("Processed Document:", processedDocument);
 
         try {
           const { fileUri, fileSize, ...finalObject } = processedDocument;
@@ -179,19 +179,22 @@ DocumentScannerProps) {
 
           // Step 1: Get upload URL from server
           const response = await uploadDocument(finalObject);
-          // console.log("Upload response:", response);
-          // Step 2: Read the file from fileUri
-          const fileResponse = await fetch((response as any).uploadUrl);
+          console.log("Upload URL received:", (response as any).uploadUrl);
+          
+          // Step 2: Read the processed file from local fileUri
+          console.log("Reading file for upload from URI:", fileUri);
+          const fileResponse = await fetch(fileUri);
           const fileBlob = await fileResponse.blob();
-          console.log("File blob size:", fileBlob.size, "bytes");
-
-          // Step 3: Upload file to the presigned URL with file as body
+          console.log(`File blob created. Size: ${fileBlob.size} bytes, Type: ${fileBlob.type}`);
+          
+          // Step 3: Upload the processed file to the presigned URL
+          console.log(`Uploading with Content-Type: ${finalObject.contentType}`);
           const finalUploadedResponse = await fetch(
             (response as any).uploadUrl,
             {
               method: "PUT",
               headers: {
-                "Content-Type": finalObject.contentType || "application/pdf",
+                "Content-Type": finalObject.contentType, // Use the content type from the processed document
               },
               body: fileBlob,
             }

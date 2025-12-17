@@ -30,7 +30,7 @@ import { allStyles } from "../../styles/global";
 import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 
 type DeliveryType = "New" | "Renew";
-type RTOLocationType = "sameCity" | "sameState" | "otherState";
+type RTOLocationType = string | null;
 
 export default function AddDelivery() {
   const {
@@ -55,7 +55,7 @@ export default function AddDelivery() {
   const [selectedModel, setSelectedModel] = useState("");
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [selectedRTOLocation, setSelectedRTOLocation] =
-    useState<RTOLocationType>();
+    useState<RTOLocationType>(null);
   const [showModelModal, setShowModelModal] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -92,7 +92,7 @@ export default function AddDelivery() {
       }
 
       // Set RTO location
-      // setSelectedRTOLocation(currentDelivery.rtoLocation || "sameCity");
+      setSelectedRTOLocation(currentDelivery.rtoLocation || "null");
     }
   }, [currentDelivery]);
 
@@ -280,7 +280,7 @@ export default function AddDelivery() {
     setMobileNumber("");
     setSelectedModel("");
     setRegistrationNumber("");
-    setSelectedRTOLocation("sameCity"); // Reset to default
+    setSelectedRTOLocation(null); // Reset to default
     setShowModelModal(false);
     setErrors({}); // Clear all errors when switching types
 
