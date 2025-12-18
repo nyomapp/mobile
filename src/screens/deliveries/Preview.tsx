@@ -357,6 +357,7 @@ const handleView = async (doc: any) => {
   }
   const handleSubmit = async () => {
     console.log("Submitting delivery:", currentDelivery);
+    console.log("deliveryId:", deliveryId);
     try {
       if (isEdit) {
         await updateDeliveryById(deliveryId, currentDelivery);
@@ -379,6 +380,8 @@ const handleView = async (doc: any) => {
       // Reset context after successful submission
       resetCurrentDelivery();
       resetDocuments();
+      // Reset context even on error to prevent stuck state
+      resetCurrentDelivery();
 
       // Add delay to allow toast to be visible before navigation
       setTimeout(() => {
@@ -393,8 +396,7 @@ const handleView = async (doc: any) => {
           "An error occurred while submitting the delivery.",
       });
       console.error("Error creating delivery:", error);
-      // Reset context even on error to prevent stuck state
-      resetCurrentDelivery();
+      
       return;
     }
   };

@@ -28,6 +28,9 @@ import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/deliveryHomeStyles";
 import { allStyles } from "../../styles/global";
+import { useModels } from "@/src/contexts/ModelsContext";
+import { useAuth } from "@/src/contexts/AuthContext";
+import { getModalsData } from "@/src/api/addDelivery";
 
 export default function DeliveriesHome() {
   const {
@@ -45,6 +48,14 @@ export default function DeliveriesHome() {
     resetData,
     setData,
   } = useDeliveryHomePageContext();
+  const { user, updateUser } = useAuth();
+  const {
+    models: modelsData,
+    setModels,
+    resetModels,
+    // isLoading,
+    setLoading,
+  } = useModels();
   const [activeTab, setActiveTab] = useState<"delivered" | "pending">(
     "delivered"
   );
@@ -59,24 +70,91 @@ export default function DeliveriesHome() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Add current filters state to track applied filters
+  const [currentFilters, setCurrentFilters] = useState<{
+    frameNumber?: string;
+    mobileNumber?: string;
+    modelRef?: string;
+  }>(
+    {}
+  );
+
   useEffect(() => {
     setIsLoading(true);
     // Clear previous data when switching tabs to prevent showing wrong data
     resetData();
     getDeleverirsData(activeTab);
   }, [activeTab]);
+  useEffect(() => {
+    if (user) {
+      // console.log('User is available, fetching models...');
+      getAllModels();
+    } else {
+      //console.log("User is null, skipping model fetch");
+    }
+  }, [user]);
+  const getAllModels = async () => {
+    // console.log('COMPONENT: getAllModels function called', { user });
+
+    let oemRef = "";
+
+    try {
+      if (user?.userType === "main_dealer") {
+        oemRef = (user as any)?.oemRef?._id;
+      } else {
+        oemRef = (user as any)?.mainDealerRef?.oemRef?._id;
+      }
+
+      //console.log("COMPONENT: OEM Ref:", oemRef);
+
+      if (!oemRef) {
+        //console.log("COMPONENT: No OEM reference found in user data");
+        Toast.show({
+          type: "error",
+          text1: "Configuration Error",
+          text2: "OEM reference not found in user profile",
+          visibilityTime: 3000,
+        });
+        return;
+      }
+
+      const response = await getModalsData(oemRef);
+      setModels(response as any[]);
+
+      // Toast.show({
+      //   type: "success",
+      //   text1: "Success",
+      //   text2: "Models loaded successfully",
+      //   visibilityTime: 2000,
+      // });
+    } catch (error) {
+      console.error("COMPONENT: Error in getAllModels:", error);
+
+      Toast.show({
+        type: "error",
+        text1: "API Error",
+        text2: `Failed to load models: ${(error as Error).message}`,
+        visibilityTime: 3000,
+      });
+    }
+  };
   const getDeleverirsData = async (
     status: any,
     page: number = 1,
-    isLoadMore: boolean = false
+    isLoadMore: boolean = false,
+    filters?: {
+      frameNumber?: string;
+      mobileNumber?: string;
+      modelRef?: string;
+    }
   ) => {
     try {
       if (isLoadMore) {
         setIsLoadingMore(true);
       }
 
-      const response = (await getDeliveriesData(status, page)) as any;
-      //console.log("API Response:", response);
+      const response = (await getDeliveriesData(status, page, 10, filters)) as any;
+      console.log("API Response with filters:", response);
 
       if (isLoadMore && page > 1) {
         // Append new results to existing ones
@@ -113,14 +191,14 @@ export default function DeliveriesHome() {
   const loadMoreDeliveries = () => {
     if (!isLoadingMore && deliveriesData.page < deliveriesData.totalPages) {
       const nextPage = deliveriesData.page + 1;
-      //console.log(`Loading more deliveries - Page ${nextPage}`);
-      getDeleverirsData(activeTab, nextPage, true);
+      console.log(`Loading more deliveries - Page ${nextPage} with filters:`, currentFilters);
+      getDeleverirsData(activeTab, nextPage, true, currentFilters);
     }
   };
 
   const onRefresh = async () => {
     setIsRefreshing(true);
-    await getDeleverirsData(activeTab, 1, false);
+    await getDeleverirsData(activeTab, 1, false, currentFilters);
     setIsRefreshing(false);
   };
 
@@ -145,22 +223,70 @@ export default function DeliveriesHome() {
 
   const handleFilterPress = () => {
     setShowFilterModal(true);
+    getAllModels();
   };
 
   const handleApplyFilter = () => {
-    // console.log("Applying filter:", {
-    //   frameNumber,
-    //   mobileNumber,
-    //   selectedModel,
-    // });
+    console.log("Applying filter:", {
+      frameNumber,
+      mobileNumber,
+      selectedModel,
+    });
+
+    // Create filters object with only non-empty values
+    const filters: {
+      frameNumber?: string;
+      mobileNumber?: string;
+      modelRef?: string;
+    } = {};
+
+    if (frameNumber && frameNumber.trim()) {
+      filters.frameNumber = frameNumber.trim();
+    }
+    if (mobileNumber && mobileNumber.trim()) {
+      filters.mobileNumber = mobileNumber.trim();
+    }
+    if (selectedModel && selectedModel.trim()) {
+      filters.modelRef = selectedModel.trim();
+    }
+
+    // Store current filters
+    setCurrentFilters(filters);
+    
+    // Close modal
     setShowFilterModal(false);
-    // Apply filter logic here
+    
+    // Reset data and fetch with filters
+    resetData();
+    setIsLoading(true);
+    getDeleverirsData(activeTab, 1, false, filters);
+
+    Toast.show({
+      type: "success",
+      text1: "Filter Applied",
+      text2: "Deliveries filtered successfully",
+    });
   };
 
   const handleResetFilter = () => {
     setFrameNumber("");
     setMobileNumber("");
     setSelectedModel("");
+    setCurrentFilters({});
+    
+    // Close modal
+    setShowFilterModal(false);
+    
+    // Reset data and fetch without filters
+    resetData();
+    setIsLoading(true);
+    getDeleverirsData(activeTab, 1, false, {});
+
+    Toast.show({
+      type: "success",
+      text1: "Filter Reset",
+      text2: "All filters cleared",
+    });
   };
 
   const handleUpload = (data: any) => {
@@ -548,7 +674,10 @@ export default function DeliveriesHome() {
                       selectedModel ? { color: COLORS.black } : null,
                     ]}
                   >
-                    {selectedModel || "Select Model"}
+                    {selectedModel
+                      ? modelsData.find((model) => model._id === selectedModel)
+                          ?.name || selectedModel
+                      : "Select Model *"}
                   </Text>
                   <Ionicons name="chevron-down" size={20} color="#6C757D" />
                 </TouchableOpacity>
@@ -588,27 +717,27 @@ export default function DeliveriesHome() {
                 style={styles.modelScrollView}
                 showsVerticalScrollIndicator={false}
               >
-                {models.map((model, index) => (
+                {modelsData.map((model, index) => (
                   <TouchableOpacity
                     key={index}
                     style={[
                       styles.modelOption,
-                      selectedModel === model && styles.selectedModelOption,
+                      selectedModel === model._id && styles.selectedModelOption,
                     ]}
                     onPress={() => {
-                      setSelectedModel(model);
+                      setSelectedModel(model._id);
                       setShowModelModal(false);
                     }}
                   >
                     <Text
                       style={[
                         styles.modelOptionText,
-                        selectedModel === model && styles.selectedModelText,
+                        selectedModel === model._id && styles.selectedModelText,
                       ]}
                     >
-                      {model}
+                      {model.name}
                     </Text>
-                    {selectedModel === model && (
+                    {selectedModel === model._id && (
                       <Ionicons
                         name="checkmark"
                         size={20}

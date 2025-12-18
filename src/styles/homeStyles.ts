@@ -96,6 +96,9 @@ export const styles = StyleSheet.create({
   radialChartContainer: {
     alignItems: "center",
     justifyContent: "center",
+    // height: 140,
+    // width: 140,
+    position: "relative",
   },
   radialChart: {
     alignSelf: "center",
@@ -114,5 +117,45 @@ export const styles = StyleSheet.create({
   },
   gradientCard: {
     backgroundColor: "transparent",
+  },
+  progressCirclesContainer: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 120,
+    width: 120,
+  },
+  progressCircleWrapper: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  centerContent: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -30 }, { translateY: -20 }],
+  },
+  centerText: {
+    fontSize: responsiveFontSize(3.2),
+    fontFamily: FONTS.YellixMedium,
+    color: COLORS.primaryBlue,
+    fontWeight: "700",
+  },
+  centerSubText: {
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: FONTS.MontserratRegular,
+    color: "#666",
+    marginTop: 2,
+  },
+  legendValue: {
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: FONTS.Yellix,
+    color: "#333",
+    marginLeft: responsiveWidth(2),
+    fontWeight: "500",
   },
 });

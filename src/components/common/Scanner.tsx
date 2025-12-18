@@ -33,7 +33,7 @@ interface DocumentScannerProps {
 
 export default function DocumentScanner({}: // documentType = "Aadhaar Front",
 DocumentScannerProps) {
-  const { uploadingDocument, resetUploadingDocument } =
+  const { uploadingDocument, resetUploadingDocument, isTemp, setIsTemp, resetIsTemp } =
     useDocumentUploadContext();
   const { currentDelivery, setCurrentDelivery } = useDeliveryContext();
   const [capturedImage, setCapturedImage] = useState<any | null>(null);
@@ -155,7 +155,7 @@ DocumentScannerProps) {
         );
       }
 
-      const frameNumber = currentDelivery?.chassisNo || "";
+   const frameNumber = isOtherDocumentsUpload ? (currentDelivery as any)?.certificateRef?.chassisNumber : currentDelivery?.chassisNo;
 
       // Convert image to PDF and compress
       const processedDocument = await convertImageToPdfAndCompress(
@@ -176,7 +176,9 @@ DocumentScannerProps) {
           if (!finalObject.documentType) {
             throw new Error("Document type is missing or invalid");
           }
-
+          if( isTemp){
+            (finalObject as any).isTemp = false;
+          }
           // Step 1: Get upload URL from server
           const response = await uploadDocument(finalObject);
           console.log("Upload URL received:", (response as any).uploadUrl);

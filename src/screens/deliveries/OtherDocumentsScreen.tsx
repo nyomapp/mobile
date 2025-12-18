@@ -29,9 +29,9 @@ export default function OtherDocumentsScreen() {
     deliveryId,
     resetDeliveryId,
   } = useDeliveryContext();
-  const { documentTypes, setIsOtherDocumentsUpload, resetDocuments, updateBulkDocuments } =
+  const { documentTypes, setIsOtherDocumentsUpload, resetDocuments, updateBulkDocuments,  } =
     useDocumentArray2();
-  const { setUploadingDocument } = useDocumentUploadContext();
+  const { setUploadingDocument, setIsTemp } = useDocumentUploadContext();
   const [finalUploadDocumentsArray, setFinalUploadDocumentsArray] = useState<
     any[]
   >([]);
@@ -116,13 +116,13 @@ export default function OtherDocumentsScreen() {
   };
 
   const handleDocumentUpload = (document: any) => {
-    console.log("=== Document object structure ===");
-    console.log("Full document:", JSON.stringify(document, null, 2));
-    console.log("Setting uploadingDocument to:", document?.documentName);
+    // console.log("=== Document object structure ===");
+    // console.log("Full document:", JSON.stringify(document, null, 2));
+    // console.log("Setting uploadingDocument to:", document?.documentName);
 
     setUploadingDocument(document);
     setIsOtherDocumentsUpload(true);
-
+    setIsTemp(true);
     console.log("About to navigate to document-scanner");
     router.push("/document-scanner");
   };

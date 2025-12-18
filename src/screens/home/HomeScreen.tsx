@@ -17,27 +17,28 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 
-//import Svg, { Circle } from "react-native-svg";
-import { styles } from "../../styles/homeStyles";
+// Correct import for PieChart
+
+import { getDashBoardData } from "@/src/api/dashBoard";
 import { useDashBoard } from "@/src/contexts/DashBoardContext";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { useCallback, useEffect } from "react";
 import Toast from "react-native-toast-message";
-import { getDashBoardData } from "@/src/api/dashBoard";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { styles } from "../../styles/homeStyles";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
   const { user, updateUser } = useAuth();
-  const { 
-  dashBoardData,
-  setDashBoardData,
-  setTotalDeliveries,
-  getTotalRevenue,
-  addNotification,
-  isLoading 
-} = useDashBoard();
-const {
+  const {
+    dashBoardData,
+    setDashBoardData,
+    setTotalDeliveries,
+    getTotalRevenue,
+    addNotification,
+    isLoading,
+  } = useDashBoard();
+  const {
     currentDelivery,
     resetCurrentDelivery,
     isEdit,
@@ -46,79 +47,108 @@ const {
     setIsEdit,
     resetIsEdit,
   } = useDeliveryContext();
-  //console.log("Current user:", user);
- 
- useFocusEffect(
+
+  useFocusEffect(
     useCallback(() => {
       console.log("Home screen focused - fetching dashboard data");
       fetchDashBoardData();
     }, [])
   );
- const fetchDashBoardData = async() => {
-  try {
-    const response=await getDashBoardData();
-    setDashBoardData(response as any)
-  } catch (error) {
-    Toast.show({
-      type: "error",
-      text1: "Dashboard Error",
-      text2: (error as any).message || "An error occurred while fetching dashboard data.",
-    });
-  }
- }
 
- useEffect(() => {
-    
-      console.log("Dashboard data updated:", dashBoardData);
+  const fetchDashBoardData = async () => {
+    try {
+      const response = await getDashBoardData();
+      setDashBoardData(response as any);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Dashboard Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while fetching dashboard data.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    console.log("Dashboard data updated:", dashBoardData);
   }, [dashBoardData]);
 
-  // Radial chart data
+  // Chart data calculation
+  const totalValue = (dashBoardData as any)?.pieChart?.total || 0.1;
+  const activeValue = (dashBoardData as any)?.pieChart?.delivered || 0.1;
+  const pendingValue = (dashBoardData as any)?.pieChart?.pending || 0.1;
+
   const chartData = [
-    { name: "Total", value: 60, color: COLORS.primaryBlue },
-    { name: "Active", value: 25, color: COLORS.secondaryBlue },
-    { name: "Pending", value: 15, color: "#67E8F9" },
+    {
+      name: "Total",
+      value: totalValue,
+      color: COLORS.primaryBlue,
+    },
+    {
+      name: "Delivered",
+      value: activeValue,
+      color: COLORS.secondaryBlue,
+    },
+
+    {
+      name: "Pending",
+      value: pendingValue,
+      color: "#67E8F9",
+    },
   ];
 
-  // Calculate percentages and angles for radial chart
-  const total = chartData.reduce((sum, item) => sum + item.value, 0);
-  let cumulativeAngle = 0;
-  const chartSize = 160;
-  const strokeWidth = 35;
-  const radius = (chartSize - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
+  // RadialChart component with correct props
+  const RadialChart = () => {
+    // Create series array with just numbers
+    const series = [
+      { value: activeValue, color: COLORS.secondaryBlue },
+      { value: totalValue, color: COLORS.primaryBlue },
+      { value: pendingValue, color: "#67E8F9" },
+    ];
+    // const sliceColors = [COLORS.primaryBlue, COLORS.secondaryBlue, '#67E8F9'];
 
-  const RadialChart = () => (
-    <View style={styles.radialChartContainer}>
-      {/* <Svg width={chartSize} height={chartSize} style={styles.radialChart}>
-        {chartData.map((item, index) => {
-          const percentage = (item.value / total) * 100;
-          const angle = (item.value / total) * 360;
-          const strokeDasharray = `${
-            (percentage / 100) * circumference
-          } ${circumference}`;
-          const strokeDashoffset = -((cumulativeAngle / 360) * circumference);
+    // Check if all values are zero to prevent the error
+    // const hasData = series.some(value => value as any > 0);
 
-          cumulativeAngle += angle;
+    // if (!hasData) {
+    //   // Show placeholder when no data
+    //   return (
+    //     <View style={styles.radialChartContainer}>
+    //       <View style={styles.progressCirclesContainer}>
+    //         <View style={[styles.centerContent, { width: 120, height: 120, borderRadius: 60, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' }]}>
+    //           <Text style={styles.centerText}>0</Text>
+    //           <Text style={styles.centerSubText}>No Data</Text>
+    //         </View>
+    //       </View>
+    //     </View>
+    //   );
+    // }
 
-          return (
-            <Circle
-              key={index}
-              cx={chartSize / 2}
-              cy={chartSize / 2}
-              r={radius}
-              stroke={item.color}
-              strokeWidth={strokeWidth}
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={strokeDashoffset}
-              fill="transparent"
-              strokeLinecap="butt"
-              transform={`rotate(-90 ${chartSize / 2} ${chartSize / 2})`}
-            />
-          );
-        })}
-      </Svg> */}
-    </View>
-  );
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={[
+            styles.progressCirclesContainer,
+            { height: "auto", justifyContent: "center", alignItems: "center" },
+          ]}
+        >
+          {/* <PieChart
+            widthAndHeight={150}
+            series={series}
+            // sliceColor={sliceColors}
+            cover={0.6}
+            // coverFill={'#FFFFFF'}
+          /> */}
+
+          {/* <View style={styles.centerContent}>
+            <Text style={styles.centerText}>{totalValue}</Text>
+            <Text style={styles.centerSubText}>Total</Text>
+          </View> */}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top"]}>
@@ -131,11 +161,17 @@ const {
           <View style={styles.headingTextContainer}>
             <View style={[styles.headingText]}>
               <Text style={styles.UserStyle}>Hello</Text>
-             
-              <Text style={styles.UserStyle}>{user?.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase() : ""}</Text>
+              <Text style={styles.UserStyle}>
+                {user?.name
+                  ? user.name.charAt(0).toUpperCase() +
+                    user.name.slice(1).toLowerCase()
+                  : ""}
+              </Text>
             </View>
-             {user?.mainDealerRef?.name && (
-            <Text style={styles.UserDealerStyle}>{user?.mainDealerRef?.name}</Text>
+            {user?.mainDealerRef?.name && (
+              <Text style={styles.UserDealerStyle}>
+                {user?.mainDealerRef?.name}
+              </Text>
             )}
           </View>
           <HeaderIcon />
@@ -149,27 +185,18 @@ const {
 
           {/* Legend */}
           <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: "#1E3A8A" }]}
-              />
-              <Text style={styles.legendText}>Total</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: "#06B6D4" }]}
-              />
-              <Text style={styles.legendText}>Active</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: "#67E8F9" }]}
-              />
-              <Text style={styles.legendText}>Pending</Text>
-            </View>
+            {chartData.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.legendText}>{item.name}</Text>
+                {/* <Text style={styles.legendValue}>{item.value}</Text> */}
+              </View>
+            ))}
           </View>
 
-          {/* Radial Chart */}
+          {/* Progress Chart */}
           <View style={styles.chartContainer}>
             <RadialChart />
           </View>
@@ -179,8 +206,8 @@ const {
         <Text style={allStyles.sectionHeader}>Total Sales</Text>
         <View style={allStyles.statsContainer}>
           <LinearGradient
-            colors={["#183B64", "#3077CA",]}
-            start={{ x: 0 , y: 0 }}
+            colors={["#183B64", "#3077CA"]}
+            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[allStyles.statCard, styles.gradientCard]}
           >
@@ -192,11 +219,14 @@ const {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>{(dashBoardData as any)?.totalSales}</Text>
+            <Text style={styles.statValue}>
+              {/* {(dashBoardData as any)?.totalSales} */}
+               0
+            </Text>
           </LinearGradient>
 
           <LinearGradient
-            colors={["#183B64", "#3077CA",]}
+            colors={["#183B64", "#3077CA"]}
             start={{ x: 1, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={[allStyles.statCard, styles.gradientCard]}
@@ -209,11 +239,14 @@ const {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>{(dashBoardData as any)?.avgDiscount}</Text>
+            <Text style={styles.statValue}>
+              {/* {(dashBoardData as any)?.avgDiscount} */}
+              0
+            </Text>
           </LinearGradient>
 
-         <LinearGradient
-            colors={["#183B64", "#3077CA",]}
+          <LinearGradient
+            colors={["#183B64", "#3077CA"]}
             start={{ x: 0, y: 1 }}
             end={{ x: 1, y: 0 }}
             style={[allStyles.statCard, styles.gradientCard]}
@@ -226,11 +259,14 @@ const {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>{(dashBoardData as any)?.totalAccessories}</Text>
+            <Text style={styles.statValue}>
+              {/* {(dashBoardData as any)?.totalAccessories} */}
+              0
+            </Text>
           </LinearGradient>
 
-           <LinearGradient
-            colors={["#183B64", "#3077CA",]}
+          <LinearGradient
+            colors={["#183B64", "#3077CA"]}
             start={{ x: 1, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={[allStyles.statCard, styles.gradientCard]}
@@ -243,7 +279,10 @@ const {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.statValue}>{(dashBoardData as any)?.noOfHelmets}</Text>
+            <Text style={styles.statValue}>
+              {/* {(dashBoardData as any)?.noOfHelmets} */}
+              0
+            </Text>
           </LinearGradient>
         </View>
       </ScrollView>
@@ -251,8 +290,9 @@ const {
       {/* Floating Action Button */}
       <TouchableOpacity
         onPress={() => {
-          setIsEdit(false)
-          router.push("/add-delivery")}}
+          setIsEdit(false);
+          router.push("/add-delivery");
+        }}
         style={allStyles.floatingButton}
       >
         <Ionicons name="add" size={32} color="white" />

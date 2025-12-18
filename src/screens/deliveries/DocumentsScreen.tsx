@@ -20,10 +20,11 @@ import { useDocumentArray } from '@/src/contexts/DocumentArray1';
 import Toast from "react-native-toast-message";
 import { useEffect, useMemo, useRef } from "react";
 import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
-
+import {updateDeliveryById} from "@/src/api/UploadDocument";
 export default function DocumentsScreen() {
-  const { currentDelivery, setCurrentDelivery, isEdit } = useDeliveryContext();
-  const { setUploadingDocument } = useDocumentUploadContext();
+  const { currentDelivery, setCurrentDelivery, isEdit,deliveryId, } = useDeliveryContext();
+  
+  const { setUploadingDocument, setIsTemp } = useDocumentUploadContext();
   const { documentTypes, updateBulkDocuments } = useDocumentArray();
   const {setIsOtherDocumentsUpload } = useDocumentArray2();
   const syncInProgress = useRef(false);
@@ -90,7 +91,7 @@ export default function DocumentsScreen() {
     router.push("/add-delivery");
   };
 
-  const handleNext = () => {
+  const handleNext = async() => {
     // Check if all required documents are uploaded
     const requiredDocuments = documentTypes.filter(
       doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
@@ -132,11 +133,33 @@ export default function DocumentsScreen() {
       text2: "All documents uploaded successfully",
     });
     
+     if(isEdit){
+      try {
+          await updateDeliveryById(deliveryId, downloadDocuments);
+          Toast.show({
+            type: "success",
+            text1: "Update Successful",
+            text2: "Delivery documents have been updated successfully.",
+          });
+        } catch (error) {
+          Toast.show({
+            type: "error",
+            text1: "Update Failed",
+            text2:
+              (error as any).message ||
+              "An error occurred while updating delivery documents.",
+          });
+          return;
+        }
+     }
+     
+    
     router.push("/amount");
   };
 
   const handleDocumentUpload = (document: any) => {
     setUploadingDocument(document)
+    setIsTemp(false);
     setIsOtherDocumentsUpload(false);
     router.push("/document-scanner");
   };

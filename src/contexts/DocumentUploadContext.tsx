@@ -12,6 +12,9 @@ interface DocumentUploadContextType {
   uploadingDocument: UploadDocument | null;
   setUploadingDocument: (document: UploadDocument | null) => void;
   resetUploadingDocument: () => void;
+  isTemp: boolean;
+  setIsTemp: (value: boolean) => void;
+  resetIsTemp: () => void;
 }
 
 // Create context
@@ -24,16 +27,25 @@ interface DocumentUploadProviderProps {
 
 export const DocumentUploadProvider: React.FC<DocumentUploadProviderProps> = ({ children }) => {
   const [uploadingDocument, setUploadingDocument] = useState<UploadDocument | null>(null);
+  const [isTemp, setIsTemp] = useState<boolean>(false);
 
   const resetUploadingDocument = () => {
     console.log('Resetting uploading document context');
     setUploadingDocument(null);
   };
 
+  const resetIsTemp = () => {
+    console.log('Resetting isTemp to false');
+    setIsTemp(false);
+  };
+
   const contextValue: DocumentUploadContextType = {
     uploadingDocument,
     setUploadingDocument,
     resetUploadingDocument,
+    isTemp,
+    setIsTemp,
+    resetIsTemp,
   };
 
   return (

@@ -188,7 +188,7 @@ const handleSearchChange = (text: string) => {
             <TextInput
               style={styles.searchInput}
               placeholder="Enter last 6 digits of Frame Number"
-              placeholderTextColor={COLORS.black}
+              // placeholderTextColor={COLORS.black}
               value={searchQuery}
               onChangeText={handleSearchChange}
               autoCorrect={false}
