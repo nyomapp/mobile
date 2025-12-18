@@ -1,7 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
-  // BASE_URL: "https://nyomx.com/api/v1/",
-  BASE_URL: "http://localhost:3000/v1/",
+  BASE_URL: "https://nyomx.com/api/v1/",
+  //BASE_URL: "http://localhost:3000/v1/",
   TIMEOUT: 10000, // 10 seconds
   HEADERS: {
     "Content-Type": "application/json",
@@ -11,8 +11,8 @@ export const API_CONFIG = {
 
 // API Endpoints
 export const API_ENDPOINTS = {
-  DashBoard:{
-    GET_DATA:"deliveries/dashboard",
+  DashBoard: {
+    GET_DATA: "deliveries/dashboard",
   },
   DELIVERIES_HOME: {
     GET: "deliveries?status={STATUS}",
