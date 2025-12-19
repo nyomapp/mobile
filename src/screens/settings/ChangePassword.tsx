@@ -10,6 +10,7 @@ import {
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import Toast from "react-native-toast-message";
 
+import { changePassword } from "@/src/api/editProfile";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { useAuth } from "@/src/contexts/AuthContext";
 import { globalStyles } from "@/src/styles";
@@ -90,29 +91,29 @@ export default function ChangePassword() {
     if (!validatePasswords()) {
       return;
     }
-    // try {
-    //   const formData = {
-    //     oldPassword: oldPassword,
-    //     newPassword: newPassword,
-    //   };
-    //   await changePassword(formData, user?.id);
-    //   Toast.show({
-    //     type: "success",
-    //     text1: "Success",
-    //     text2: "Password changed successfully",
-    //   });
-    //   setTimeout(() => {
-    //     router.push("/(tabs)/settings");
-    //   }, 1000);
-    // } catch (error) {
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Error",
-    //     text2:
-    //       (error as any).message ||
-    //       "An error occurred while changing the password",
-    //   });
-    // }
+    try {
+      const formData = {
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      };
+      await changePassword(formData, user?.id);
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Password changed successfully",
+      });
+      setTimeout(() => {
+        router.push("/(tabs)/settings");
+      }, 1000);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while changing the password",
+      });
+    }
     // console.log("Password changed successfully");
     // Handle password change logic here
   };

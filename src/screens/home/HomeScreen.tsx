@@ -11,18 +11,16 @@ import { useAuth } from "../../contexts/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 
+import { getDashBoardData } from "@/src/api/dashBoard";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
+import { useDashBoard } from "@/src/contexts/DashBoardContext";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
-
-// Correct import for PieChart
-
-import { getDashBoardData } from "@/src/api/dashBoard";
-import { useDashBoard } from "@/src/contexts/DashBoardContext";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { useCallback, useEffect } from "react";
+import PieChart from 'react-native-pie-chart';
 import Toast from "react-native-toast-message";
 import { styles } from "../../styles/homeStyles";
 
@@ -133,13 +131,13 @@ export default function HomeScreen() {
             { height: "auto", justifyContent: "center", alignItems: "center" },
           ]}
         >
-          {/* <PieChart
+          <PieChart
             widthAndHeight={150}
             series={series}
             // sliceColor={sliceColors}
             cover={0.6}
             // coverFill={'#FFFFFF'}
-          /> */}
+          />
 
           {/* <View style={styles.centerContent}>
             <Text style={styles.centerText}>{totalValue}</Text>
@@ -220,8 +218,8 @@ export default function HomeScreen() {
               />
             </View>
             <Text style={styles.statValue}>
-              {/* {(dashBoardData as any)?.totalSales} */}
-               0
+              {(dashBoardData as any)?.totalSales}
+    
             </Text>
           </LinearGradient>
 
@@ -240,8 +238,8 @@ export default function HomeScreen() {
               />
             </View>
             <Text style={styles.statValue}>
-              {/* {(dashBoardData as any)?.avgDiscount} */}
-              0
+              {(dashBoardData as any)?.avgDiscount}
+              
             </Text>
           </LinearGradient>
 
@@ -260,8 +258,8 @@ export default function HomeScreen() {
               />
             </View>
             <Text style={styles.statValue}>
-              {/* {(dashBoardData as any)?.totalAccessories} */}
-              0
+              {(dashBoardData as any)?.totalAccessories}
+              
             </Text>
           </LinearGradient>
 
@@ -280,8 +278,8 @@ export default function HomeScreen() {
               />
             </View>
             <Text style={styles.statValue}>
-              {/* {(dashBoardData as any)?.noOfHelmets} */}
-              0
+              {(dashBoardData as any)?.noOfHelmets}
+              
             </Text>
           </LinearGradient>
         </View>

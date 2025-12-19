@@ -1,7 +1,12 @@
+import { updateDeliveryById } from "@/src/api/UploadDocument";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useDocumentArray } from '@/src/contexts/DocumentArray1';
+import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
+import { useDocumentUploadContext } from '@/src/contexts/DocumentUploadContext';
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
+import { useEffect, useMemo, useRef } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -13,14 +18,9 @@ import {
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { styles } from "../../styles/deliveries/documentsStyles";
 import { allStyles } from "../../styles/global";
-import { useDocumentUploadContext } from '@/src/contexts/DocumentUploadContext';
-import { useDocumentArray } from '@/src/contexts/DocumentArray1';
-import Toast from "react-native-toast-message";
-import { useEffect, useMemo, useRef } from "react";
-import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
-import {updateDeliveryById} from "@/src/api/UploadDocument";
 export default function DocumentsScreen() {
   const { currentDelivery, setCurrentDelivery, isEdit,deliveryId, } = useDeliveryContext();
   
@@ -93,21 +93,21 @@ export default function DocumentsScreen() {
 
   const handleNext = async() => {
     // Check if all required documents are uploaded
-    const requiredDocuments = documentTypes.filter(
-      doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
-    );
+    // const requiredDocuments = documentTypes.filter(
+    //   doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
+    // );
 
-    const missingDocuments = requiredDocuments.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === "");
+    // const missingDocuments = requiredDocuments.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === "");
 
-    if (missingDocuments.length > 0) {
-      const missingNames = missingDocuments.map(doc => doc.title).join(", ");
-      Toast.show({
-        type: "error",
-        text1: "Missing Documents",
-        text2: `Please upload: ${missingNames}`,
-      });
-      return;
-    }
+    // if (missingDocuments.length > 0) {
+    //   const missingNames = missingDocuments.map(doc => doc.title).join(", ");
+    //   Toast.show({
+    //     type: "error",
+    //     text1: "Missing Documents",
+    //     text2: `Please upload: ${missingNames}`,
+    //   });
+    //   return;
+    // }
 
     // Transform documentTypes array to match DownloadDocument interface
     const downloadDocuments = documentTypes.map(doc => ({

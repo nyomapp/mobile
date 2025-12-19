@@ -153,7 +153,7 @@ export const styles = StyleSheet.create({
   },
   legendValue: {
     fontSize: responsiveFontSize(1.6),
-    fontFamily: FONTS.Yellix,
+    fontFamily: FONTS.YellixThin,
     color: "#333",
     marginLeft: responsiveWidth(2),
     fontWeight: "500",
