@@ -1,6 +1,14 @@
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import * as ImagePicker from "expo-image-picker";
-import * as ImageManipulator from "expo-image-manipulator";
+// import * as ImageManipulator from "expo-image-manipulator";
+import { uploadDocument } from "@/src/api/UploadDocument";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useDocumentArray } from "@/src/contexts/DocumentArray1";
+import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
+import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
+import {
+  convertImageToPdfAndCompress
+} from "@/src/utils/documentConversionUtils";
 import { CameraView } from "expo-camera";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -15,18 +23,9 @@ import {
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/ScannerStyles";
-import Toast from "react-native-toast-message";
-import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
-import {
-  convertImageToPdfAndCompress,
-  getSizeLimitText,
-} from "@/src/utils/documentConversionUtils";
-import { uploadDocument } from "@/src/api/UploadDocument";
-import { useDocumentArray } from "@/src/contexts/DocumentArray1";
-import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 interface DocumentScannerProps {
   documentType?: string;
 }
