@@ -86,7 +86,7 @@ export default function SettingsScreen() {
             <View style={settingsStyles.contactItem}>
               <View style={settingsStyles.contactIcon}>
                 <Image
-                  source={require("@/assets/icons/messageIcon.png")} // Replace with email icon
+                  source={require("@/assets/icons/messageicon.png")} // Replace with email icon
                   style={settingsStyles.contactIconImage}
                   resizeMode="contain"
                 />
@@ -101,7 +101,7 @@ export default function SettingsScreen() {
             <View style={settingsStyles.contactItem}>
               <View style={settingsStyles.contactIcon}>
                 <Image
-                  source={require("@/assets/icons/phoneIcon.png")} // Replace with phone icon
+                  source={require("@/assets/icons/phoneicon.png")} // Replace with phone icon
                   style={settingsStyles.contactIconImage}
                   resizeMode="contain"
                 />

@@ -187,8 +187,8 @@ export default function OtherDocumentsScreen() {
                 <Image
                   source={
                     doc.uploaded
-                      ? require("@/assets/icons/documentsPageTickIcon.png")
-                      : require("@/assets/icons/documentPageUplaodIcon.png")
+                      ? require("@/assets/icons/documentspagetickicon.png")
+                      : require("@/assets/icons/documentpageuplaodicon.png")
                   }
                   style={{ width: 25, height: 25 }}
                   resizeMode="contain"

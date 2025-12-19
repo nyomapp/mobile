@@ -140,7 +140,7 @@ export default function LoginScreen() {
             <View style={allStyles.container}>
               <View style={styles.imageContainer}>
                 <Image
-                  source={require("@/assets/icons/loginPageLogo.png")}
+                  source={require("@/assets/icons/loginpagelogo.png")}
                   style={styles.buildingImage}
                   resizeMode="contain"
                 />

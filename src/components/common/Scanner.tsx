@@ -153,7 +153,6 @@ DocumentScannerProps) {
             JSON.stringify(uploadingDocument)
         );
       }
-
    const frameNumber = isOtherDocumentsUpload ? (currentDelivery as any)?.certificateRef?.chassisNumber : currentDelivery?.chassisNo;
 
       // Convert image to PDF and compress
@@ -373,7 +372,7 @@ DocumentScannerProps) {
                 </Text>
               </View>
               <Image
-                source={require("@/assets/icons/documentPageUplaodIcon.png")}
+                source={require("@/assets/icons/documentpageuplaodicon.png")}
                 style={{ width: 24, height: 24 }}
                 // width={24}
                 resizeMode="contain"

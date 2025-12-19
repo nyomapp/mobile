@@ -17,7 +17,7 @@ export const HeaderIcon: React.FC<HeaderProps> = ({
   const { user } = useAuth();
   return (
     <View style={allStyles.header}>
-      <Image source={require("../../../assets/icons/nyomLogo.png")} style={styles.logoImg}/>
+      <Image source={require("../../../assets/icons/nyomlogo.png")} style={styles.logoImg}/>
     </View>
   );
 };

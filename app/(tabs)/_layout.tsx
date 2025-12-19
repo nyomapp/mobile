@@ -44,8 +44,8 @@ export default function TabLayout() {
               <Image
                 source={
                   focused
-                    ? require("../../assets/icons/hometabFilledIcon.png")
-                    : require("../../assets/icons/homeTabIcon.png")
+                    ? require("../../assets/icons/hometabfilledicon.png")
+                    : require("../../assets/icons/hometabicon.png")
                 }
                 style={{
                   width: 24,
@@ -67,8 +67,8 @@ export default function TabLayout() {
               <Image
                 source={
                   focused
-                    ? require("../../assets/icons/deliveriesTabIconFilled.png")
-                    : require("../../assets/icons/deliveriesTabIcons.png")
+                    ? require("../../assets/icons/deliveriestabiconfilled.png")
+                    : require("../../assets/icons/deliveriestabicons.png")
                 }
                 style={{
                   width: 25,
@@ -90,8 +90,8 @@ export default function TabLayout() {
               <Image
                 source={
                   focused
-                    ? require("../../assets/icons/searchTabFilledIcon.png")
-                    : require("../../assets/icons/searchTabIcon.png")
+                    ? require("../../assets/icons/searchtabfilledicon.png")
+                    : require("../../assets/icons/searchtabicon.png")
                 }
                 style={{
                   width: 24,
@@ -119,8 +119,8 @@ export default function TabLayout() {
               <Image
                 source={
                   focused
-                    ? require("../../assets/icons/settingsTabFilledIcon.png")
-                    : require("../../assets/icons/settingsTabIcon.png")
+                    ? require("../../assets/icons/settingstabfilledicon.png")
+                    : require("../../assets/icons/settingstabicon.png")
                 }
                 style={{
                   width: 24,

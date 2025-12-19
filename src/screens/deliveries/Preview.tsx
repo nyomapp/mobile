@@ -422,7 +422,7 @@ const handleView = async (doc: any) => {
         </Text>
         <TouchableOpacity onPress={handleEdit(title)}>
           <Image
-            source={require("@/assets/icons/previewPageEditIcon.png")}
+            source={require("@/assets/icons/previewpageediticon.png")}
             style={{
               width: 27,
               height: 27,
@@ -487,7 +487,7 @@ const handleView = async (doc: any) => {
               <Text style={[styles.sectionTitle]}>Documents</Text>
               <TouchableOpacity onPress={handleEdit("Documents")}>
                 <Image
-                  source={require("@/assets/icons/previewPageEditIcon.png")}
+                  source={require("@/assets/icons/previewpageediticon.png")}
                   style={{
                     width: 27,
                     height: 27,
@@ -525,7 +525,7 @@ const handleView = async (doc: any) => {
                     onPress={() => handleView(doc)}
                   >
                     <Image
-                      source={require("@/assets/icons/viewIcon.png")}
+                      source={require("@/assets/icons/viewicon.png")}
                       style={{ width: 20, height: 20 }}
                       resizeMode="contain"
                     />
@@ -538,8 +538,8 @@ const handleView = async (doc: any) => {
                     <Image
                       source={
                         doc.uploaded
-                          ? require("@/assets/icons/dowmloadIconPreviewPage.png")
-                          : require("@/assets/icons/documentPageUplaodIcon.png")
+                          ? require("@/assets/icons/dowmloadiconpreviewpage.png")
+                          : require("@/assets/icons/documentpageuplaodicon.png")
                       }
                       style={{ width: 20, height: 20 }}
                       resizeMode="contain"

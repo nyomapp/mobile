@@ -22,7 +22,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 1,
     title: "Vehicle Front Image",
-    icon: require("@/assets/icons/documentPageBikeFrontSideIcon.png"),
+    icon: require("@/assets/icons/documentpagebikefrontsideicon.png"),
     uploaded: false,
     documentName: 'FRONT',
     fileUrl: '',
@@ -32,7 +32,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 2,
     title: "Vehicle Side Image",
-    icon: require("@/assets/icons/documentPageBikeSideWiseIcon.png"),
+    icon: require("@/assets/icons/documentpagebikesidewiseicon.png"),
     uploaded: false,
     documentName: 'LEFT',
     fileUrl: '',
@@ -42,7 +42,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 3,
     title: "Vehicle Frame Image",
-    icon: require("@/assets/icons/documentPageFrameIcon.png"),
+    icon: require("@/assets/icons/documentpageframeicon.png"),
     uploaded: false,
     documentName: 'CHASSIS',
     fileUrl: '',
@@ -52,7 +52,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 4,
     title: "Customer Photo",
-    icon: require("@/assets/icons/documentPageCustomerPhotoIcon.png"),
+    icon: require("@/assets/icons/documentpagecustomerphotoicon.png"),
     uploaded: false,
     documentName: 'Customer',
     fileUrl: '',
@@ -62,7 +62,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 5,
     title: "Aadhaar Front",
-    icon: require("@/assets/icons/documnetPageAdhaarFrontIcon.png"),
+    icon: require("@/assets/icons/documnetpageadhaarfronticon.png"),
     uploaded: false,
     documentName: 'AADHAAR FRONT',
     fileUrl: '',
@@ -72,7 +72,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 6,
     title: "Aadhaar Back",
-    icon: require("@/assets/icons/documnetPageAdhaarBackIcon.png"),
+    icon: require("@/assets/icons/documnetpageadhaarbackicon.png"),
     uploaded: false,
     documentName: 'AADHAAR BACK',
     fileUrl: '',

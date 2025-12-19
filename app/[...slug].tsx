@@ -3,10 +3,10 @@ import { useMemo } from "react";
 
 const screenMap = {
   login: () => require("../src/screens/auth/LoginScreen").default,
-  otp: () => require("../src/screens/auth/OTPScreen").default,
-  "edit-profile": () => require("../src/screens/profile/EditProfile").default,
-  "personal-info": () => require("../src/screens/profile/PersonalInfo").default,
-  notification: () => require("../src/screens/home/NotificationScreen").default,
+  // otp: () => require("../src/screens/auth/OTPScreen").default,
+  // "edit-profile": () => require("../src/screens/profile/EditProfile").default,
+  // "personal-info": () => require("../src/screens/profile/PersonalInfo").default,
+  // notification: () => require("../src/screens/home/NotificationScreen").default,
   "add-delivery": () => require("../src/screens/deliveries/AddDelivery").default,
   "document-screen": () => require("../src/screens/deliveries/DocumentsScreen").default,
   "document-scanner": () => require("../src/components/common/Scanner").default,

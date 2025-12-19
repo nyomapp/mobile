@@ -192,7 +192,7 @@ const handleSearchChange = (text: string) => {
             />
             <TouchableOpacity style={styles.searchButton} activeOpacity={1}>
               <Image
-                source={require("@/assets/icons/searchIcon.png")}
+                source={require("@/assets/icons/searchicon.png")}
                 style={{
                   width: 20,
                   height: 20,

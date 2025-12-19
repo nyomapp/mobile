@@ -424,7 +424,7 @@ export default function DeliveriesHome() {
                 onPress={() => handleMoreOptions(item.id)}
               >
                 <Image
-                  source={require("@/assets/icons/pDFDownloadIcon.png")}
+                  source={require("@/assets/icons/pdfdownloadicon.png")}
                   style={{
                     width: 22,
                     height: 22,
@@ -443,7 +443,7 @@ export default function DeliveriesHome() {
                 //  style={styles.uploadIcon}
                 >
                   <Image
-                    source={require("@/assets/icons/editIcon.png")}
+                    source={require("@/assets/icons/editicon.png")}
                     style={{
                       width: 22,
                       height: 22,
@@ -458,7 +458,7 @@ export default function DeliveriesHome() {
                 onPress={() => handleDelete(item)}
               >
                 <Image
-                  source={require("@/assets/icons/deleteIcon.png")}
+                  source={require("@/assets/icons/deleteicon.png")}
                   style={{ width: 16, height: 16 }}
                   // width={20}
 
@@ -498,7 +498,7 @@ export default function DeliveriesHome() {
           <Text style={styles.uploadButtonText}>Upload</Text>
           <View style={styles.uploadIcon}>
             <Image
-              source={require("@/assets/icons/uploadWhiteIcon.png")}
+              source={require("@/assets/icons/uploadwhiteicon.png")}
               style={{ width: 15, height: 15 }}
               // width={20}
               resizeMode="contain"
@@ -539,7 +539,7 @@ export default function DeliveriesHome() {
             onPress={handleFilterPress}
           >
             <Image
-              source={require("@/assets/icons/filterIcon.png")}
+              source={require("@/assets/icons/filtericon.png")}
               // width={24}
               style={styles.filterIcon}
               resizeMode="contain"
