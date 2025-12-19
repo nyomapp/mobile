@@ -212,7 +212,7 @@ export default function HomeScreen() {
             <View style={styles.statCardHeader}>
               <Text style={styles.statLabel}>Total{"\n"}Deliveries</Text>
               <Image
-                source={require("@/assets/icons/TotalDeliveriesIcon.png")}
+                source={require("@/assets/icons/totalDeliveriesIcon.png")}
                 style={styles.img}
                 resizeMode="contain"
               />
@@ -232,7 +232,7 @@ export default function HomeScreen() {
             <View style={styles.statCardHeader}>
               <Text style={styles.statLabel}>Average{"\n"}Discount</Text>
               <Image
-                source={require("@/assets/icons/AverageDiscountIcon.png")}
+                source={require("@/assets/icons/averageDiscountIcon.png")}
                 style={styles.img}
                 resizeMode="contain"
               />
@@ -252,7 +252,7 @@ export default function HomeScreen() {
             <View style={styles.statCardHeader}>
               <Text style={styles.statLabel}>Total{"\n"}Accessories</Text>
               <Image
-                source={require("@/assets/icons/TotalAccessoriesIcon.png")}
+                source={require("@/assets/icons/totalAccessoriesIcon.png")}
                 style={styles.img}
                 resizeMode="contain"
               />
@@ -272,7 +272,7 @@ export default function HomeScreen() {
             <View style={styles.statCardHeader}>
               <Text style={styles.statLabel}>No. of{"\n"}Helmets</Text>
               <Image
-                source={require("@/assets/icons/NoOfHelmetsIcon.png")}
+                source={require("@/assets/icons/noOfHelmetsIcon.png")}
                 style={styles.img}
                 resizeMode="contain"
               />

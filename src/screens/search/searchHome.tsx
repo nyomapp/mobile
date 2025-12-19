@@ -10,17 +10,14 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 
+import { getAllSearchedData } from "@/src/api/search";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
-import { COLORS } from "@/src/constants";
-import { router } from "expo-router";
+import { useSearchContext } from "@/src/contexts/SearchContext";
 import { useEffect, useState } from "react";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/searchScreenStyles";
-import { getAllSearchedData } from "@/src/api/search";
-import { useSearchContext } from "@/src/contexts/SearchContext";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 interface Customer {
   id: string;
@@ -125,7 +122,7 @@ const handleSearchChange = (text: string) => {
                   onPress={() => handleDelete(item)}
                 >
                   <Image
-                    source={require("@/assets/icons/DeleteIcon.png")}
+                    source={require("@/assets/icons/deleteIcon.png")}
                     style={{ width: 16, height: 16 }}
                     // width={20}
   
@@ -195,7 +192,7 @@ const handleSearchChange = (text: string) => {
             />
             <TouchableOpacity style={styles.searchButton} activeOpacity={1}>
               <Image
-                source={require("@/assets/icons/SearchIcon.png")}
+                source={require("@/assets/icons/searchIcon.png")}
                 style={{
                   width: 20,
                   height: 20,

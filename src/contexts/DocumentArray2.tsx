@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 export interface DocumentType {
   id: number;
@@ -36,7 +36,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 1,
     title: "Invoice",
-    icon: require("@/assets/icons/InvoiceIcon.png"),
+    icon: require("@/assets/icons/invoiceIcon.png"),
     uploaded: false,
     documentName: "TAX INVOICE",
     fileUrl: "",
@@ -46,7 +46,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 2,
     title: "Insurance",
-    icon: require("@/assets/icons/InsuranceIcon.png"),
+    icon: require("@/assets/icons/insuranceIcon.png"),
     uploaded: false,
     documentName: "INSURANCE",
     fileUrl: "",
@@ -56,7 +56,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 3,
     title: "Helmet Invoice",
-    icon: require("@/assets/icons/HelmetInvoiceIcon.png"),
+    icon: require("@/assets/icons/helmetInvoiceIcon.png"),
     uploaded: false,
     documentName: "HELMET INVOICE",
     fileUrl: "",
@@ -66,7 +66,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 4,
     title: "Form 20 - 1",
-    icon: require("@/assets/icons/Form 20 -1Icon.png"),
+    icon: require("@/assets/icons/form 20 -1Icon.png"),
     uploaded: false,
     documentName: "FORM 20 1ST PAGE",
     fileUrl: "",
@@ -76,7 +76,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 5,
     title: "Form 20 - 2",
-    icon: require("@/assets/icons/Form 20 - 2Icon.png"),
+    icon: require("@/assets/icons/form 20 - 2Icon.png"),
     uploaded: false,
     documentName: "FORM 20 2ND PAGE",
     fileUrl: "",
@@ -86,7 +86,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 6,
     title: "Form 20 - 3",
-    icon: require("@/assets/icons/Form 20 - 3Icon.png"),
+    icon: require("@/assets/icons/form 20 - 3Icon.png"),
     uploaded: false,
     documentName: "FORM 20 3RD PAGE",
     fileUrl: "",
@@ -96,7 +96,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 7,
     title: "Form 21",
-    icon: require("@/assets/icons/Form 21 Icon.png"),
+    icon: require("@/assets/icons/form 21 Icon.png"),
     uploaded: false,
     documentName: "FORM 21",
     fileUrl: "",
@@ -106,7 +106,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 8,
     title: "Form 22",
-    icon: require("@/assets/icons/Form 22Icon.png"),
+    icon: require("@/assets/icons/form 22Icon.png"),
     uploaded: false,
     documentName: "FORM 22",
     fileUrl: "",
@@ -116,7 +116,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 9,
     title: "AFFIDAVIT",
-    icon: require("@/assets/icons/AffidavitIcon.png"),
+    icon: require("@/assets/icons/affidavitIcon.png"),
     uploaded: false,
     documentName: "AFFIDAVIT",
     fileUrl: "",

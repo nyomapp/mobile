@@ -93,21 +93,21 @@ export default function DocumentsScreen() {
 
   const handleNext = async() => {
     // Check if all required documents are uploaded
-    // const requiredDocuments = documentTypes.filter(
-    //   doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
-    // );
+    const requiredDocuments = documentTypes.filter(
+      doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
+    );
 
-    // const missingDocuments = requiredDocuments.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === "");
+    const missingDocuments = requiredDocuments.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === "");
 
-    // if (missingDocuments.length > 0) {
-    //   const missingNames = missingDocuments.map(doc => doc.title).join(", ");
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Missing Documents",
-    //     text2: `Please upload: ${missingNames}`,
-    //   });
-    //   return;
-    // }
+    if (missingDocuments.length > 0) {
+      const missingNames = missingDocuments.map(doc => doc.title).join(", ");
+      Toast.show({
+        type: "error",
+        text1: "Missing Documents",
+        text2: `Please upload: ${missingNames}`,
+      });
+      return;
+    }
 
     // Transform documentTypes array to match DownloadDocument interface
     const downloadDocuments = documentTypes.map(doc => ({
@@ -219,8 +219,8 @@ export default function DocumentsScreen() {
                 <Image
                   source={
                     doc.uploaded
-                      ? require("@/assets/icons/DocumentsPageTickIcon.png")
-                      : require("@/assets/icons/DocumentPageUplaodIcon.png")
+                      ? require("@/assets/icons/documentsPageTickIcon.png")
+                      : require("@/assets/icons/documentPageUplaodIcon.png")
                   }
                   style={{ width: 25, height: 25 }}
                   resizeMode="contain"

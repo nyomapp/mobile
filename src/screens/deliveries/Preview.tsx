@@ -4,16 +4,22 @@ import {
   getAllMasterData,
 } from "@/src/api/addDelivery";
 import { updateDeliveryById } from "@/src/api/deliveriesHome";
+import { getPdfUrl } from "@/src/api/preview";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { FONTS } from "@/src/constants";
 import { useFinancierData, useMasterData } from "@/src/contexts";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 import { useModels } from "@/src/contexts/ModelsContext";
+import { globalStyles } from "@/src/styles";
+import * as FileSystem from "expo-file-system";
 import { router } from "expo-router";
+import * as Sharing from "expo-sharing";
 import { useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
+  Linking,
   Modal,
   Platform,
   ScrollView,
@@ -30,12 +36,6 @@ import Toast from "react-native-toast-message";
 import { WebView } from "react-native-webview";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/previewStyles";
-import { useDocumentArray } from "@/src/contexts/DocumentArray1";
-import { globalStyles } from "@/src/styles";
-import { getPdfUrl } from "@/src/api/preview";
-import * as FileSystem from "expo-file-system";
-import * as Sharing from "expo-sharing";
-import { Linking } from "react-native";
 
 
 interface DetailField {
@@ -525,7 +525,7 @@ const handleView = async (doc: any) => {
                     onPress={() => handleView(doc)}
                   >
                     <Image
-                      source={require("@/assets/icons/ViewIcon.png")}
+                      source={require("@/assets/icons/viewIcon.png")}
                       style={{ width: 20, height: 20 }}
                       resizeMode="contain"
                     />
@@ -538,8 +538,8 @@ const handleView = async (doc: any) => {
                     <Image
                       source={
                         doc.uploaded
-                          ? require("@/assets/icons/DowmloadIconPreviewPage.png")
-                          : require("@/assets/icons/DocumentPageUplaodIcon.png")
+                          ? require("@/assets/icons/dowmloadIconPreviewPage.png")
+                          : require("@/assets/icons/documentPageUplaodIcon.png")
                       }
                       style={{ width: 20, height: 20 }}
                       resizeMode="contain"

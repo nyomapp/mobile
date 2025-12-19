@@ -11,11 +11,11 @@ import Toast from "react-native-toast-message";
 
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { router } from "expo-router";
+import { responsiveFontSize, responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { allStyles } from "../../styles/global";
 import { settingsStyles } from "../../styles/settingsStyles";
-import { responsiveFontSize, responsiveWidth } from "react-native-responsive-dimensions";
 export default function SettingsScreen() {
   const {user, logout } = useAuth();
   const handleBack = () => {
@@ -86,7 +86,7 @@ export default function SettingsScreen() {
             <View style={settingsStyles.contactItem}>
               <View style={settingsStyles.contactIcon}>
                 <Image
-                  source={require("@/assets/icons/MessageIcon.png")} // Replace with email icon
+                  source={require("@/assets/icons/messageIcon.png")} // Replace with email icon
                   style={settingsStyles.contactIconImage}
                   resizeMode="contain"
                 />
@@ -101,7 +101,7 @@ export default function SettingsScreen() {
             <View style={settingsStyles.contactItem}>
               <View style={settingsStyles.contactIcon}>
                 <Image
-                  source={require("@/assets/icons/PhoneIcon.png")} // Replace with phone icon
+                  source={require("@/assets/icons/phoneIcon.png")} // Replace with phone icon
                   style={settingsStyles.contactIconImage}
                   resizeMode="contain"
                 />

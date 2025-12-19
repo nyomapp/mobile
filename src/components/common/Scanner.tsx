@@ -373,7 +373,7 @@ DocumentScannerProps) {
                 </Text>
               </View>
               <Image
-                source={require("@/assets/icons/DocumentPageUplaodIcon.png")}
+                source={require("@/assets/icons/documentPageUplaodIcon.png")}
                 style={{ width: 24, height: 24 }}
                 // width={24}
                 resizeMode="contain"

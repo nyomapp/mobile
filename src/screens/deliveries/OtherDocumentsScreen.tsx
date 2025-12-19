@@ -1,7 +1,11 @@
+import { updateDeliveryById } from "@/src/api/UploadDocument";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
-import { globalStyles } from "@/src/styles";
+import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
+import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
+import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -12,14 +16,10 @@ import {
   View,
 } from "react-native";
 import { responsiveWidth } from "react-native-responsive-dimensions";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { styles } from "../../styles/deliveries/documentsStyles";
 import { allStyles } from "../../styles/global";
-import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
-import { useEffect, useState } from "react";
-import { updateDeliveryById } from "@/src/api/UploadDocument";
-import Toast from "react-native-toast-message";
 
 export default function OtherDocumentsScreen() {
   const {
@@ -187,8 +187,8 @@ export default function OtherDocumentsScreen() {
                 <Image
                   source={
                     doc.uploaded
-                      ? require("@/assets/icons/DocumentsPageTickIcon.png")
-                      : require("@/assets/icons/DocumentPageUplaodIcon.png")
+                      ? require("@/assets/icons/documentsPageTickIcon.png")
+                      : require("@/assets/icons/documentPageUplaodIcon.png")
                   }
                   style={{ width: 25, height: 25 }}
                   resizeMode="contain"

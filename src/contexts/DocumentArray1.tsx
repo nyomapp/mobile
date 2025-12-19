@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 export interface DocumentType {
   id: number;
@@ -22,7 +22,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 1,
     title: "Vehicle Front Image",
-    icon: require("@/assets/icons/DocumentPageBikeFrontSideIcon.png"),
+    icon: require("@/assets/icons/documentPageBikeFrontSideIcon.png"),
     uploaded: false,
     documentName: 'FRONT',
     fileUrl: '',
@@ -32,7 +32,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 2,
     title: "Vehicle Side Image",
-    icon: require("@/assets/icons/DocumentPageBikeSideWiseIcon.png"),
+    icon: require("@/assets/icons/documentPageBikeSideWiseIcon.png"),
     uploaded: false,
     documentName: 'LEFT',
     fileUrl: '',
@@ -42,7 +42,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 3,
     title: "Vehicle Frame Image",
-    icon: require("@/assets/icons/DocumentPageFrameIcon.png"),
+    icon: require("@/assets/icons/documentPageFrameIcon.png"),
     uploaded: false,
     documentName: 'CHASSIS',
     fileUrl: '',
@@ -52,7 +52,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 4,
     title: "Customer Photo",
-    icon: require("@/assets/icons/DocumentPageCustomerPhotoIcon.png"),
+    icon: require("@/assets/icons/documentPageCustomerPhotoIcon.png"),
     uploaded: false,
     documentName: 'Customer',
     fileUrl: '',
@@ -62,7 +62,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 5,
     title: "Aadhaar Front",
-    icon: require("@/assets/icons/DocumnetPageAdhaarFrontIcon.png"),
+    icon: require("@/assets/icons/documnetPageAdhaarFrontIcon.png"),
     uploaded: false,
     documentName: 'AADHAAR FRONT',
     fileUrl: '',
@@ -72,7 +72,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 6,
     title: "Aadhaar Back",
-    icon: require("@/assets/icons/DocumnetPageAdhaarBackIcon.png"),
+    icon: require("@/assets/icons/documnetPageAdhaarBackIcon.png"),
     uploaded: false,
     documentName: 'AADHAAR BACK',
     fileUrl: '',

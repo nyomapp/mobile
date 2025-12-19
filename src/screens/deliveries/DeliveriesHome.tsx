@@ -12,14 +12,17 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 
+import { getModalsData } from "@/src/api/addDelivery";
 import {
   deleteDeliveryById,
   getDeliveriesData,
 } from "@/src/api/deliveriesHome";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
+import { useAuth } from "@/src/contexts/AuthContext";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { useDeliveryHomePageContext } from "@/src/contexts/DeliveryHomePageContext";
+import { useModels } from "@/src/contexts/ModelsContext";
 import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -28,9 +31,6 @@ import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styles } from "../../styles/deliveries/deliveryHomeStyles";
 import { allStyles } from "../../styles/global";
-import { useModels } from "@/src/contexts/ModelsContext";
-import { useAuth } from "@/src/contexts/AuthContext";
-import { getModalsData } from "@/src/api/addDelivery";
 
 export default function DeliveriesHome() {
   const {
@@ -424,7 +424,7 @@ export default function DeliveriesHome() {
                 onPress={() => handleMoreOptions(item.id)}
               >
                 <Image
-                  source={require("@/assets/icons/PDFDownloadIcon.png")}
+                  source={require("@/assets/icons/pDFDownloadIcon.png")}
                   style={{
                     width: 22,
                     height: 22,
@@ -443,7 +443,7 @@ export default function DeliveriesHome() {
                 //  style={styles.uploadIcon}
                 >
                   <Image
-                    source={require("@/assets/icons/EditIcon.png")}
+                    source={require("@/assets/icons/editIcon.png")}
                     style={{
                       width: 22,
                       height: 22,
@@ -458,7 +458,7 @@ export default function DeliveriesHome() {
                 onPress={() => handleDelete(item)}
               >
                 <Image
-                  source={require("@/assets/icons/DeleteIcon.png")}
+                  source={require("@/assets/icons/deleteIcon.png")}
                   style={{ width: 16, height: 16 }}
                   // width={20}
 
@@ -498,7 +498,7 @@ export default function DeliveriesHome() {
           <Text style={styles.uploadButtonText}>Upload</Text>
           <View style={styles.uploadIcon}>
             <Image
-              source={require("@/assets/icons/UploadWhiteIcon.png")}
+              source={require("@/assets/icons/uploadWhiteIcon.png")}
               style={{ width: 15, height: 15 }}
               // width={20}
               resizeMode="contain"
@@ -539,7 +539,7 @@ export default function DeliveriesHome() {
             onPress={handleFilterPress}
           >
             <Image
-              source={require("@/assets/icons/FilterIcon.png")}
+              source={require("@/assets/icons/filterIcon.png")}
               // width={24}
               style={styles.filterIcon}
               resizeMode="contain"
