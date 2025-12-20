@@ -153,7 +153,7 @@ DocumentScannerProps) {
             JSON.stringify(uploadingDocument)
         );
       }
-   const frameNumber = isOtherDocumentsUpload ? (currentDelivery as any)?.certificateRef?.chassisNumber : currentDelivery?.chassisNo;
+   const frameNumber = isOtherDocumentsUpload ? (currentDelivery as any)?.certificateRef?.chassisNumber || currentDelivery?.chassisNo : currentDelivery?.chassisNo;
 
       // Convert image to PDF and compress
       const processedDocument = await convertImageToPdfAndCompress(
