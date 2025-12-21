@@ -1,9 +1,8 @@
-import * as ImageManipulator from "expo-image-manipulator";
-import Toast from "react-native-toast-message";
 import * as FileSystem from "expo-file-system";
-import { Image as RNImage, Platform } from "react-native";
-import * as ImageManipulatorModule from "expo-image-manipulator";
+import * as ImageManipulator from "expo-image-manipulator";
 import { PDFDocument } from 'pdf-lib';
+import { Platform, Image as RNImage } from "react-native";
+import Toast from "react-native-toast-message";
 /**
  * Create a minimal PDF with embedded JPEG image using base64
  */
@@ -91,29 +90,68 @@ import { PDFDocument } from 'pdf-lib';
 // };
 
 
-const createMinimalPDF = async (base64Image: string): Promise<string> => {
-  const pdfDoc = await PDFDocument.create();
-  
-  const jpegImage = await pdfDoc.embedJpg(`data:image/jpeg;base64,${base64Image}`);
-  const { width, height } = jpegImage.scale(1);
-  
-  const page = pdfDoc.addPage([width, height]);
-  page.drawImage(jpegImage, {
-    x: 0,
-    y: 0,
-    width: width,
-    height: height,
-  });
-  
-  const pdfBytes = await pdfDoc.save();
-  
-  // Fix: Convert Uint8Array to base64 without stack overflow
-  let binary = '';
-  const len = pdfBytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(pdfBytes[i]);
+const createMinimalPDF = async (base64Image: string, imageType: string = "jpeg"): Promise<string> => {
+  try {
+    console.log("Starting PDF creation...");
+    console.log("Base64 image length:", base64Image.length);
+    console.log("Image type:", imageType);
+    
+    const pdfDoc = await PDFDocument.create();
+    console.log("PDF document created");
+    
+    // Detect the actual image format from the base64 signature
+    const isJpeg = base64Image.startsWith("/9j/") || imageType.toLowerCase().includes("jpeg");
+    const isPng = base64Image.startsWith("iVBORw0KGgo") || imageType.toLowerCase().includes("png");
+    
+    console.log("Is JPEG:", isJpeg, "Is PNG:", isPng);
+    
+    let embeddedImage;
+    
+    if (isPng) {
+      const dataUrl = `data:image/png;base64,${base64Image}`;
+      console.log("Embedding PNG image...");
+      embeddedImage = await pdfDoc.embedPng(dataUrl);
+    } else {
+      const dataUrl = `data:image/jpeg;base64,${base64Image}`;
+      console.log("Embedding JPEG image...");
+      embeddedImage = await pdfDoc.embedJpg(dataUrl);
+    }
+    
+    console.log("Image embedded into PDF");
+    
+    const { width, height } = embeddedImage.scale(1);
+    console.log(`Image dimensions after scale: ${width}x${height}`);
+    
+    const page = pdfDoc.addPage([width, height]);
+    console.log("Page added to PDF");
+    
+    page.drawImage(embeddedImage, {
+      x: 0,
+      y: 0,
+      width: width,
+      height: height,
+    });
+    console.log("Image drawn on page");
+    
+    const pdfBytes = await pdfDoc.save();
+    console.log("PDF saved, byte length:", pdfBytes.byteLength);
+    
+    // Fix: Convert Uint8Array to base64 without stack overflow
+    let binary = '';
+    const len = pdfBytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(pdfBytes[i]);
+    }
+    const result = btoa(binary);
+    console.log("PDF converted to base64, length:", result.length);
+    
+    return result;
+  } catch (error) {
+    console.error("Error in createMinimalPDF:", error);
+    console.error("Error message:", (error as Error).message);
+    console.error("Error stack:", (error as Error).stack);
+    throw error;
   }
-  return btoa(binary);
 };
 
 
@@ -135,6 +173,7 @@ const mapDocumentTypeToApiFormat = (documentType: string): string => {
   const documentTypeMap: { [key: string]: string } = {
     "AADHAAR FRONT": "AADHAAR FRONT",
     "AADHAAR BACK": "AADHAAR BACK",
+    PAN: "PAN",
     FRONT: "FRONT",
     LEFT: "LEFT",
     CHASSIS: "CHASSIS",
@@ -275,7 +314,7 @@ export const convertImageToPdfAndCompress = async (
         }
 
         // Reduce quality more aggressively for Aadhaar documents
-        if (documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK") {
+        if (documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK" || documentType === "PAN") {
           quality -= 0.1;
         } else {
           quality -= 0.05;
@@ -311,7 +350,7 @@ export const convertImageToPdfAndCompress = async (
       );
       
       // For Aadhaar, allow slightly higher limit as fallback
-      if ((documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK") && finalSizeKB <= 250) {
+      if ((documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK" || documentType === "PAN") && finalSizeKB <= 250) {
         console.log("Using relaxed limit for Aadhaar document");
         compressed = true; // FIX: Set to true when using fallback
         Toast.show({
@@ -352,12 +391,21 @@ export const convertImageToPdfAndCompress = async (
       const reader = new FileReader();
       const base64Promise = new Promise<string>((resolve, reject) => {
         reader.onload = () => {
-          const result = reader.result as string;
-          const base64 = result.includes(",") ? result.split(",")[1] : result;
-          console.log(`Base64 conversion complete, length: ${base64.length}`);
-          resolve(base64);
+          try {
+            const result = reader.result as string;
+            const base64 = result.includes(",") ? result.split(",")[1] : result;
+            console.log(`Base64 conversion complete, length: ${base64.length}`);
+            console.log(`Base64 starts with: ${base64.substring(0, 50)}...`);
+            resolve(base64);
+          } catch (error) {
+            console.error("Error processing base64:", error);
+            reject(error);
+          }
         };
-        reader.onerror = reject;
+        reader.onerror = (error) => {
+          console.error("FileReader error:", error);
+          reject(error);
+        };
         reader.readAsDataURL(imageBlob);
       });
 
@@ -365,7 +413,7 @@ export const convertImageToPdfAndCompress = async (
 
       // Create a minimal PDF structure with embedded image
       console.log("Creating PDF with base64 image...");
-      const pdfContent = await createMinimalPDF(base64Image);
+      const pdfContent = await createMinimalPDF(base64Image, imageBlob.type);
       console.log(`PDF creation complete, base64 length: ${pdfContent.length}`);
 
       const pdfFileName = `PDF_${Date.now()}.pdf`;
@@ -410,10 +458,14 @@ export const convertImageToPdfAndCompress = async (
       }
     } catch (pdfError) {
       console.error("Could not convert to PDF.", pdfError);
+      console.error("PDF Error message:", (pdfError as Error).message);
+      console.error("PDF Error stack:", (pdfError as Error).stack);
+      
+      const errorMessage = (pdfError as Error).message || "Unknown error";
       Toast.show({
         type: "error",
         text1: "PDF Conversion Failed",
-        text2: "The document could not be converted to PDF.",
+        text2: `Error: ${errorMessage}`,
       });
       return null;
     }

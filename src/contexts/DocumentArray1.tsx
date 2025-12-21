@@ -79,6 +79,16 @@ const initialDocumentTypes: DocumentType[] = [
     fileSize: 195,
     fileType: 'PDF',
   },
+    {
+    id: 7,
+    title: "PAN Card",
+    icon: require("@/assets/icons/documnetpageadhaarfronticon.png"),
+    uploaded: false,
+    documentName: 'PAN',
+    fileUrl: '',
+    fileSize: 195,
+    fileType: 'PDF',
+  },
 ];
 
 // Create context
