@@ -10,6 +10,7 @@ export const documentSizeConfig = {
   CHASSIS: { maxSize: 390, fileType: 'PDF' },
   'AADHAAR FRONT': { maxSize: 195, fileType: 'PDF' },
   'AADHAAR BACK': { maxSize: 195, fileType: 'PDF' },
+  'PAN': { maxSize: 195, fileType: 'PDF' },
   Customer: { maxSize: 390, fileType: 'PDF' },
   'TAX INVOICE': { maxSize: 390, fileType: 'PDF' },
   INSURANCE: { maxSize: 390, fileType: 'PDF' },
@@ -55,6 +56,7 @@ export interface Delivery {
   others4?: number;
   others5?: number;
   discount?: number;
+  loyalty?: number;
   totalAmount?: number;
   downloadDocuments?: DownloadDocument[];
   purchaseType?: string;
@@ -116,6 +118,7 @@ const initialDelivery: Partial<Delivery> = {
   others3: undefined,
   others4: undefined,
   others5: undefined,
+  loyalty: undefined,
   discount: undefined,
   totalAmount: undefined,
   downloadDocuments: [],
@@ -206,11 +209,11 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
       others4 = 0,
       others5 = 0,
       discount = 0,
+      loyalty = 0,
     } = currentDelivery;
 
     const total = exShowAmount + insuranceAmount + rtoAmount + accessoriesAmount +
-      rsaAmount + others1 + others2 + others3 + others4 + others5 - discount;
-
+      rsaAmount + others1 + others2 + others3 + others4 + others5 + loyalty - discount;
     return Math.max(0, total);
   };
 

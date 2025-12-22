@@ -37,7 +37,6 @@ import { WebView } from "react-native-webview";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/previewStyles";
 
-
 interface DetailField {
   label: string;
   value: string;
@@ -70,7 +69,6 @@ export default function PreviewScreen() {
   });
   const [pdfModalVisible, setPdfModalVisible] = useState(false);
   const [pdfUrl, setPdfUrl] = useState("");
-
 
   // Load API data and resolve names
   useEffect(() => {
@@ -167,15 +165,24 @@ export default function PreviewScreen() {
         currentDelivery?.accessoriesAmount?.toLocaleString("en-IN") || "0"
       }`,
     },
-    {
-      label: "RSA",
-      value: `₹${currentDelivery?.rsaAmount?.toLocaleString("en-IN") || "0"}`,
-    },
+
     {
       label: "Helmet",
       value: `₹${
         currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"
       }`,
+    },
+    {
+      label: "loyalty",
+      value: `₹${currentDelivery?.loyalty?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "RSA",
+      value: `₹${currentDelivery?.rsaAmount?.toLocaleString("en-IN") || "0"}`,
+    },
+    {
+      label: "Discount",
+      value: `₹${currentDelivery?.discount?.toLocaleString("en-IN") || "0"}`,
     },
     {
       label: "Other 1",
@@ -189,10 +196,7 @@ export default function PreviewScreen() {
       label: "Other 3",
       value: `₹${currentDelivery?.others3?.toLocaleString("en-IN") || "0"}`,
     },
-    {
-      label: "Discount",
-      value: `₹${currentDelivery?.discount?.toLocaleString("en-IN") || "0"}`,
-    },
+
     {
       label: "Total Amount",
       value: `₹${currentDelivery?.totalAmount?.toLocaleString("en-IN") || "0"}`,
@@ -209,152 +213,155 @@ export default function PreviewScreen() {
       image: null, // Image URL would be doc.fileUrl in real implementation
     })) || [];
 
-const handleDownload = async(doc: any) => {
-  try {
-    Toast.show({
-      type: "info",
-      text1: "Downloading",
-      text2: "Saving document...",
-    });
+  const handleDownload = async (doc: any) => {
+    try {
+      Toast.show({
+        type: "info",
+        text1: "Downloading",
+        text2: "Saving document...",
+      });
 
-    // Use fileUrl if available, otherwise try fileKey or documentName
-    const fileIdentifier = doc.fileUrl || doc.fileKey || doc.documentName;
-    
-    if (!fileIdentifier) {
-      throw new Error("No file identifier found in document");
-    }
+      // Use fileUrl if available, otherwise try fileKey or documentName
+      const fileIdentifier = doc.fileUrl || doc.fileKey || doc.documentName;
 
-    const response = await getPdfUrl(fileIdentifier);
-    const fileUrl = (response as any)?.data?.downloadUrl || (response as any)?.downloadUrl;
+      if (!fileIdentifier) {
+        throw new Error("No file identifier found in document");
+      }
 
-    if (!fileUrl) {
-      throw new Error("No download URL received from server");
-    }
+      const response = await getPdfUrl(fileIdentifier);
+      const fileUrl =
+        (response as any)?.data?.downloadUrl || (response as any)?.downloadUrl;
 
-    const fileName = `${doc.documentName || "document"}_${Date.now()}.pdf`;
+      if (!fileUrl) {
+        throw new Error("No download URL received from server");
+      }
 
-    if (Platform.OS === "web") {
-      // On web, download via fetch and blob
-      const fetchResponse = await fetch(fileUrl);
-      const blob = await fetchResponse.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } else {
-      // On native, download to app directory first, then share
-      const filePath = FileSystem.documentDirectory + fileName;
-      const downloadResult = await FileSystem.downloadAsync(fileUrl, filePath);
-      
-      console.log('File downloaded to:', downloadResult.uri);
-      
-      // Check if sharing is available
-      const canShare = await Sharing.isAvailableAsync();
-      
-      if (canShare) {
-        // Open share dialog - user can save to downloads, share, etc.
-        await Sharing.shareAsync(downloadResult.uri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Save PDF Document',
-        });
+      const fileName = `${doc.documentName || "document"}_${Date.now()}.pdf`;
+
+      if (Platform.OS === "web") {
+        // On web, download via fetch and blob
+        const fetchResponse = await fetch(fileUrl);
+        const blob = await fetchResponse.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
       } else {
-        // Fallback: try to open with system apps
-        const canOpen = await Linking.canOpenURL(downloadResult.uri);
-        if (canOpen) {
-          await Linking.openURL(downloadResult.uri);
+        // On native, download to app directory first, then share
+        const filePath = FileSystem.documentDirectory + fileName;
+        const downloadResult = await FileSystem.downloadAsync(
+          fileUrl,
+          filePath
+        );
+
+        console.log("File downloaded to:", downloadResult.uri);
+
+        // Check if sharing is available
+        const canShare = await Sharing.isAvailableAsync();
+
+        if (canShare) {
+          // Open share dialog - user can save to downloads, share, etc.
+          await Sharing.shareAsync(downloadResult.uri, {
+            mimeType: "application/pdf",
+            dialogTitle: "Save PDF Document",
+          });
         } else {
-          throw new Error('Cannot save or open the document on this device');
+          // Fallback: try to open with system apps
+          const canOpen = await Linking.canOpenURL(downloadResult.uri);
+          if (canOpen) {
+            await Linking.openURL(downloadResult.uri);
+          } else {
+            throw new Error("Cannot save or open the document on this device");
+          }
         }
       }
-    }
 
-    Toast.show({
-      type: "success",
-      text1: "Downloaded",
-      text2: "Use share menu to save to downloads",
-    });
-
-  } catch (error) {
-    console.error('Download error:', error);
-    Toast.show({
-      type: "error",
-      text1: "Download Error",
-      text2: (error as any).message || "Download failed",
-    });
-  }
-};
-
-
-
-const handleView = async (doc: any) => {
-  try {
-    Toast.show({
-      type: "info",
-      text1: "Loading",
-      text2: "Opening document...",
-    });
-
-    // Use fileUrl if available, otherwise try fileKey or documentName
-    const fileIdentifier = doc.fileUrl || doc.fileKey || doc.documentName;
-    
-    if (!fileIdentifier) {
-      throw new Error("No file identifier found in document");
-    }
-
-    const response = await getPdfUrl(fileIdentifier);
-    const fileUrl = (response as any)?.data?.downloadUrl || (response as any)?.downloadUrl;
-
-    if (!fileUrl) {
-      throw new Error("No URL received from server");
-    }
-
-    console.log("PDF URL received:", fileUrl);
-
-    if (Platform.OS === "web") {
-      // On web, open in new tab
-      window.open(fileUrl, '_blank');
       Toast.show({
         type: "success",
-        text1: "Document Opened",
-        text2: "PDF opened in new tab",
+        text1: "Downloaded",
+        text2: "Use share menu to save to downloads",
       });
-    } else {
-      // On native, use WebView modal for in-app viewing
-      setPdfUrl(fileUrl);
-      setPdfModalVisible(true);
-      
+    } catch (error) {
+      console.error("Download error:", error);
       Toast.show({
-        type: "success",
-        text1: "Document Loaded",
-        text2: "Displaying in PDF viewer",
+        type: "error",
+        text1: "Download Error",
+        text2: (error as any).message || "Download failed",
       });
     }
-    
-  } catch (error) {
-    console.error("View Error:", error);
-    Toast.show({
-      type: "error",
-      text1: "View Error",
-      text2: (error as any).message || "An error occurred while loading the document.",
-    });
-  }
-};
+  };
+
+  const handleView = async (doc: any) => {
+    try {
+      Toast.show({
+        type: "info",
+        text1: "Loading",
+        text2: "Opening document...",
+      });
+
+      // Use fileUrl if available, otherwise try fileKey or documentName
+      const fileIdentifier = doc.fileUrl || doc.fileKey || doc.documentName;
+
+      if (!fileIdentifier) {
+        throw new Error("No file identifier found in document");
+      }
+
+      const response = await getPdfUrl(fileIdentifier);
+      const fileUrl =
+        (response as any)?.data?.downloadUrl || (response as any)?.downloadUrl;
+
+      if (!fileUrl) {
+        throw new Error("No URL received from server");
+      }
+
+      console.log("PDF URL received:", fileUrl);
+
+      if (Platform.OS === "web") {
+        // On web, open in new tab
+        window.open(fileUrl, "_blank");
+        Toast.show({
+          type: "success",
+          text1: "Document Opened",
+          text2: "PDF opened in new tab",
+        });
+      } else {
+        // On native, use WebView modal for in-app viewing
+        setPdfUrl(fileUrl);
+        setPdfModalVisible(true);
+
+        Toast.show({
+          type: "success",
+          text1: "Document Loaded",
+          text2: "Displaying in PDF viewer",
+        });
+      }
+    } catch (error) {
+      console.error("View Error:", error);
+      Toast.show({
+        type: "error",
+        text1: "View Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while loading the document.",
+      });
+    }
+  };
 
   const handleEdit = (section: string) => () => {
-    if(section === "Details") {
+    if (section === "Details") {
       router.push("/add-delivery");
-    } else if(section === "Documents") {
+    } else if (section === "Documents") {
       router.push("/document-screen");
-    } else if(section === "More Details") {
+    } else if (section === "More Details") {
       router.push("/amount");
-    } else if(section === "Payment Details") {
+    } else if (section === "Payment Details") {
       router.push("/payment-mode");
     }
-  }
+  };
   const handleSubmit = async () => {
     console.log("Submitting delivery:", currentDelivery);
     console.log("deliveryId:", deliveryId);
@@ -396,7 +403,7 @@ const handleView = async (doc: any) => {
           "An error occurred while submitting the delivery.",
       });
       console.error("Error creating delivery:", error);
-      
+
       return;
     }
   };
@@ -483,7 +490,12 @@ const handleView = async (doc: any) => {
 
           {/* Documents Section */}
           <View style={styles.section}>
-            <View style={[styles.sectionHeader,{marginBottom:responsiveWidth(8)}]}>
+            <View
+              style={[
+                styles.sectionHeader,
+                { marginBottom: responsiveWidth(8) },
+              ]}
+            >
               <Text style={[styles.sectionTitle]}>Documents</Text>
               <TouchableOpacity onPress={handleEdit("Documents")}>
                 <Image
@@ -520,16 +532,16 @@ const handleView = async (doc: any) => {
                 </View>
                 <View style={styles.documentRightButtons}>
                   {doc.uploaded && (
-                  <TouchableOpacity
-                    //   style={styles.uploadButton}
-                    onPress={() => handleView(doc)}
-                  >
-                    <Image
-                      source={require("@/assets/icons/viewicon.png")}
-                      style={{ width: 20, height: 20 }}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      //   style={styles.uploadButton}
+                      onPress={() => handleView(doc)}
+                    >
+                      <Image
+                        source={require("@/assets/icons/viewicon.png")}
+                        style={{ width: 20, height: 20 }}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
                   )}
                   <TouchableOpacity
                     //   style={styles.uploadButton}
@@ -601,8 +613,6 @@ const handleView = async (doc: any) => {
         </View>
       </KeyboardAvoidingView>
 
-
-
       {/* PDF Viewer Modal */}
       <Modal
         animationType="slide"
@@ -610,36 +620,58 @@ const handleView = async (doc: any) => {
         visible={pdfModalVisible}
         onRequestClose={() => setPdfModalVisible(false)}
       >
-        <SafeAreaView style={[allStyles.safeArea, { backgroundColor: "#f5f5f5" }]}>
-          <View style={{ 
-            flexDirection: "row", 
-            justifyContent: "space-between", 
-            alignItems: "center", 
-            paddingHorizontal: responsiveWidth(4), 
-            paddingVertical: responsiveWidth(3), 
-            backgroundColor: "#fff",
-            borderBottomWidth: 1,
-            borderBottomColor: "#e0e0e0",
-          }}>
-            <Text style={{ fontSize: 18, color: "#333",fontFamily:FONTS.YellixMedium }}>PDF Viewer</Text>
-            <TouchableOpacity 
+        <SafeAreaView
+          style={[allStyles.safeArea, { backgroundColor: "#f5f5f5" }]}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingHorizontal: responsiveWidth(4),
+              paddingVertical: responsiveWidth(3),
+              backgroundColor: "#fff",
+              borderBottomWidth: 1,
+              borderBottomColor: "#e0e0e0",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                color: "#333",
+                fontFamily: FONTS.YellixMedium,
+              }}
+            >
+              PDF Viewer
+            </Text>
+            <TouchableOpacity
               onPress={() => setPdfModalVisible(false)}
               style={{
                 paddingHorizontal: 12,
                 paddingVertical: 6,
                 backgroundColor: "#ff4444",
-                borderRadius: 6
+                borderRadius: 6,
               }}
             >
-              <Text style={{ fontSize: 14, color: "#fff", fontFamily: FONTS.YellixThin }}>Close</Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: "#fff",
+                  fontFamily: FONTS.YellixThin,
+                }}
+              >
+                Close
+              </Text>
             </TouchableOpacity>
           </View>
           <WebView
-            source={{ 
-              uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfUrl)}` 
+            source={{
+              uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
+                pdfUrl
+              )}`,
             }}
-            style={{ 
-              flex: 1, 
+            style={{
+              flex: 1,
               backgroundColor: "#fff",
               marginTop: responsiveWidth(4),
               // marginHorizontal: responsiveWidth(2)
@@ -664,7 +696,7 @@ const handleView = async (doc: any) => {
               console.log("PDF loading completed");
             }}
             startInLoadingState={true}
-            scalesPageToFit={Platform.OS === 'android'}
+            scalesPageToFit={Platform.OS === "android"}
             javaScriptEnabled={true}
             domStorageEnabled={true}
             allowsBackForwardNavigationGestures={false}

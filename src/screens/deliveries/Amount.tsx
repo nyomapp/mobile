@@ -32,6 +32,7 @@ export default function AmountScreen() {
     { id: "rto", label: "RTO", value: "" },
     { id: "accessories", label: "Accessories", value: "" },
     { id: "helmet", label: "Helmet", value: "" },
+    { id: "loyalty", label: "Loyalty Card", value: "" },
     { id: "rsa", label: "RSA", value: "" },
     { id: "discount", label: "Discount", value: "" },
     { id: "other1", label: "Other 1", value: "" },
@@ -88,6 +89,11 @@ export default function AmountScreen() {
               return {
                 ...item,
                 value: currentDelivery.rsaAmount?.toString() || "",
+              };
+              case "loyalty":
+              return {
+                ...item,
+                value: currentDelivery.loyalty?.toString() || "",
               };
             case "discount":
               return {
@@ -171,6 +177,9 @@ export default function AmountScreen() {
           break;
         case "helmet":
           amountData.helmetAmount = value;
+          break;
+          case "loyalty":
+          amountData.loyalty = value;
           break;
         case "discount":
           amountData.discount = value;
