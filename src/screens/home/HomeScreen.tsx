@@ -20,7 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect } from "react";
-import PieChart from 'react-native-pie-chart';
+// import PieChart from 'react-native-pie-chart';
 import Toast from "react-native-toast-message";
 import { styles } from "../../styles/homeStyles";
 
@@ -55,9 +55,12 @@ export default function HomeScreen() {
 
   const fetchDashBoardData = async () => {
     try {
+      console.log("Fetching dashboard data...");
       const response = await getDashBoardData();
+      console.log("Dashboard data fetched successfully:", response);
       setDashBoardData(response as any);
     } catch (error) {
+      console.error("Dashboard fetch error:", error);
       Toast.show({
         type: "error",
         text1: "Dashboard Error",
@@ -73,9 +76,9 @@ export default function HomeScreen() {
   }, [dashBoardData]);
 
   // Chart data calculation
-  const totalValue = (dashBoardData as any)?.pieChart?.total || 0.1;
-  const activeValue = (dashBoardData as any)?.pieChart?.delivered || 0.1;
-  const pendingValue = (dashBoardData as any)?.pieChart?.pending || 0.1;
+  const totalValue = (dashBoardData as any)?.pieChart?.total || 0;
+  const activeValue = (dashBoardData as any)?.pieChart?.delivered || 0;
+  const pendingValue = (dashBoardData as any)?.pieChart?.pending || 0;
 
   const chartData = [
     {
@@ -131,13 +134,11 @@ export default function HomeScreen() {
             { height: "auto", justifyContent: "center", alignItems: "center" },
           ]}
         >
-          <PieChart
+          {/* <PieChart
             widthAndHeight={150}
             series={series}
-            // sliceColor={sliceColors}
             cover={0.6}
-            // coverFill={'#FFFFFF'}
-          />
+          /> */}
 
           {/* <View style={styles.centerContent}>
             <Text style={styles.centerText}>{totalValue}</Text>
@@ -189,7 +190,7 @@ export default function HomeScreen() {
                   style={[styles.legendDot, { backgroundColor: item.color }]}
                 />
                 <Text style={styles.legendText}>{item.name}</Text>
-                {/* <Text style={styles.legendValue}>{item.value}</Text> */}
+                <Text style={styles.legendValue}>{item.value}</Text>
               </View>
             ))}
           </View>

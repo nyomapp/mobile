@@ -173,8 +173,8 @@ export default function PreviewScreen() {
       }`,
     },
     {
-      label: "loyalty",
-      value: `₹${currentDelivery?.loyalty?.toLocaleString("en-IN") || "0"}`,
+      label: "Loyality Card",
+      value: `₹${currentDelivery?.loyalityCardAmount?.toLocaleString("en-IN") || "0"}`,
     },
     {
       label: "RSA",

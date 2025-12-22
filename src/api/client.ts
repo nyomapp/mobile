@@ -41,15 +41,18 @@ class APIClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+      console.log(`[API] Fetching: ${url}`);
       const response = await fetch(url, {
         ...config,
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
+      console.log(`[API] Response status: ${response.status}`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error(`[API] Error response:`, errorData);
         throw new APIError({
           message: errorData.message || `HTTP ${response.status}: ${response.statusText}`,
           status: response.status,
@@ -57,12 +60,13 @@ class APIClient {
       }
 
       const data = await response.json();
+      console.log(`[API] Success response received`);
       return {
         success: true,
         data,
       };
     } catch (error) {
-      console.error('API Request Error:', error);
+      console.error('[API] Request Error:', error);
 
       if (error instanceof APIError) {
         return {

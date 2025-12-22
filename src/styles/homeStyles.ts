@@ -53,12 +53,16 @@ export const styles = StyleSheet.create({
   },
   legendContainer: {
     flexDirection: "row",
+    justifyContent:"center",
+    flexWrap: "wrap",
     marginBottom: responsiveWidth(3),
     gap: responsiveWidth(6),
+
   },
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
+    flexWrap: "wrap",
   },
   legendDot: {
     width: 12,

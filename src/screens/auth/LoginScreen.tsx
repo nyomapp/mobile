@@ -100,28 +100,37 @@ export default function LoginScreen() {
     setIsLoading(true);
  
     try {
+      console.log("Attempting login with email:", email);
       const response = await login({
         email: email,
         password: password,
       });
+      
+      console.log("Login response received:", response);
  
       if (response.success) {
-        router.push("/(tabs)/home");
+        console.log("Login successful, navigating to home");
+        // Use replace instead of push and add a small delay
+        setTimeout(() => {
+          router.replace('/(tabs)/home');
+        }, 500);
       } else {
+        console.log("Login failed:", response.error || response.message);
+        setIsLoading(false);
         Toast.show({
           type: "error",
-          text1: "Error",
-          text2: "Invalid password. Please try again.",
+          text1: "Login Failed",
+          text2: response.error || response.message || "Invalid credentials. Please try again.",
         });
       }
     } catch (error) {
+      console.error("Login exception:", error);
+      setIsLoading(false);
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "An unexpected error occurred",
+        text2: error instanceof Error ? error.message : "An unexpected error occurred",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 

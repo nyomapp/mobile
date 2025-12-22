@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { AuthAPI, TokenStorage, initializeAPI } from "../api";
-import { LoginRequest, User} from "../api/types";
+import { LoginRequest, User } from "../api/types";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -60,24 +60,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (data: LoginRequest) => {
     try {
+      console.log("Attempting login with data:", data.email);
       const response = await AuthAPI.LoginIn(data);
-      console.log("Login response:", response);
+      console.log("Login API response:", response);
 
       if (response.success && response.data) {
         const responseData = response.data;
-        console.log("Response data:", responseData);
+        console.log("Response data keys:", Object.keys(responseData));
 
         // Handle token
-        const token = responseData.tokens.access.token;
+        const token = responseData.tokens?.access?.token;
         if (token) {
-          console.log("Setting token:", token);
+          console.log("Setting token from response");
           await TokenStorage.setToken(token);
+        } else {
+          console.warn("No token found in response data");
+          return {
+            success: false,
+            error: "No authentication token received",
+          };
         }
 
         // Handle user
         const user = responseData.user;
         if (user) {
-          console.log("Setting user:", user);
+          console.log("Setting user:", user.id);
           await TokenStorage.setUser(user);
           setUser(user);
         }
@@ -92,9 +99,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
     } catch (error) {
       console.error("Login Error:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
       return {
         success: false,
-        error: "An unexpected error occurred",
+        error: errorMessage,
       };
     }
   };

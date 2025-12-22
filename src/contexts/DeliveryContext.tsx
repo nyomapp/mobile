@@ -56,7 +56,7 @@ export interface Delivery {
   others4?: number;
   others5?: number;
   discount?: number;
-  loyalty?: number;
+  loyalityCardAmount?: number;
   totalAmount?: number;
   downloadDocuments?: DownloadDocument[];
   purchaseType?: string;
@@ -118,7 +118,7 @@ const initialDelivery: Partial<Delivery> = {
   others3: undefined,
   others4: undefined,
   others5: undefined,
-  loyalty: undefined,
+  loyalityCardAmount: undefined,
   discount: undefined,
   totalAmount: undefined,
   downloadDocuments: [],
@@ -209,11 +209,11 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
       others4 = 0,
       others5 = 0,
       discount = 0,
-      loyalty = 0,
+      loyalityCardAmount = 0,
     } = currentDelivery;
 
     const total = exShowAmount + insuranceAmount + rtoAmount + accessoriesAmount +
-      rsaAmount + others1 + others2 + others3 + others4 + others5 + loyalty - discount;
+      rsaAmount + others1 + others2 + others3 + others4 + others5 + loyalityCardAmount - discount;
     return Math.max(0, total);
   };
 

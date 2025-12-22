@@ -1,9 +1,9 @@
 import { updateDeliveryById } from "@/src/api/UploadDocument";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
-import { useDocumentArray } from '@/src/contexts/DocumentArray1';
+import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
-import { useDocumentUploadContext } from '@/src/contexts/DocumentUploadContext';
+import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
 import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
 import { useEffect, useMemo, useRef } from "react";
@@ -22,17 +22,25 @@ import Toast from "react-native-toast-message";
 import { styles } from "../../styles/deliveries/documentsStyles";
 import { allStyles } from "../../styles/global";
 export default function DocumentsScreen() {
-  const { currentDelivery, setCurrentDelivery, isEdit,deliveryId, } = useDeliveryContext();
-  
+  const { currentDelivery, setCurrentDelivery, isEdit, deliveryId } =
+    useDeliveryContext();
+
   const { setUploadingDocument, setIsTemp } = useDocumentUploadContext();
   const { documentTypes, updateBulkDocuments } = useDocumentArray();
-  const {setIsOtherDocumentsUpload } = useDocumentArray2();
+  const { setIsOtherDocumentsUpload } = useDocumentArray2();
   const syncInProgress = useRef(false);
-  
+
   // On mount, if in edit mode and documents exist, populate the context
   useEffect(() => {
-    if (isEdit && currentDelivery?.downloadDocuments && currentDelivery.downloadDocuments.length > 0) {
-      console.log("Edit mode detected. Loading existing documents:", currentDelivery.downloadDocuments);
+    if (
+      isEdit &&
+      currentDelivery?.downloadDocuments &&
+      currentDelivery.downloadDocuments.length > 0
+    ) {
+      console.log(
+        "Edit mode detected. Loading existing documents:",
+        currentDelivery.downloadDocuments
+      );
       updateBulkDocuments(currentDelivery.downloadDocuments as any);
     }
   }, [isEdit, currentDelivery?.downloadDocuments]);
@@ -40,12 +48,12 @@ export default function DocumentsScreen() {
   // Memoize the document data to avoid unnecessary updates
   const currentDocumentData = useMemo(() => {
     return documentTypes
-      .filter(doc => doc.uploaded && doc.fileUrl)
-      .map(doc => ({
+      .filter((doc) => doc.uploaded && doc.fileUrl)
+      .map((doc) => ({
         documentName: doc.documentName,
         fileUrl: doc.fileUrl,
         fileSize: doc.fileSize,
-        fileType: doc.fileType
+        fileType: doc.fileType,
       }));
   }, [documentTypes]);
 
@@ -57,29 +65,48 @@ export default function DocumentsScreen() {
 
     // Check if the document data has actually changed
     const existingDocs = currentDelivery.downloadDocuments || [];
-    const hasChanges = currentDocumentData.length !== existingDocs.length ||
-      currentDocumentData.some(newDoc => {
-        const existingDoc = existingDocs.find(existing => existing.documentName === newDoc.documentName);
+    const hasChanges =
+      currentDocumentData.length !== existingDocs.length ||
+      currentDocumentData.some((newDoc) => {
+        const existingDoc = existingDocs.find(
+          (existing) => existing.documentName === newDoc.documentName
+        );
         return !existingDoc || existingDoc.fileUrl !== newDoc.fileUrl;
       });
 
     if (hasChanges) {
       syncInProgress.current = true;
-      
-      const updatedDownloadDocuments = currentDocumentData.map(doc => ({
-        documentName: doc.documentName as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "ODOMETER" | "CHASSIS" | "AADHAAR FRONT" | "AADHAAR BACK" | "Customer" | "TAX INVOICE" | "INSURANCE" | "HELMET INVOICE" | "FORM 20 1ST PAGE",
+
+      const updatedDownloadDocuments = currentDocumentData.map((doc) => ({
+        documentName: doc.documentName as
+          | "FRONT"
+          | "LEFT"
+          | "RIGHT"
+          | "BACK"
+          | "ODOMETER"
+          | "CHASSIS"
+          | "AADHAAR FRONT"
+          | "AADHAAR BACK"
+          | "Customer"
+          | "TAX INVOICE"
+          | "INSURANCE"
+          | "HELMET INVOICE"
+          | "FORM 20 1ST PAGE",
         fileUrl: doc.fileUrl,
         fileSize: doc.fileSize,
-        fileType: doc.fileType as 'PDF' | 'JPG'
+        fileType: doc.fileType as "PDF" | "JPG",
       }));
 
       setCurrentDelivery({
         ...currentDelivery,
-        downloadDocuments: updatedDownloadDocuments
+        downloadDocuments: updatedDownloadDocuments,
       });
 
-      console.log("Synced DocumentArray1 changes to DeliveryContext:", updatedDownloadDocuments);
-      
+      console.log(
+        "Synced DocumentArray1 changes to DeliveryContext:",
+        updatedDownloadDocuments
+      );
+
       // Reset the flag after a short delay
       setTimeout(() => {
         syncInProgress.current = false;
@@ -91,74 +118,86 @@ export default function DocumentsScreen() {
     router.push("/add-delivery");
   };
 
-  const handleNext = async() => {
+  const handleNext = async () => {
     // Check if all required documents are uploaded
-    const requiredDocuments = documentTypes.filter(
-      doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
-    );
+    // const requiredDocuments = documentTypes.filter(
+    //   doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
+    // );
 
-    const missingDocuments = requiredDocuments.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === "");
+    // const missingDocuments = requiredDocuments.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === "");
 
-    if (missingDocuments.length > 0) {
-      const missingNames = missingDocuments.map(doc => doc.title).join(", ");
-      Toast.show({
-        type: "error",
-        text1: "Missing Documents",
-        text2: `Please upload: ${missingNames}`,
-      });
-      return;
-    }
+    // if (missingDocuments.length > 0) {
+    //   const missingNames = missingDocuments.map(doc => doc.title).join(", ");
+    //   Toast.show({
+    //     type: "error",
+    //     text1: "Missing Documents",
+    //     text2: `Please upload: ${missingNames}`,
+    //   });
+    //   return;
+    // }
 
     // Transform documentTypes array to match DownloadDocument interface
-    const downloadDocuments = documentTypes.map(doc => ({
-      documentName: doc.documentName as "FRONT" | "LEFT" | "RIGHT" | "BACK" | "ODOMETER" | "CHASSIS" | "AADHAAR FRONT" | "AADHAAR BACK" | "Customer" | "TAX INVOICE" | "INSURANCE" | "HELMET INVOICE" | "FORM 20 1ST PAGE",
+    const downloadDocuments = documentTypes.map((doc) => ({
+      documentName: doc.documentName as
+        | "FRONT"
+        | "LEFT"
+        | "RIGHT"
+        | "BACK"
+        | "ODOMETER"
+        | "CHASSIS"
+        | "AADHAAR FRONT"
+        | "AADHAAR BACK"
+        | "Customer"
+        | "TAX INVOICE"
+        | "INSURANCE"
+        | "HELMET INVOICE"
+        | "FORM 20 1ST PAGE",
       fileUrl: doc.fileUrl,
       fileSize: doc.fileSize,
-      fileType: doc.fileType as 'PDF' | 'JPG'
+      fileType: doc.fileType as "PDF" | "JPG",
     }));
 
     // Store documents in DeliveryContext - ensure we don't lose existing data
     if (currentDelivery) {
       setCurrentDelivery({
         ...currentDelivery,
-        downloadDocuments: downloadDocuments
+        downloadDocuments: downloadDocuments,
       });
     }
 
     console.log("Documents stored in context:", downloadDocuments);
-    
+
     Toast.show({
       type: "success",
       text1: "Success",
       text2: "All documents uploaded successfully",
     });
-    
-     if(isEdit){
+
+    if (isEdit) {
       try {
-          await updateDeliveryById(deliveryId, downloadDocuments);
-          Toast.show({
-            type: "success",
-            text1: "Update Successful",
-            text2: "Delivery documents have been updated successfully.",
-          });
-        } catch (error) {
-          Toast.show({
-            type: "error",
-            text1: "Update Failed",
-            text2:
-              (error as any).message ||
-              "An error occurred while updating delivery documents.",
-          });
-          return;
-        }
-     }
-     
-    
+        await updateDeliveryById(deliveryId, downloadDocuments);
+        Toast.show({
+          type: "success",
+          text1: "Update Successful",
+          text2: "Delivery documents have been updated successfully.",
+        });
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Update Failed",
+          text2:
+            (error as any).message ||
+            "An error occurred while updating delivery documents.",
+        });
+        return;
+      }
+    }
+
     router.push("/amount");
   };
 
   const handleDocumentUpload = (document: any) => {
-    setUploadingDocument(document)
+    setUploadingDocument(document);
     setIsTemp(false);
     setIsOtherDocumentsUpload(false);
     router.push("/document-scanner");
@@ -176,16 +215,26 @@ export default function DocumentsScreen() {
         </View>
         <View style={allStyles.pageHeader}>
           <View>
-            <Text style={[allStyles.pageTitle, { lineHeight:responsiveWidth(10) }]}>
+            <Text
+              style={[allStyles.pageTitle, { lineHeight: responsiveWidth(10) }]}
+            >
               <Text style={[allStyles.yellix_medium]}>Add</Text>
               {"\n"}
-              <Text style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}>Delivery</Text>
+              <Text
+                style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}
+              >
+                Delivery
+              </Text>
             </Text>
           </View>
         </View>
 
         <ScrollView
-          style={[allStyles.scrollContent, { paddingTop: responsiveWidth(4) }, { paddingHorizontal: responsiveWidth(1) }]}
+          style={[
+            allStyles.scrollContent,
+            { paddingTop: responsiveWidth(4) },
+            { paddingHorizontal: responsiveWidth(1) },
+          ]}
           showsVerticalScrollIndicator={false}
         >
           {/* Documents Title */}
@@ -213,9 +262,7 @@ export default function DocumentsScreen() {
                 </View>
                 <Text style={styles.documentTitle}>{doc.title}</Text>
               </View>
-              <TouchableOpacity
-                onPress={() => handleDocumentUpload(doc)}
-              >
+              <TouchableOpacity onPress={() => handleDocumentUpload(doc)}>
                 <Image
                   source={
                     doc.uploaded
@@ -231,11 +278,7 @@ export default function DocumentsScreen() {
         </ScrollView>
 
         {/* Bottom Buttons */}
-        <View
-          style={[
-            allStyles.bottomContainer,
-          ]}
-        >
+        <View style={[allStyles.bottomContainer]}>
           <TouchableOpacity style={allStyles.btn} onPress={handleNext}>
             <Text style={allStyles.btnText}>Next</Text>
           </TouchableOpacity>
