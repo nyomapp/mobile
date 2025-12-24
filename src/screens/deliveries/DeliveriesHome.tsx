@@ -1,3 +1,5 @@
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import {
   FlatList,
   Image,
@@ -15,7 +17,11 @@ import Toast from "react-native-toast-message";
 import { getModalsData } from "@/src/api/addDelivery";
 import {
   deleteDeliveryById,
-  getDeliveriesData,
+  downloadCombineAadhaar,
+  downloadCombineForm20,
+  downloadCombineZip,
+  generatePdfUrl,
+  getDeliveriesData
 } from "@/src/api/deliveriesHome";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
@@ -67,17 +73,15 @@ export default function DeliveriesHome() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
+  const [showDocsModal, setShowDocsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
   // Add current filters state to track applied filters
   const [currentFilters, setCurrentFilters] = useState<{
     frameNumber?: string;
     mobileNumber?: string;
     modelRef?: string;
-  }>(
-    {}
-  );
+  }>({});
 
   useEffect(() => {
     setIsLoading(true);
@@ -153,7 +157,12 @@ export default function DeliveriesHome() {
         setIsLoadingMore(true);
       }
 
-      const response = (await getDeliveriesData(status, page, 10, filters)) as any;
+      const response = (await getDeliveriesData(
+        status,
+        page,
+        10,
+        filters
+      )) as any;
       console.log("API Response with filters:", response);
 
       if (isLoadMore && page > 1) {
@@ -191,7 +200,10 @@ export default function DeliveriesHome() {
   const loadMoreDeliveries = () => {
     if (!isLoadingMore && deliveriesData.page < deliveriesData.totalPages) {
       const nextPage = deliveriesData.page + 1;
-      console.log(`Loading more deliveries - Page ${nextPage} with filters:`, currentFilters);
+      console.log(
+        `Loading more deliveries - Page ${nextPage} with filters:`,
+        currentFilters
+      );
       getDeleverirsData(activeTab, nextPage, true, currentFilters);
     }
   };
@@ -252,10 +264,10 @@ export default function DeliveriesHome() {
 
     // Store current filters
     setCurrentFilters(filters);
-    
+
     // Close modal
     setShowFilterModal(false);
-    
+
     // Reset data and fetch with filters
     resetData();
     setIsLoading(true);
@@ -273,10 +285,10 @@ export default function DeliveriesHome() {
     setMobileNumber("");
     setSelectedModel("");
     setCurrentFilters({});
-    
+
     // Close modal
     setShowFilterModal(false);
-    
+
     // Reset data and fetch without filters
     resetData();
     setIsLoading(true);
@@ -317,9 +329,14 @@ export default function DeliveriesHome() {
     // Navigate to upload screen or show upload modal
   };
 
-  const handleMoreOptions = (customerId: string) => {
-    //console.log("More options for customer:", customerId);
-    // Show options menu
+  const handleMoreOptions = (item: any) => {
+    setSelectedDelivery(item);
+    setShowDocsModal(true);
+  };
+
+  const closeDocsModal = () => {
+    setShowDocsModal(false);
+    setSelectedDelivery(null);
   };
 
   const handleEdit = (data: any) => {
@@ -402,6 +419,116 @@ export default function DeliveriesHome() {
     );
   };
 
+  // Helper to save and share a blob
+  const saveAndShareBlob = async (blob: Blob, fileName: string, mimeType: string) => {
+    try {
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(",")[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      const base64 = await base64Promise;
+      const fileUri = FileSystem.cacheDirectory + fileName;
+      await FileSystem.writeAsStringAsync(fileUri, base64, { encoding: FileSystem.EncodingType.Base64 });
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, { mimeType });
+      } else {
+        Toast.show({ type: 'info', text1: 'File downloaded', text2: fileUri });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Download Error',
+        text2: error instanceof Error ? error.message : 'Failed to download file.'
+      });
+    }
+  };
+
+  const handleDownloadCombinedForm20 = async (document: any) => {
+    try {
+      const response = await downloadCombineForm20(document?.certificateRef?.chassisNumber);
+      if (response instanceof Blob) {
+        await saveAndShareBlob(response, 'Combined_Form20.pdf', 'application/pdf');
+      } else {
+        Toast.show({ type: 'error', text1: 'No file to download' });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: (error as any).message || 'An error occurred while downloading the combined Form 20.',
+      });
+    }
+  };
+
+  const handleDownloadAll = async (document: any) => {
+    try {
+      const response = await downloadCombineZip(document?.certificateRef?.chassisNumber);
+      if (response instanceof Blob) {
+        await saveAndShareBlob(response, 'All_Documents.zip', 'application/zip');
+      } else {
+        Toast.show({ type: 'error', text1: 'No file to download' });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: (error as any).message || 'An error occurred while downloading the combined ZIP.',
+      });
+    }
+  };
+
+  const handleDownloadCombinedAadhaar = async (document: any) => {
+    try {
+      console.log("Downloading combined Aadhaar for chassis number:", document?.certificateRef?.chassisNumber);
+      const response = await downloadCombineAadhaar(document?.certificateRef?.chassisNumber);
+      if (response instanceof Blob) {
+        await saveAndShareBlob(response, 'Combined_Aadhaar.pdf', 'application/pdf');
+      } else {
+        Toast.show({ type: 'error', text1: 'No file to download' });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: (error as any).message || 'An error occurred while downloading the combined Aadhaar.',
+      });
+    }
+  };
+  const handleDownloadDocument = async(document: any) => {
+    console.log("Downloading document:", document);
+    try {
+      const response = await generatePdfUrl(document?.fileUrl);
+      const downloadUrl = (response as any)?.downloadUrl;
+      if (!downloadUrl) {
+        Toast.show({ type: 'error', text1: 'No download URL found' });
+        return;
+      }
+      const fileName = (document?.documentName || 'Document') + '.pdf';
+      const fileUri = FileSystem.cacheDirectory + fileName;
+      const downloadRes = await FileSystem.downloadAsync(downloadUrl, fileUri);
+      if (downloadRes && downloadRes.status === 200) {
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(downloadRes.uri, { mimeType: 'application/pdf' });
+        } else {
+          Toast.show({ type: 'info', text1: 'File downloaded', text2: downloadRes.uri });
+        }
+      } else {
+        Toast.show({ type: 'error', text1: 'Download failed' });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: (error as any).message || 'An error occurred while downloading the document.',
+      });
+    }
+  };
+
   const renderCustomerCard = (item: any) => (
     <View style={allStyles.customerCard}>
       <View style={allStyles.cardHeader}>
@@ -421,15 +548,12 @@ export default function DeliveriesHome() {
             <>
               <TouchableOpacity
                 style={styles.moreButton}
-                onPress={() => handleMoreOptions(item.id)}
+                onPress={() => handleMoreOptions(item)}
               >
-                <Image
-                  source={require("@/assets/icons/pdfdownloadicon.png")}
-                  style={{
-                    width: 22,
-                    height: 22,
-                  }}
-                  resizeMode="contain"
+                <Ionicons
+                  name="ellipsis-horizontal"
+                  size={22}
+                  color={COLORS.primaryBlue || "#007AFF"}
                 />
               </TouchableOpacity>
             </>
@@ -485,7 +609,7 @@ export default function DeliveriesHome() {
           <Text style={allStyles.detailLabel}>Date</Text>
           <Text style={allStyles.detailValue}>
             {item.modelRef?.createdAt
-              ? new Date(item.modelRef.createdAt).toLocaleDateString("en-GB")
+              ? new Date(item.createdAt).toLocaleDateString("en-GB")
               : "N/A"}
           </Text>
         </View>
@@ -835,6 +959,132 @@ export default function DeliveriesHome() {
                   </TouchableOpacity>
                 </View>
               </View>
+            </View>
+          </View>
+        </Modal>
+        {/* Documents Modal */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showDocsModal}
+          onRequestClose={() => setShowDocsModal(false)}
+        >
+          <View style={allStyles.modalOverlay}>
+            <View style={allStyles.modalContent}>
+              <View style={allStyles.modalHeader}>
+                <Text style={allStyles.modalTitle}>Select Document</Text>
+                <TouchableOpacity
+                  style={allStyles.closeButton}
+                  onPress={() => setShowDocsModal(false)}
+                >
+                  <Ionicons name="close" size={24} color="#6C757D" />
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                style={allStyles.modalScrollView}
+                showsVerticalScrollIndicator={false}
+              >
+                <TouchableOpacity
+                  style={[allStyles.modalOption]}
+                  onPress={() => {
+                    handleDownloadAll(selectedDelivery);
+                    setShowDocsModal(false);
+                  }}
+                >
+                  <Text style={[allStyles.modalOptionText]}>All</Text>
+                </TouchableOpacity>
+
+                {/* Show Combined Aadhaar button only if both AADHAAR FRONT and AADHAAR BACK are present */}
+                {(() => {
+                  const docs = selectedDelivery?.downloadDocuments || [];
+                  const hasAadhaarFront = docs.some((d: any) => d.documentName === 'AADHAAR FRONT');
+                  const hasAadhaarBack = docs.some((d: any) => d.documentName === 'AADHAAR BACK');
+                  if (hasAadhaarFront || hasAadhaarBack) {
+                    return (
+                      <TouchableOpacity
+                        style={[allStyles.modalOption]}
+                        onPress={() => {
+                          handleDownloadCombinedAadhaar(selectedDelivery);
+                          setShowDocsModal(false);
+                        }}
+                      >
+                        <Text style={[allStyles.modalOptionText]}>Combined Aadhaar</Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Show Combined Form 20 button only if all three FORM 20 pages are present */}
+                {(() => {
+                  const docs = selectedDelivery?.downloadDocuments || [];
+                  const hasForm20_1 = docs.some((d: any) => d.documentName === 'FORM 20 1ST PAGE');
+                  const hasForm20_2 = docs.some((d: any) => d.documentName === 'FORM 20 2ND PAGE');
+                  const hasForm20_3 = docs.some((d: any) => d.documentName === 'FORM 20 3RD PAGE');
+                  if (hasForm20_1 || hasForm20_2 || hasForm20_3) {
+                    return (
+                      <TouchableOpacity
+                        style={[allStyles.modalOption]}
+                        onPress={() => {
+                          handleDownloadCombinedForm20(selectedDelivery);
+                          setShowDocsModal(false);
+                        }}
+                      >
+                        <Text style={[allStyles.modalOptionText]}>Combined Form 20</Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                  return null;
+                })()}
+                {selectedDelivery?.downloadDocuments?.map(
+                  (document: any, index: any) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={[allStyles.modalOption]}
+                      onPress={() => {
+                        handleDownloadDocument(document);
+                        setShowDocsModal(false);
+                      }}
+                    >
+                      <Text style={[allStyles.modalOptionText]}>
+                        {document.documentName === "FRONT"
+                          ? "Vehicle Front Image"
+                          : document.documentName === "LEFT"
+                          ? "Vehicle Side Image"
+                          : document.documentName === "CHASSIS"
+                          ? "Vehicle Frame Image"
+                          : document.documentName === "Customer"
+                          ? "Customer Image"
+                          : document.documentName === "AADHAAR FRONT"
+                          ? "Adhaar Front Image"
+                          : document.documentName === "AADHAAR BACK"
+                          ? "Aadhaar Back Image"
+                          : document.documentName === "PAN"
+                          ? "Pan Card Image"
+                          : document.documentName === "TAX INVOICE"
+                          ? "Tax Invoice Image"
+                          : document.documentName === "INSURANCE"
+                          ? "Insurance Image"
+                          : document.documentName === "HELMET INVOICE"
+                          ? "Helmet Invoice Image"
+                          : document.documentName === "FORM 20 1ST PAGE"
+                          ? "Form 20 1st Page Image"
+                          : document.documentName === "FORM 20 2ND PAGE"
+                          ? "Form 20 2nd Page Image"
+                          : document.documentName === "FORM 20 3RD PAGE"
+                          ? "Form 20 3rd Page Image"
+                          : document.documentName === "FORM 21"
+                          ? "Form 21 Image"
+                          : document.documentName === "FORM 22"
+                          ? "Form 22 Image"
+                          : document.documentName === "AFFIDAVIT"
+                          ? "Affidavit Image"
+                          : document.documentName}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                )}
+              </ScrollView>
             </View>
           </View>
         </Modal>

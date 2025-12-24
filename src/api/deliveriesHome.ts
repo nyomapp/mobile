@@ -70,3 +70,71 @@ export const updateDeliveryById = async (id: any, data: any) => {
     throw error;
   }
 };
+export const downloadCombineAadhaar  = async (frameNumber: any) => {
+try {
+    const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_AADHAAR.replace("{frameNumber}", frameNumber);
+    const fullUrl = apiClient.baseURL + url;
+    const res = await fetch(fullUrl, { method: 'GET' });
+    if (!res.ok) {
+      throw new Error('Failed to download Combined Aadhaar PDF');
+    }
+    const blob = await res.blob();
+    return blob;
+} catch (error) {
+  throw error;
+}
+};
+export const downloadCombineForm20  = async (frameNumber: any) => {
+try {
+    const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_FORM20.replace("{frameNumber}", frameNumber);
+    const fullUrl = apiClient.baseURL + url;
+    const res = await fetch(fullUrl, { method: 'GET' });
+    if (!res.ok) {
+      throw new Error('Failed to download Combined Form 20 PDF');
+    }
+    const blob = await res.blob();
+    return blob;
+} catch (error) {
+  throw error;
+}
+};
+export const downloadCombineZip  = async (frameNumber: any) => {
+try {
+      const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_ALL_ZIP.replace("{frameNumber}", frameNumber);
+    const fullUrl = apiClient.baseURL + url;
+    const res = await fetch(fullUrl, { method: 'GET' });
+    if (!res.ok) {
+      let errText: string | null = null;
+      try {
+        errText = await res.text();
+      } catch (e) {
+        // ignore
+      }
+      if (errText) {
+        try {
+          const parsed = JSON.parse(errText);
+          errText = parsed?.message || errText;
+        } catch (e) {
+          // not JSON, keep text
+        }
+      }
+      throw new Error(errText || `HTTP ${res.status}: ${res.statusText}`);
+    }
+    const blob = await res.blob();
+    return blob;
+} catch (error) {
+  throw error;
+}
+};
+export const generatePdfUrl  = async (url: any) => {
+try {
+    const response=await apiClient.get(API_ENDPOINTS.DELIVERIES_HOME.GENERATE_PDF_URL.replace("{url}", url));
+    // Check if the API client returned an error response
+    if (!response.success || response.error) {
+      throw new Error(response.error || "API request failed");
+    }
+    return response.data;
+} catch (error) {
+  throw error
+}
+};

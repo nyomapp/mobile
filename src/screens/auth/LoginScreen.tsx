@@ -23,8 +23,8 @@ import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/loginStyles";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("ram@gmail.com");
-  const [password, setPassword] = useState("Abcd@1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 

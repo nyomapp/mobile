@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
+    // flexWrap: "wrap",
   },
   legendDot: {
     width: 12,

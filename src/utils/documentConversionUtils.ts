@@ -230,6 +230,17 @@ export const convertImageToPdfAndCompress = async (
 ): Promise<ProcessedDocument | null> => {
   try {
     const maxSizeKB = getMaxFileSizeByDocumentType(documentType);
+    // Set min target size based on max
+    let minTargetKB = 0;
+    if (maxSizeKB === 390) {
+      minTargetKB = 300;
+    } else if (maxSizeKB === 195) {
+      minTargetKB = 100;
+    } else if (maxSizeKB === 130) {
+      minTargetKB = 80;
+    } else {
+      minTargetKB = Math.floor(maxSizeKB * 0.7);
+    }
 
     // Step 1: Check current image size
     const imageResponse = await fetch(imageUri);
@@ -259,60 +270,60 @@ export const convertImageToPdfAndCompress = async (
     
     console.log(`After EXIF stripping: ${finalSizeKB.toFixed(2)}KB`);
 
-    // Step 3: Compress image if needed
-    let compressed = finalSizeKB <= maxSizeKB; // FIX: Set to true if already within limit
-    
-    if (finalSizeKB > maxSizeKB) {
-      let quality = 0.9;
 
+    // Step 3: Compress image if needed
+    let compressed = false;
+    let currentImageUri = compressedImageUri;
+    const { width, height } = await getImageDimensions(currentImageUri);
+
+
+    // If image is already <= maxSizeKB, accept as is (no compression)
+    if (finalSizeKB <= maxSizeKB) {
+      compressed = true;
+      console.log(`Image is already below or equal to max (${maxSizeKB}KB): ${finalSizeKB.toFixed(2)}KB. Skipping compression.`);
+    } else {
+      // Only compress if image is above max
+      let quality = 0.9;
+      let bestFitUri = null;
+      let bestFitSize = null;
       // First, try to resize the image if it's very large
-      let currentImageUri = compressedImageUri;
-      const { width, height } = await getImageDimensions(currentImageUri);
-      
-      // If image is larger than 1920x1080, resize it first
       if (width > 1920 || height > 1080) {
         const resizeResult = await ImageManipulator.manipulateAsync(currentImageUri, [
           { resize: { width: Math.min(width, 1920), height: Math.min(height, 1080) } }
         ], {
-          compress: 0.9,
+          compress: quality,
           format: ImageManipulator.SaveFormat.JPEG,
         });
         currentImageUri = resizeResult.uri;
-        
         const resizedResponse = await fetch(currentImageUri);
         const resizedBlob = await resizedResponse.blob();
         finalSizeKB = resizedBlob.size / 1024;
-        
         console.log(`After resizing: ${finalSizeKB.toFixed(2)}KB`);
-        
-        // Check if resizing alone was enough
-        if (finalSizeKB <= maxSizeKB) {
-          compressedImageUri = currentImageUri;
-          compressed = true;
+        if (finalSizeKB <= maxSizeKB && finalSizeKB >= minTargetKB) {
+          bestFitUri = currentImageUri;
+          bestFitSize = finalSizeKB;
         }
       }
 
       // Now compress with quality adjustment if still needed
-      while (quality > 0.05 && finalSizeKB > maxSizeKB && !compressed) {
+      while (quality > 0.05) {
         const result = await ImageManipulator.manipulateAsync(currentImageUri, [], {
           compress: quality,
           format: ImageManipulator.SaveFormat.JPEG,
         });
-
         const response = await fetch(result.uri);
         const blob = await response.blob();
         finalSizeKB = blob.size / 1024;
-
-        console.log(
-          `Compressed at quality ${quality}: ${finalSizeKB.toFixed(2)}KB`
-        );
-
-        if (finalSizeKB <= maxSizeKB) {
-          compressedImageUri = result.uri;
-          compressed = true;
+        console.log(`Compressed at quality ${quality}: ${finalSizeKB.toFixed(2)}KB`);
+        if (finalSizeKB <= maxSizeKB && finalSizeKB >= minTargetKB) {
+          // Best fit so far
+          bestFitUri = result.uri;
+          bestFitSize = finalSizeKB;
+        }
+        // If we go below minTargetKB, stop
+        if (finalSizeKB < minTargetKB) {
           break;
         }
-
         // Reduce quality more aggressively for Aadhaar documents
         if (documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK" || documentType === "PAN") {
           quality -= 0.1;
@@ -321,52 +332,41 @@ export const convertImageToPdfAndCompress = async (
         }
       }
 
-      // If still not compressed enough, try additional resize
-      if (!compressed && finalSizeKB > maxSizeKB) {
-        const finalResult = await ImageManipulator.manipulateAsync(
-          currentImageUri,
-          [{ resize: { width: Math.floor(width * 0.8), height: Math.floor(height * 0.8) } }],
-          { compress: 0.05, format: ImageManipulator.SaveFormat.JPEG }
-        );
-
-        const finalResponse = await fetch(finalResult.uri);
-        const finalBlob = await finalResponse.blob();
-        finalSizeKB = finalBlob.size / 1024;
-
-        if (finalSizeKB <= maxSizeKB) {
-          compressedImageUri = finalResult.uri;
-          compressed = true;
-          console.log(`Final compression with resize: ${finalSizeKB.toFixed(2)}KB`);
-        }
+      // Use the best fit found
+      if (bestFitUri && bestFitSize) {
+        compressedImageUri = bestFitUri;
+        finalSizeKB = bestFitSize;
+        compressed = true;
+        console.log(`Best fit compression: ${finalSizeKB.toFixed(2)}KB`);
       }
     }
 
     // If compression still didn't work
     if (!compressed) {
-      console.log(
-        `Image is ${finalSizeKB.toFixed(
-          2
-        )}KB. Cannot compress to ${maxSizeKB}KB limit.`
-      );
-      
-      // For Aadhaar, allow slightly higher limit as fallback
-      if ((documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK" || documentType === "PAN") && finalSizeKB <= 250) {
-        console.log("Using relaxed limit for Aadhaar document");
-        compressed = true; // FIX: Set to true when using fallback
-        Toast.show({
-          type: "info",
-          text1: "Compression Notice",
-          text2: `Document compressed to ${finalSizeKB.toFixed(2)}KB (slightly above limit)`,
-        });
+      if (finalSizeKB < minTargetKB) {
+        // Accept images below min without error
+        console.log(`Image is ${finalSizeKB.toFixed(2)}KB, below minimum target (${minTargetKB}KB). Accepting without compression.`);
+        compressed = true;
       } else {
-        Toast.show({
-          type: "error",
-          text1: "Compression Failed",
-          text2: `Image is ${finalSizeKB.toFixed(
-            2
-          )}KB. Cannot compress to ${maxSizeKB}KB limit.`,
-        });
-        return null;
+        console.log(`Image is ${finalSizeKB.toFixed(2)}KB. Cannot compress to range ${minTargetKB}-${maxSizeKB}KB.`);
+        // For Aadhaar, allow slightly higher limit as fallback
+        if ((documentType === "AADHAAR FRONT" || documentType === "AADHAAR BACK" || documentType === "PAN") && finalSizeKB <= 250) {
+          console.log("Using relaxed limit for Aadhaar document");
+          compressed = true;
+          Toast.show({
+            type: "info",
+            text1: "Compression Notice",
+            text2: `Document compressed to ${finalSizeKB.toFixed(2)}KB (slightly above limit)`,
+            visibilityTime: 2000,
+          });
+        } else {
+          Toast.show({
+            type: "error",
+            text1: "Compression Failed",
+            text2: `Image is ${finalSizeKB.toFixed(2)}KB. Cannot compress to range ${minTargetKB}-${maxSizeKB}KB.`,
+          });
+          return null;
+        }
       }
     }
 
@@ -456,6 +456,8 @@ export const convertImageToPdfAndCompress = async (
           console.log(`Generated PDF (native) size: ${finalSizeKB.toFixed(2)}KB`);
         }
       }
+      // Always log the final PDF size
+      console.log(`Final compressed PDF size: ${finalSizeKB.toFixed(2)}KB`);
     } catch (pdfError) {
       console.error("Could not convert to PDF.", pdfError);
       console.error("PDF Error message:", (pdfError as Error).message);
@@ -489,6 +491,7 @@ export const convertImageToPdfAndCompress = async (
       type: "success",
       text1: "Document Ready",
       text2: `${documentType} - ${finalSizeKB.toFixed(2)}KB`,
+               visibilityTime: 2000,
     });
 
     return processedDocument;

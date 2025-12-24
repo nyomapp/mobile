@@ -174,7 +174,9 @@ export default function PreviewScreen() {
     },
     {
       label: "Loyality Card",
-      value: `₹${currentDelivery?.loyalityCardAmount?.toLocaleString("en-IN") || "0"}`,
+      value: `₹${
+        currentDelivery?.loyalityCardAmount?.toLocaleString("en-IN") || "0"
+      }`,
     },
     {
       label: "RSA",
@@ -531,7 +533,7 @@ export default function PreviewScreen() {
                   <Text style={styles.documentPreviewTitle}>{doc.title}</Text>
                 </View>
                 <View style={styles.documentRightButtons}>
-                  {doc.uploaded && (
+                  {doc.fileUrl && (
                     <TouchableOpacity
                       //   style={styles.uploadButton}
                       onPress={() => handleView(doc)}
@@ -543,20 +545,22 @@ export default function PreviewScreen() {
                       />
                     </TouchableOpacity>
                   )}
-                  <TouchableOpacity
-                    //   style={styles.uploadButton}
-                    onPress={() => handleDownload(doc)}
-                  >
-                    <Image
-                      source={
-                        doc.uploaded
-                          ? require("@/assets/icons/dowmloadiconpreviewpage.png")
-                          : require("@/assets/icons/documentpageuplaodicon.png")
-                      }
-                      style={{ width: 20, height: 20 }}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
+                  {doc.fileUrl && (
+                    <TouchableOpacity
+                      //   style={styles.uploadButton}
+                      onPress={() => handleDownload(doc)}
+                    >
+                      <Image
+                        source={
+                          doc.uploaded
+                            ? require("@/assets/icons/dowmloadiconpreviewpage.png")
+                            : require("@/assets/icons/documentpageuplaodicon.png")
+                        }
+                        style={{ width: 20, height: 20 }}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
+                  )}
                 </View>
               </TouchableOpacity>
             ))}

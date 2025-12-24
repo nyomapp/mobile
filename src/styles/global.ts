@@ -551,4 +551,68 @@ export const allStyles = StyleSheet.create({
     gap: responsiveWidth(3),
     paddingLeft: responsiveWidth(2),
   },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderRadius: responsiveWidth(4),
+    width: '85%',
+    maxHeight: '70%',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    overflow  : 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: responsiveWidth(5),
+    paddingVertical: responsiveWidth(4),
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
+  },
+  modalTitle: {
+    fontSize: responsiveFontSize(2.5),
+    fontFamily: FONTS.Yellix,
+    color: COLORS.black,
+    fontWeight: '600',
+  },
+  closeButton: {
+    padding: responsiveWidth(1),
+  },
+  modalScrollView: {
+    maxHeight: responsiveWidth(100),
+  },
+  modalOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: responsiveWidth(5),
+    paddingVertical: responsiveWidth(4),
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  selectedOption: {
+    backgroundColor: '#F0F9FF',
+  },
+  modalOptionText: {
+    fontSize: responsiveFontSize(2),
+    fontFamily: FONTS.Yellix,
+    color: '#333',
+  },
+  selectedOptionText: {
+    color: COLORS.primaryBlue,
+    fontWeight: '600',
+  },
 });

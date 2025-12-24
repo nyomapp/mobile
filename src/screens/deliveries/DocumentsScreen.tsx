@@ -136,26 +136,28 @@ export default function DocumentsScreen() {
     //   return;
     // }
 
-    // Transform documentTypes array to match DownloadDocument interface
-    const downloadDocuments = documentTypes.map((doc) => ({
-      documentName: doc.documentName as
-        | "FRONT"
-        | "LEFT"
-        | "RIGHT"
-        | "BACK"
-        | "ODOMETER"
-        | "CHASSIS"
-        | "AADHAAR FRONT"
-        | "AADHAAR BACK"
-        | "Customer"
-        | "TAX INVOICE"
-        | "INSURANCE"
-        | "HELMET INVOICE"
-        | "FORM 20 1ST PAGE",
-      fileUrl: doc.fileUrl,
-      fileSize: doc.fileSize,
-      fileType: doc.fileType as "PDF" | "JPG",
-    }));
+    // Only include documents that have a fileUrl
+    const downloadDocuments = documentTypes
+      .filter((doc) => doc.fileUrl && doc.fileUrl.trim() !== "")
+      .map((doc) => ({
+        documentName: doc.documentName as
+          | "FRONT"
+          | "LEFT"
+          | "RIGHT"
+          | "BACK"
+          | "ODOMETER"
+          | "CHASSIS"
+          | "AADHAAR FRONT"
+          | "AADHAAR BACK"
+          | "Customer"
+          | "TAX INVOICE"
+          | "INSURANCE"
+          | "HELMET INVOICE"
+          | "FORM 20 1ST PAGE",
+        fileUrl: doc.fileUrl,
+        fileSize: doc.fileSize,
+        fileType: doc.fileType as "PDF" | "JPG",
+      }));
 
     // Store documents in DeliveryContext - ensure we don't lose existing data
     if (currentDelivery) {

@@ -3,6 +3,7 @@ import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
 import { useAuth } from "@/src/contexts";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 import { useModels } from "@/src/contexts/ModelsContext";
 import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,7 +28,6 @@ import Toast from "react-native-toast-message";
 import { styles } from "../../styles/deliveries/addDeliveryStyles";
 import { styles as paymentStyles } from "../../styles/deliveries/paymentModeStyles";
 import { allStyles } from "../../styles/global";
-import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 
 type DeliveryType = "New" | "Renew";
 type RTOLocationType = string | null;
@@ -224,6 +224,9 @@ export default function AddDelivery() {
       if (!registrationNumber.trim()) {
         newErrors.registrationNumber = "Registration number is required";
       }
+    }
+    if (!selectedRTOLocation || selectedRTOLocation === "null" || selectedRTOLocation === "" ) {
+      newErrors.selectedRTOLocation = "Please select an RTO location";
     }
 
     setErrors(newErrors);

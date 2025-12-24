@@ -2,7 +2,7 @@ import { API_CONFIG } from './config';
 import { APIError, APIResponse } from './types';
 
 class APIClient {
-  private baseURL: string;
+  public baseURL: string;
   private timeout: number;
   private defaultHeaders: Record<string, string>;
   private authToken: string | null = null;

@@ -86,7 +86,7 @@ const initialDocumentTypes: DocumentType[] = [
     uploaded: false,
     documentName: 'PAN',
     fileUrl: '',
-    fileSize: 195,
+    fileSize: 390,
     fileType: 'PDF',
   },
 ];

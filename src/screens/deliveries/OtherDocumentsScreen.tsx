@@ -39,7 +39,7 @@ export default function OtherDocumentsScreen() {
     router.push("/(tabs)/deliveries");
   };
   useEffect(() => {
-    // setFinalUploadDocumentsArray(currentDelivery?.downloadDocuments || []);
+    setFinalUploadDocumentsArray(currentDelivery?.downloadDocuments || []);
     if (currentDelivery) {
       updateBulkDocuments(currentDelivery.downloadDocuments as any);
     }
@@ -48,17 +48,17 @@ export default function OtherDocumentsScreen() {
  
   const handleNext = async () => {
     // Validate that all documents have been uploaded
-    const missingDocuments = documentTypes.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === '');
+    // const missingDocuments = documentTypes.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === '');
     
-    if (missingDocuments.length > 0) {
-      const missingDocNames = missingDocuments.map(doc => doc.documentName).join(', ');
-      Toast.show({
-        type: "error",
-        text1: "Upload Required", 
-        text2: `Please upload all documents. Missing: ${missingDocNames}`,
-      });
-      return;
-    }
+    // if (missingDocuments.length > 0) {
+    //   const missingDocNames = missingDocuments.map(doc => doc.documentName).join(', ');
+    //   Toast.show({
+    //     type: "error",
+    //     text1: "Upload Required", 
+    //     text2: `Please upload all documents. Missing: ${missingDocNames}`,
+    //   });
+    //   return;
+    // }
 
     // Navigate to next step
 
