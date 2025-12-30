@@ -17,15 +17,18 @@ export const HeaderIcon: React.FC<HeaderProps> = ({
   const { user } = useAuth();
   return (
     <View style={allStyles.header}>
-      <Image source={require("../../../assets/icons/nyomlogo.png")} style={styles.logoImg}/>
+      <Image
+        source={require("../../../assets/icons/nyomlogo.png")}
+        style={styles.logoImg}
+        resizeMode="contain"
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-   logoImg:{
-    width:56,
-    height:42,
-   }
+  logoImg: {
+    width: 56,
+    height: 42,
+  },
 });
-

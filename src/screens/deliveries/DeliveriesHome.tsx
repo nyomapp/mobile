@@ -467,7 +467,8 @@ export default function DeliveriesHome() {
 
   const handleDownloadAll = async (document: any) => {
     try {
-      const response = await downloadCombineZip(document?.certificateRef?.chassisNumber);
+      console.log("Downloading all documents for chassis number:", document);
+      const response = await downloadCombineZip(document?.certificateRef?.chassisNumber,document?.customerName,document?.createdAt);
       if (response instanceof Blob) {
         await saveAndShareBlob(response, 'All_Documents.zip', 'application/zip');
       } else {
@@ -508,7 +509,7 @@ export default function DeliveriesHome() {
         Toast.show({ type: 'error', text1: 'No download URL found' });
         return;
       }
-      const fileName = (document?.documentName || 'Document') + '.pdf';
+      const fileName = ((document?.documentName || 'Document').replace(/\s+/g, '_')) + '.pdf';
       const fileUri = FileSystem.cacheDirectory + fileName;
       const downloadRes = await FileSystem.downloadAsync(downloadUrl, fileUri);
       if (downloadRes && downloadRes.status === 200) {

@@ -98,9 +98,12 @@ try {
   throw error;
 }
 };
-export const downloadCombineZip  = async (frameNumber: any) => {
+export const downloadCombineZip  = async (frameNumber: any,customerName:any, createdAt:any) => {
 try {
-      const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_ALL_ZIP.replace("{frameNumber}", frameNumber);
+      const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_ALL_ZIP
+        .replace("{frameNumber}", frameNumber)
+        .replace("{customerName}", customerName)
+        .replace("{date}", createdAt);
     const fullUrl = apiClient.baseURL + url;
     const res = await fetch(fullUrl, { method: 'GET' });
     if (!res.ok) {
