@@ -219,7 +219,7 @@ export default function HomeScreen() {
               />
             </View>
             <Text style={styles.statValue}>
-              {(dashBoardData as any)?.totalSales}
+              {(dashBoardData as any)?.pieChart?.total}
     
             </Text>
           </LinearGradient>
@@ -271,7 +271,7 @@ export default function HomeScreen() {
             style={[allStyles.statCard, styles.gradientCard]}
           >
             <View style={styles.statCardHeader}>
-              <Text style={styles.statLabel}>No. of{"\n"}Helmets</Text>
+              <Text style={styles.statLabel}>Total{"\n"}Helmets</Text>
               <Image
                 source={require("@/assets/icons/noofhelmetsicon.png")}
                 style={styles.img}
@@ -284,6 +284,25 @@ export default function HomeScreen() {
             </Text>
           </LinearGradient>
         </View>
+          <LinearGradient
+            colors={["#183B64", "#3077CA"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[allStyles.statCard, styles.gradientCard]}
+          >
+            <View style={styles.statCardHeader}>
+              <Text style={styles.statLabel}>Total{"\n"}Loyality</Text>
+              <Image
+                source={require("@/assets/icons/totaldeliveriesicon.png")}
+                style={styles.img}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.statValue}>
+              {(dashBoardData as any)?.totalLoyality}
+    
+            </Text>
+          </LinearGradient>
       </ScrollView>
 
       {/* Floating Action Button */}

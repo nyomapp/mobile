@@ -62,26 +62,28 @@ export default function OtherDocumentsScreen() {
 
     // Navigate to next step
 
-    // Transform documentTypes array to match DownloadDocument interface
-    const newDownloadDocuments = documentTypes.map((doc) => ({
-      documentName: doc.documentName as
-        | "FRONT"
-        | "LEFT"
-        | "RIGHT"
-        | "BACK"
-        | "ODOMETER"
-        | "CHASSIS"
-        | "AADHAAR FRONT"
-        | "AADHAAR BACK"
-        | "Customer"
-        | "TAX INVOICE"
-        | "INSURANCE"
-        | "HELMET INVOICE"
-        | "FORM 20 1ST PAGE",
-      fileUrl: doc.fileUrl,
-      fileSize: doc.fileSize,
-      fileType: doc.fileType as "PDF" | "JPG",
-    }));
+    // Transform documentTypes array to match DownloadDocument interface, but only include those with fileUrl
+    const newDownloadDocuments = documentTypes
+      .filter((doc) => doc.fileUrl && doc.fileUrl.trim() !== "")
+      .map((doc) => ({
+        documentName: doc.documentName as
+          | "FRONT"
+          | "LEFT"
+          | "RIGHT"
+          | "BACK"
+          | "ODOMETER"
+          | "CHASSIS"
+          | "AADHAAR FRONT"
+          | "AADHAAR BACK"
+          | "Customer"
+          | "TAX INVOICE"
+          | "INSURANCE"
+          | "HELMET INVOICE"
+          | "FORM 20 1ST PAGE",
+        fileUrl: doc.fileUrl,
+        fileSize: doc.fileSize,
+        fileType: doc.fileType as "PDF" | "JPG",
+      }));
     console.log("newDownloadDocuments", newDownloadDocuments);
 
     // Merge previous documents with new ones
