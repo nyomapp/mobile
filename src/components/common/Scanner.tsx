@@ -1,15 +1,12 @@
-import { HeaderIcon } from "@/src/components/common/HeaderIcon";
-import * as ImagePicker from "expo-image-picker";
-// import * as ImageManipulator from "expo-image-manipulator";
 import { uploadDocument } from "@/src/api/UploadDocument";
+import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
-import {
-  convertImageToPdfAndCompress
-} from "@/src/utils/documentConversionUtils";
+import { convertImageToPdfAndCompress } from "@/src/utils/documentConversionUtils";
 import { CameraView } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -26,14 +23,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/ScannerStyles";
+
 interface DocumentScannerProps {
   documentType?: string;
 }
 
-export default function DocumentScanner({}: // documentType = "Aadhaar Front",
-DocumentScannerProps) {
-  const { uploadingDocument, resetUploadingDocument, isTemp, setIsTemp, resetIsTemp } =
-    useDocumentUploadContext();
+export default function DocumentScanner({}: DocumentScannerProps) {
+  const {
+    uploadingDocument,
+    resetUploadingDocument,
+    isTemp,
+    setIsTemp,
+    resetIsTemp,
+  } = useDocumentUploadContext();
   const { currentDelivery, setCurrentDelivery } = useDeliveryContext();
   const [capturedImage, setCapturedImage] = useState<any | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
@@ -45,15 +47,6 @@ DocumentScannerProps) {
     setIsOtherDocumentsUpload,
     updateDocumentStatus: updateOtherDocumentStatus,
   } = useDocumentArray2();
-
-  // Debug: Log uploadingDocument on mount and when it changes
-  // useEffect(() => {
-  //   console.log("=== SCANNER COMPONENT MOUNTED ===");
-  //   console.log("uploadingDocument:", uploadingDocument);
-  //   console.log("uploadingDocument.documentName:", (uploadingDocument as any)?.documentName);
-  //   console.log("isOtherDocumentsUpload:", isOtherDocumentsUpload);
-  //   console.log("====================================");
-  // }, [uploadingDocument, isOtherDocumentsUpload]);
 
   useEffect(() => {
     const requestCameraPermission = async () => {
@@ -91,11 +84,14 @@ DocumentScannerProps) {
 
     try {
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.7,
+        quality: 1.0, // Maximum quality - no compression at capture
         base64: false,
+        exif: true,
+        skipProcessing: true, // Important: Don't let the camera do any processing
       });
 
       if (photo) {
+        console.log(`Photo captured - Size: ${photo.width}x${photo.height}`);
         setCapturedImage(photo.uri);
       }
     } catch (error) {
@@ -115,11 +111,13 @@ DocumentScannerProps) {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: false,
-      quality: 0.7, // Reduced quality to help with file size
+      quality: 1.0, // Maximum quality for gallery images too
+      allowsMultipleSelection: false,
     });
 
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
+      console.log(`Gallery image selected - URI: ${imageUri}`);
       setCapturedImage(imageUri);
     }
   };
@@ -135,13 +133,6 @@ DocumentScannerProps) {
     }
 
     try {
-      // console.log("=== DOCUMENT TYPE RESOLUTION ===");
-      // console.log("uploadingDocument object:", JSON.stringify(uploadingDocument, null, 2));
-      // console.log("uploadingDocument.documentName:", (uploadingDocument as any)?.documentName);
-      // console.log("uploadingDocument.title:", (uploadingDocument as any)?.title);
-      // console.log("==================================");
-
-      // Use documentName if available, otherwise try title, otherwise throw error
       const resolvedDocumentType =
         (uploadingDocument as any)?.documentName ||
         (uploadingDocument as any)?.title ||
@@ -153,7 +144,14 @@ DocumentScannerProps) {
             JSON.stringify(uploadingDocument)
         );
       }
-   const frameNumber = isOtherDocumentsUpload ? (currentDelivery as any)?.certificateRef?.chassisNumber || currentDelivery?.chassisNo : currentDelivery?.chassisNo;
+
+      const frameNumber = isOtherDocumentsUpload
+        ? (currentDelivery as any)?.certificateRef?.chassisNumber ||
+          currentDelivery?.chassisNo
+        : currentDelivery?.chassisNo;
+
+      console.log(`Starting document processing for: ${resolvedDocumentType}`);
+      console.log(`Image URI: ${capturedImage}`);
 
       // Convert image to PDF and compress
       const processedDocument = await convertImageToPdfAndCompress(
@@ -174,27 +172,33 @@ DocumentScannerProps) {
           if (!finalObject.documentType) {
             throw new Error("Document type is missing or invalid");
           }
-          if( isTemp){
+
+          if (isTemp) {
             (finalObject as any).isTemp = false;
           }
-          // Step 1: Get upload URL from server
+
+          // Get upload URL from server
           const response = await uploadDocument(finalObject);
           console.log("Upload URL received:", (response as any).uploadUrl);
-          
-          // Step 2: Read the processed file from local fileUri
+
+          // Read the processed file from local fileUri
           console.log("Reading file for upload from URI:", fileUri);
           const fileResponse = await fetch(fileUri);
           const fileBlob = await fileResponse.blob();
-          console.log(`File blob created. Size: ${fileBlob.size} bytes, Type: ${fileBlob.type}`);
-          
-          // Step 3: Upload the processed file to the presigned URL
-          console.log(`Uploading with Content-Type: ${finalObject.contentType}`);
+          console.log(
+            `File blob created. Size: ${fileBlob.size} bytes, Type: ${fileBlob.type}`
+          );
+
+          // Upload the processed file to the presigned URL
+          console.log(
+            `Uploading with Content-Type: ${finalObject.contentType}`
+          );
           const finalUploadedResponse = await fetch(
             (response as any).uploadUrl,
             {
               method: "PUT",
               headers: {
-                "Content-Type": finalObject.contentType, // Use the content type from the processed document
+                "Content-Type": finalObject.contentType,
               },
               body: fileBlob,
             }
@@ -206,7 +210,6 @@ DocumentScannerProps) {
             );
           }
 
-          // console.log("Document uploaded successfully", finalUploadedResponse);
           if (isOtherDocumentsUpload) {
             updateOtherDocumentStatus(
               (uploadingDocument as any)?.documentName,
@@ -227,7 +230,6 @@ DocumentScannerProps) {
             text2: `${resolvedDocumentType} uploaded successfully`,
           });
 
-          // Navigate back after successful upload
           setTimeout(() => {
             if (isOtherDocumentsUpload) {
               router.push("/other-documents");
@@ -367,14 +369,10 @@ DocumentScannerProps) {
                 <Text style={styles.uploadFromPhoneText}>
                   Upload from phone
                 </Text>
-                <Text style={styles.uploadFromPhoneSubtext}>
-                  ( Max File Size - 300Kb )
-                </Text>
               </View>
               <Image
                 source={require("@/assets/icons/documentpageuplaodicon.png")}
                 style={{ width: 24, height: 24 }}
-                // width={24}
                 resizeMode="contain"
               />
             </TouchableOpacity>

@@ -183,6 +183,12 @@ export default function PreviewScreen() {
       value: `₹${currentDelivery?.rsaAmount?.toLocaleString("en-IN") || "0"}`,
     },
     {
+      label: "Scheme Discount",
+      value: `₹${
+        currentDelivery?.schemeDiscount?.toLocaleString("en-IN") || "0"
+      }`,
+    },
+    {
       label: "Discount",
       value: `₹${currentDelivery?.discount?.toLocaleString("en-IN") || "0"}`,
     },

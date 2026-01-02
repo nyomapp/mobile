@@ -9,6 +9,8 @@ export const getDeliveriesData = async (
     frameNumber?: string;
     mobileNumber?: string;
     modelRef?: string;
+    startDate?: string;
+    endDate?: string;
   }
 ) => {
   try {
@@ -26,6 +28,12 @@ export const getDeliveriesData = async (
       }
       if (filters.modelRef && filters.modelRef.trim()) {
         endpoint += `&modelRef=${encodeURIComponent(filters.modelRef.trim())}`;
+      }
+      if (filters.startDate && filters.startDate.trim()) {
+        endpoint += `&startDate=${encodeURIComponent(filters.startDate.trim())}`;
+      }
+      if (filters.endDate && filters.endDate.trim()) {
+        endpoint += `&endDate=${encodeURIComponent(filters.endDate.trim())}`;
       }
     }
     

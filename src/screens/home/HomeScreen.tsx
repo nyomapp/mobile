@@ -20,10 +20,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect } from "react";
-// import PieChart from 'react-native-pie-chart';
+// import PieChart from "react-native-pie-chart";
 import Toast from "react-native-toast-message";
 import { styles } from "../../styles/homeStyles";
-
 const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
@@ -134,16 +133,20 @@ export default function HomeScreen() {
             { height: "auto", justifyContent: "center", alignItems: "center" },
           ]}
         >
-          {/* <PieChart
-            widthAndHeight={150}
-            series={series}
-            cover={0.6}
-          /> */}
+          {activeValue + pendingValue + totalValue <= 0 ? (
+            <View style={styles.centerContent}>
+              {/* <Text style={styles.centerText}>0</Text> */}
+              {/* <Text style={styles.centerSubText}>No Data</Text> */}
+            </View>
+          ) : (
+            <></>
+            // <PieChart
+            //   widthAndHeight={150}
+            //   series={series}
+            //   cover={0.6}
+            // />
+          )}
 
-          {/* <View style={styles.centerContent}>
-            <Text style={styles.centerText}>{totalValue}</Text>
-            <Text style={styles.centerSubText}>Total</Text>
-          </View> */}
         </View>
       </View>
     );
@@ -153,7 +156,7 @@ export default function HomeScreen() {
     <SafeAreaView style={allStyles.safeArea} edges={["top"]}>
       <ScrollView
         style={allStyles.container}
-        contentContainerStyle={allStyles.scrollContent}
+        // contentContainerStyle={allStyles.scrollContent}
       >
         {/* Header Section */}
         <View style={styles.headingContainer}>
@@ -293,7 +296,7 @@ export default function HomeScreen() {
             <View style={styles.statCardHeader}>
               <Text style={styles.statLabel}>Total{"\n"}Loyality</Text>
               <Image
-                source={require("@/assets/icons/totaldeliveriesicon.png")}
+                source={require("@/assets/icons/LoyalityIcon.png")}
                 style={styles.img}
                 resizeMode="contain"
               />

@@ -25,6 +25,7 @@ export default function OtherDocumentsScreen() {
   const {
     currentDelivery,
     setCurrentDelivery,
+    resetCurrentDelivery,
     isEdit,
     deliveryId,
     resetDeliveryId,
@@ -36,6 +37,9 @@ export default function OtherDocumentsScreen() {
     any[]
   >([]);
   const handleBack = () => {
+    resetDeliveryId();
+    resetCurrentDelivery();
+    resetDocuments();
     router.push("/(tabs)/deliveries");
   };
   useEffect(() => {

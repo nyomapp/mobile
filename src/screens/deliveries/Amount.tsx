@@ -34,6 +34,7 @@ export default function AmountScreen() {
     { id: "helmet", label: "Helmet", value: "" },
     { id: "loyalityCardAmount", label: "Loyalty Card", value: "" },
     { id: "rsa", label: "RSA", value: "" },
+    { id: "schemeDiscount", label: "Scheme Discount", value: "" },
     { id: "discount", label: "Discount", value: "" },
     { id: "other1", label: "Other 1", value: "" },
     { id: "other2", label: "Other 2", value: "" },
@@ -90,10 +91,15 @@ export default function AmountScreen() {
                 ...item,
                 value: currentDelivery.rsaAmount?.toString() || "",
               };
-              case "loyalityCardAmount":
+            case "loyalityCardAmount":
               return {
                 ...item,
                 value: currentDelivery.loyalityCardAmount?.toString() || "",
+              };
+            case "schemeDiscount":
+              return {
+                ...item,
+                value: currentDelivery.schemeDiscount?.toString() || "",
               };
             case "discount":
               return {
@@ -133,7 +139,7 @@ export default function AmountScreen() {
     return amounts.reduce((total, item) => {
       const value = parseFloat(item.value) || 0;
       // Subtract discount, add all other amounts
-      if (item.id === "discount") {
+      if (item.id === "discount" || item.id === "schemeDiscount") {
         return total - value;
       }
       return total + value;
@@ -178,8 +184,11 @@ export default function AmountScreen() {
         case "helmet":
           amountData.helmetAmount = value;
           break;
-          case "loyalityCardAmount":
+        case "loyalityCardAmount":
           amountData.loyalityCardAmount = value;
+          break;
+        case "schemeDiscount":
+          amountData.schemeDiscount = value;
           break;
         case "discount":
           amountData.discount = value;
@@ -232,41 +241,46 @@ export default function AmountScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View
-         style={{ paddingTop: responsiveWidth(2) }}
-         >
+        <View style={{ paddingTop: responsiveWidth(2) }}>
           <HeaderIcon />
-        <View
-          style={[allStyles.pageHeader]}
-        >
-          <View style={[{ paddingBottom: responsiveWidth(5) }]}>
-            <Text style={[allStyles.pageTitle,allStyles.yellix_medium, {lineHeight:responsiveWidth(10)}]}>
-              <Text>Add</Text>
-              {"\n"}
-              <Text style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}>Delivery</Text>
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "flex-end",
-              gap: responsiveWidth(5),
-            }}
-          >
-            
-            {/* Total Amount Card */}
-
-            <View style={styles.totalAmountCard}>
-              <Text style={styles.totalAmountLabel}>
-                {calculateTotalAmount() > 0
-                  ? calculateTotalAmount().toLocaleString("en-IN")
-                  : "Total Amount"}
+          <View style={[allStyles.pageHeader]}>
+            <View style={[{ paddingBottom: responsiveWidth(5) }]}>
+              <Text
+                style={[
+                  allStyles.pageTitle,
+                  allStyles.yellix_medium,
+                  { lineHeight: responsiveWidth(10) },
+                ]}
+              >
+                <Text>Add</Text>
+                {"\n"}
+                <Text
+                  style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}
+                >
+                  Delivery
+                </Text>
               </Text>
-              <View style={styles.totalAmountDisplay} />
+            </View>
+            <View
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "flex-end",
+                gap: responsiveWidth(5),
+              }}
+            >
+              {/* Total Amount Card */}
+
+              <View style={styles.totalAmountCard}>
+                <Text style={styles.totalAmountLabel}>
+                  {calculateTotalAmount() > 0
+                    ? calculateTotalAmount().toLocaleString("en-IN")
+                    : "Total Amount"}
+                </Text>
+                <View style={styles.totalAmountDisplay} />
+              </View>
             </View>
           </View>
-        </View>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -277,7 +291,8 @@ export default function AmountScreen() {
                 <Text
                   style={[
                     styles.amountLabel,
-                    item.id === "discount" && styles.discountLabel,
+                    (item.id === "discount" || item.id === "schemeDiscount") &&
+                      styles.discountLabel,
                   ]}
                 >
                   {item.label}

@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Calendar } from 'react-native-calendars';
 import Toast from "react-native-toast-message";
 
 import { getModalsData } from "@/src/api/addDelivery";
@@ -76,12 +77,90 @@ export default function DeliveriesHome() {
   const [showDocsModal, setShowDocsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [startDate, setStartDate] = useState<string>(""); // Keep as string for display
+  const [endDate, setEndDate] = useState<string>("");
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [dateValidationError, setDateValidationError] = useState<string>("");
   // Add current filters state to track applied filters
   const [currentFilters, setCurrentFilters] = useState<{
     frameNumber?: string;
     mobileNumber?: string;
     modelRef?: string;
+    startDate?: string;
+    endDate?: string;
   }>({});
+
+  // Add helper functions for date formatting:
+  const formatDateForDisplay = (dateString: string): string => {
+    if (!dateString) return "";
+    // Convert YYYY-MM-DD to DD/MM/YYYY for display
+    const parts = dateString.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateString;
+  };
+
+  const formatDateForAPI = (dateString: string): string => {
+    if (!dateString) return "";
+    // If already in YYYY-MM-DD format, return as is
+    if (dateString.includes('-') && dateString.split('-').length === 3) {
+      return dateString;
+    }
+    // Convert DD/MM/YYYY to YYYY-MM-DD for API
+    const parts = dateString.split('/');
+    if (parts.length === 3) {
+      const day = parts[0].padStart(2, '0');
+      const month = parts[1].padStart(2, '0');
+      const year = parts[2];
+      return `${year}-${month}-${day}`;
+    }
+    return dateString;
+  };
+
+  // Update date validation function:
+  const validateDateRange = (start: string, end: string): string => {
+    if (!start && !end) {
+      return ""; // Both empty is valid
+    }
+    
+    if ((start && !end) || (!start && end)) {
+      return "Both start date and end date are required when filtering by date";
+    }
+    
+    if (start && end) {
+      const startDateObj = new Date(formatDateForAPI(start));
+      const endDateObj = new Date(formatDateForAPI(end));
+      
+      if (startDateObj > endDateObj) {
+        return "Start date cannot be greater than end date";
+      }
+    }
+    
+    return "";
+  };
+
+  // Calendar handlers:
+  const handleStartDateSelect = (day: any) => {
+    setStartDate(day.dateString); // Store in YYYY-MM-DD format
+    setShowStartDatePicker(false);
+    
+    // Clear validation error when user selects a date
+    if (dateValidationError) {
+      setDateValidationError("");
+    }
+  };
+
+  const handleEndDateSelect = (day: any) => {
+    setEndDate(day.dateString); // Store in YYYY-MM-DD format
+    setShowEndDatePicker(false);
+    
+    // Clear validation error when user selects a date
+    if (dateValidationError) {
+      setDateValidationError("");
+    }
+  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -150,8 +229,11 @@ export default function DeliveriesHome() {
       frameNumber?: string;
       mobileNumber?: string;
       modelRef?: string;
+      startDate?: string;
+      endDate?: string;
     }
   ) => {
+    console.log("Fetching deliveries with filters:", filters);
     try {
       if (isLoadMore) {
         setIsLoadingMore(true);
@@ -239,10 +321,26 @@ export default function DeliveriesHome() {
   };
 
   const handleApplyFilter = () => {
+    // Validate date range
+    const dateError = validateDateRange(startDate, endDate);
+    if (dateError) {
+      setDateValidationError(dateError);
+      Toast.show({
+        type: "error",
+        text1: "Date Validation Error",
+        text2: dateError,
+      });
+      return;
+    }
+    
+    setDateValidationError("");
+    
     console.log("Applying filter:", {
       frameNumber,
       mobileNumber,
       selectedModel,
+      startDate,
+      endDate,
     });
 
     // Create filters object with only non-empty values
@@ -250,6 +348,8 @@ export default function DeliveriesHome() {
       frameNumber?: string;
       mobileNumber?: string;
       modelRef?: string;
+      startDate?: string;
+      endDate?: string;
     } = {};
 
     if (frameNumber && frameNumber.trim()) {
@@ -260,6 +360,12 @@ export default function DeliveriesHome() {
     }
     if (selectedModel && selectedModel.trim()) {
       filters.modelRef = selectedModel.trim();
+    }
+    if (startDate) {
+      filters.startDate = startDate; // Already in YYYY-MM-DD format
+    }
+    if (endDate) {
+      filters.endDate = endDate; // Already in YYYY-MM-DD format
     }
 
     // Store current filters
@@ -284,6 +390,9 @@ export default function DeliveriesHome() {
     setFrameNumber("");
     setMobileNumber("");
     setSelectedModel("");
+    setStartDate("");
+    setEndDate("");
+    setDateValidationError("");
     setCurrentFilters({});
 
     // Close modal
@@ -773,7 +882,6 @@ export default function DeliveriesHome() {
                 <TextInput
                   style={globalStyles.input}
                   placeholder="Frame Number"
-                  // placeholderTextColor={COLORS.black}
                   value={frameNumber}
                   onChangeText={setFrameNumber}
                 />
@@ -781,11 +889,52 @@ export default function DeliveriesHome() {
                 <TextInput
                   style={globalStyles.input}
                   placeholder="Mobile Number"
-                  // placeholderTextColor={COLORS.black}
                   value={mobileNumber}
                   onChangeText={setMobileNumber}
                   keyboardType="numeric"
+                  maxLength={10}
                 />
+
+                {/* Start Date Picker */}
+                <TouchableOpacity
+                  style={[globalStyles.input, styles.dropdownButton]}
+                  onPress={() => setShowStartDatePicker(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      allStyles.dropdownText,
+                      startDate ? { color: COLORS.black } : { color: '#999' },
+                    ]}
+                  >
+                    {startDate ? formatDateForDisplay(startDate) : "Start Date"}
+                  </Text>
+                  <Ionicons name="calendar" size={20} color="#6C757D" />
+                </TouchableOpacity>
+
+                {/* End Date Picker */}
+                <TouchableOpacity
+                  style={[globalStyles.input, styles.dropdownButton]}
+                  onPress={() => setShowEndDatePicker(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      allStyles.dropdownText,
+                      endDate ? { color: COLORS.black } : { color: '#999' },
+                    ]}
+                  >
+                    {endDate ? formatDateForDisplay(endDate) : "End Date"}
+                  </Text>
+                  <Ionicons name="calendar" size={20} color="#6C757D" />
+                </TouchableOpacity>
+
+                {/* Date Validation Error */}
+                {dateValidationError ? (
+                  <Text style={{ color: 'red', fontSize: 12, marginTop: 5, marginBottom: 10 }}>
+                    {dateValidationError}
+                  </Text>
+                ) : null}
 
                 {/* Model Dropdown */}
                 <TouchableOpacity
@@ -1086,6 +1235,101 @@ export default function DeliveriesHome() {
                   )
                 )}
               </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Start Date Calendar Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showStartDatePicker}
+          onRequestClose={() => setShowStartDatePicker(false)}
+        >
+          <View style={styles.filterModalOverlay}>
+            <View style={[styles.filterModalContent, { height: '60%' }]}>
+              {/* Modal Header */}
+              <View style={styles.filterModalHeader}>
+                <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                  <Ionicons name="arrow-back" size={24} color="#6B7280" />
+                </TouchableOpacity>
+                <Text style={styles.filterModalTitle}>Select Start Date</Text>
+                <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                  <Text style={styles.resetText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Calendar */}
+              <View style={{ flex: 1, padding: 20 }}>
+                <Calendar
+                  onDayPress={handleStartDateSelect}
+                  markedDates={{
+                    [startDate]: {
+                      selected: true,
+                      selectedColor: COLORS.primaryBlue || '#007AFF',
+                    },
+                  }}
+                  maxDate={new Date().toISOString().split('T')[0]} // Today's date
+                  theme={{
+                    selectedDayBackgroundColor: COLORS.primaryBlue || '#007AFF',
+                    selectedDayTextColor: '#ffffff',
+                    todayTextColor: COLORS.primaryBlue || '#007AFF',
+                    dayTextColor: '#2d4150',
+                    textDisabledColor: '#d9e1e8',
+                    arrowColor: COLORS.primaryBlue || '#007AFF',
+                    monthTextColor: COLORS.primaryBlue || '#007AFF',
+                    indicatorColor: COLORS.primaryBlue || '#007AFF',
+                  }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* End Date Calendar Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showEndDatePicker}
+          onRequestClose={() => setShowEndDatePicker(false)}
+        >
+          <View style={styles.filterModalOverlay}>
+            <View style={[styles.filterModalContent, { height: '60%' }]}>
+              {/* Modal Header */}
+              <View style={styles.filterModalHeader}>
+                <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                  <Ionicons name="arrow-back" size={24} color="#6B7280" />
+                </TouchableOpacity>
+                <Text style={styles.filterModalTitle}>Select End Date</Text>
+                <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                  <Text style={styles.resetText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Calendar */}
+              <View style={{ flex: 1, padding: 20 }}>
+                <Calendar
+                  onDayPress={handleEndDateSelect}
+                  markedDates={{
+                    [endDate]: {
+                      selected: true,
+                      selectedColor: COLORS.primaryBlue || '#007AFF',
+                    },
+                  }}
+                  maxDate={new Date().toISOString().split('T')[0]} // Today's date
+                  minDate={startDate || undefined} // Minimum date is start date if selected
+                  theme={{
+                    selectedDayBackgroundColor: COLORS.primaryBlue || '#007AFF',
+                    selectedDayTextColor: '#ffffff',
+                    todayTextColor: COLORS.primaryBlue || '#007AFF',
+                    dayTextColor: '#2d4150',
+                    textDisabledColor: '#d9e1e8',
+                    arrowColor: COLORS.primaryBlue || '#007AFF',
+                    monthTextColor: COLORS.primaryBlue || '#007AFF',
+                    indicatorColor: COLORS.primaryBlue || '#007AFF',
+                  }}
+                />
+              </View>
             </View>
           </View>
         </Modal>
