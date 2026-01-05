@@ -10,6 +10,7 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -40,6 +41,7 @@ export default function DocumentScanner({}: DocumentScannerProps) {
   const [capturedImage, setCapturedImage] = useState<any | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); // Add loading state
   const cameraRef = useRef<CameraView>(null);
   const { documentTypes, updateDocumentStatus } = useDocumentArray();
   const {
@@ -131,6 +133,13 @@ export default function DocumentScanner({}: DocumentScannerProps) {
       });
       return;
     }
+
+    // Prevent multiple uploads
+    if (isUploading) {
+      return;
+    }
+
+    setIsUploading(true); // Start loading
 
     try {
       const resolvedDocumentType =
@@ -253,6 +262,8 @@ export default function DocumentScanner({}: DocumentScannerProps) {
         text1: "Error",
         text2: "Failed to process and upload document.",
       });
+    } finally {
+      setIsUploading(false); // Stop loading
     }
   };
 
@@ -382,8 +393,26 @@ export default function DocumentScanner({}: DocumentScannerProps) {
 
             {/* Action Buttons */}
             <View style={styles.bottomButtonsContainer}>
-              <TouchableOpacity style={allStyles.btn} onPress={handleUpload}>
-                <Text style={allStyles.btnText}>Upload</Text>
+              <TouchableOpacity 
+                style={[
+                  allStyles.btn,
+                  isUploading && { opacity: 0.7 } // Dim the button when uploading
+                ]} 
+                onPress={handleUpload}
+                disabled={isUploading} // Disable button when uploading
+              >
+                {isUploading ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <ActivityIndicator 
+                      size="small" 
+                      color="white" 
+                      style={{ marginRight: 8 }} 
+                    />
+                    <Text style={allStyles.btnText}>Uploading...</Text>
+                  </View>
+                ) : (
+                  <Text style={allStyles.btnText}>Upload</Text>
+                )}
               </TouchableOpacity>
 
               <TouchableOpacity

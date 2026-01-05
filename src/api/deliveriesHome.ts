@@ -8,6 +8,7 @@ export const getDeliveriesData = async (
   filters?: {
     frameNumber?: string;
     mobileNumber?: string;
+    userRef?: string;
     modelRef?: string;
     startDate?: string;
     endDate?: string;
@@ -25,6 +26,9 @@ export const getDeliveriesData = async (
       }
       if (filters.mobileNumber && filters.mobileNumber.trim()) {
         endpoint += `&mobileNumber=${encodeURIComponent(filters.mobileNumber.trim())}`;
+      }
+      if (filters.userRef && filters.userRef.trim()) {
+        endpoint += `&userRef=${encodeURIComponent(filters.userRef.trim())}`;
       }
       if (filters.modelRef && filters.modelRef.trim()) {
         endpoint += `&modelRef=${encodeURIComponent(filters.modelRef.trim())}`;
@@ -148,4 +152,18 @@ try {
 } catch (error) {
   throw error
 }
+};
+export const getAllUsers = async () => {
+  try {
+    const response = await apiClient.get(
+      API_ENDPOINTS.DELIVERIES_HOME.GET_ALL_USERS
+    );
+    // Check if the API client returned an error response
+    if (!response.success || response.error) {
+      throw new Error(response.error || "API request failed");
+    }
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };

@@ -1,16 +1,17 @@
 import React from "react";
 import { AuthProvider } from "./AuthContext";
-import { UserProvider } from "./UserContext";
+import { DashBoardProvider } from "./DashBoardContext";
 import { DeliveryProvider } from "./DeliveryContext";
-import { ModelsProvider } from "./ModelsContext";
-import { MasterDataProvider } from "./MasterDataContext";
-import { FinancierDataProvider } from "./FinancierDataContext";
 import { DeliveryHomePageProvider } from "./DeliveryHomePageContext";
-import { DocumentUploadProvider } from "./DocumentUploadContext";
 import { DocumentArrayProvider } from "./DocumentArray1";
 import { DocumentArray2Provider } from "./DocumentArray2";
+import { DocumentUploadProvider } from "./DocumentUploadContext";
+import { FinancierDataProvider } from "./FinancierDataContext";
+import { MasterDataProvider } from "./MasterDataContext";
+import { ModelsProvider } from "./ModelsContext";
 import { SearchProvider } from "./SearchContext";
-import DashBoardContext, { DashBoardProvider } from "./DashBoardContext";
+import { UserProvider } from "./UserContext";
+import { UsersDataProvider } from "./UsersDataContext";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -29,7 +30,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                     <DocumentArrayProvider>
                       <DocumentArray2Provider>
                         <SearchProvider>
+                          <UsersDataProvider>
                           <DashBoardProvider>{children}</DashBoardProvider>
+                          </UsersDataProvider>
                         </SearchProvider>
                       </DocumentArray2Provider>
                     </DocumentArrayProvider>

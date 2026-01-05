@@ -1,5 +1,5 @@
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 import {
   FlatList,
   Image,
@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Calendar } from 'react-native-calendars';
+import { Calendar } from "react-native-calendars";
 import Toast from "react-native-toast-message";
 
 import { getModalsData } from "@/src/api/addDelivery";
@@ -22,7 +22,8 @@ import {
   downloadCombineForm20,
   downloadCombineZip,
   generatePdfUrl,
-  getDeliveriesData
+  getAllUsers,
+  getDeliveriesData,
 } from "@/src/api/deliveriesHome";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
@@ -30,6 +31,7 @@ import { useAuth } from "@/src/contexts/AuthContext";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { useDeliveryHomePageContext } from "@/src/contexts/DeliveryHomePageContext";
 import { useModels } from "@/src/contexts/ModelsContext";
+import { useUsersData } from "@/src/contexts/UsersDataContext";
 import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -63,6 +65,7 @@ export default function DeliveriesHome() {
     // isLoading,
     setLoading,
   } = useModels();
+  const { users, setUsers, resetUsers } = useUsersData();
   const [activeTab, setActiveTab] = useState<"delivered" | "pending">(
     "delivered"
   );
@@ -82,20 +85,34 @@ export default function DeliveriesHome() {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [dateValidationError, setDateValidationError] = useState<string>("");
+  const [selectedUser, setSelectedUser] = useState<string>("");
+  const [showUserModal, setShowUserModal] = useState(false);
   // Add current filters state to track applied filters
   const [currentFilters, setCurrentFilters] = useState<{
     frameNumber?: string;
     mobileNumber?: string;
+    userRef?: string;
     modelRef?: string;
     startDate?: string;
     endDate?: string;
-  }>({});
+  }>();
 
+    // Reset all filters on initial mount
+  useEffect(() => {
+    setFrameNumber("");
+    setMobileNumber("");
+    setSelectedModel("");
+    setSelectedUser("");
+    setStartDate("");
+    setEndDate("");
+    setDateValidationError("");
+    setCurrentFilters({});
+  }, []);
   // Add helper functions for date formatting:
   const formatDateForDisplay = (dateString: string): string => {
     if (!dateString) return "";
     // Convert YYYY-MM-DD to DD/MM/YYYY for display
-    const parts = dateString.split('-');
+    const parts = dateString.split("-");
     if (parts.length === 3) {
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
@@ -105,14 +122,14 @@ export default function DeliveriesHome() {
   const formatDateForAPI = (dateString: string): string => {
     if (!dateString) return "";
     // If already in YYYY-MM-DD format, return as is
-    if (dateString.includes('-') && dateString.split('-').length === 3) {
+    if (dateString.includes("-") && dateString.split("-").length === 3) {
       return dateString;
     }
     // Convert DD/MM/YYYY to YYYY-MM-DD for API
-    const parts = dateString.split('/');
+    const parts = dateString.split("/");
     if (parts.length === 3) {
-      const day = parts[0].padStart(2, '0');
-      const month = parts[1].padStart(2, '0');
+      const day = parts[0].padStart(2, "0");
+      const month = parts[1].padStart(2, "0");
       const year = parts[2];
       return `${year}-${month}-${day}`;
     }
@@ -124,20 +141,20 @@ export default function DeliveriesHome() {
     if (!start && !end) {
       return ""; // Both empty is valid
     }
-    
+
     if ((start && !end) || (!start && end)) {
       return "Both start date and end date are required when filtering by date";
     }
-    
+
     if (start && end) {
       const startDateObj = new Date(formatDateForAPI(start));
       const endDateObj = new Date(formatDateForAPI(end));
-      
+
       if (startDateObj > endDateObj) {
         return "Start date cannot be greater than end date";
       }
     }
-    
+
     return "";
   };
 
@@ -145,7 +162,7 @@ export default function DeliveriesHome() {
   const handleStartDateSelect = (day: any) => {
     setStartDate(day.dateString); // Store in YYYY-MM-DD format
     setShowStartDatePicker(false);
-    
+
     // Clear validation error when user selects a date
     if (dateValidationError) {
       setDateValidationError("");
@@ -155,7 +172,7 @@ export default function DeliveriesHome() {
   const handleEndDateSelect = (day: any) => {
     setEndDate(day.dateString); // Store in YYYY-MM-DD format
     setShowEndDatePicker(false);
-    
+
     // Clear validation error when user selects a date
     if (dateValidationError) {
       setDateValidationError("");
@@ -166,7 +183,7 @@ export default function DeliveriesHome() {
     setIsLoading(true);
     // Clear previous data when switching tabs to prevent showing wrong data
     resetData();
-    getDeleverirsData(activeTab);
+    getDeleverirsData(activeTab, 1, false, currentFilters);
   }, [activeTab]);
   useEffect(() => {
     if (user) {
@@ -228,6 +245,7 @@ export default function DeliveriesHome() {
     filters?: {
       frameNumber?: string;
       mobileNumber?: string;
+      userRef?: string;
       modelRef?: string;
       startDate?: string;
       endDate?: string;
@@ -245,7 +263,7 @@ export default function DeliveriesHome() {
         10,
         filters
       )) as any;
-      console.log("API Response with filters:", response);
+      // console.log("API Response with filters:", response);
 
       if (isLoadMore && page > 1) {
         // Append new results to existing ones
@@ -315,9 +333,26 @@ export default function DeliveriesHome() {
     router.back();
   };
 
-  const handleFilterPress = () => {
+  const handleFilterPress = async () => {
     setShowFilterModal(true);
-    getAllModels();
+    try {
+      await getAllModels();
+      if(user?.userType === 'main_dealer'){
+      const response = await getAllUsers();
+      // console.log("Users fetched:", response);
+      setUsers((response as any).results || []);
+      }
+    } catch (error) {
+      console.error("Error loading users:", error);
+
+      setUsers([]); // Ensure users is always an array
+      Toast.show({
+        type: "error",
+        text1: "API Error",
+        text2: `Failed to load users: ${(error as Error).message}`,
+        visibilityTime: 3000,
+      });
+    }
   };
 
   const handleApplyFilter = () => {
@@ -332,9 +367,9 @@ export default function DeliveriesHome() {
       });
       return;
     }
-    
+
     setDateValidationError("");
-    
+
     console.log("Applying filter:", {
       frameNumber,
       mobileNumber,
@@ -348,6 +383,7 @@ export default function DeliveriesHome() {
       frameNumber?: string;
       mobileNumber?: string;
       modelRef?: string;
+      userRef?: string;
       startDate?: string;
       endDate?: string;
     } = {};
@@ -360,6 +396,9 @@ export default function DeliveriesHome() {
     }
     if (selectedModel && selectedModel.trim()) {
       filters.modelRef = selectedModel.trim();
+    }
+    if (selectedUser && selectedUser.trim()) {
+      filters.userRef = selectedUser.trim();
     }
     if (startDate) {
       filters.startDate = startDate; // Already in YYYY-MM-DD format
@@ -390,6 +429,7 @@ export default function DeliveriesHome() {
     setFrameNumber("");
     setMobileNumber("");
     setSelectedModel("");
+    setSelectedUser("");
     setStartDate("");
     setEndDate("");
     setDateValidationError("");
@@ -529,7 +569,11 @@ export default function DeliveriesHome() {
   };
 
   // Helper to save and share a blob
-  const saveAndShareBlob = async (blob: Blob, fileName: string, mimeType: string) => {
+  const saveAndShareBlob = async (
+    blob: Blob,
+    fileName: string,
+    mimeType: string
+  ) => {
     try {
       const reader = new FileReader();
       const base64Promise = new Promise<string>((resolve, reject) => {
@@ -542,34 +586,45 @@ export default function DeliveriesHome() {
       });
       const base64 = await base64Promise;
       const fileUri = FileSystem.cacheDirectory + fileName;
-      await FileSystem.writeAsStringAsync(fileUri, base64, { encoding: FileSystem.EncodingType.Base64 });
+      await FileSystem.writeAsStringAsync(fileUri, base64, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri, { mimeType });
       } else {
-        Toast.show({ type: 'info', text1: 'File downloaded', text2: fileUri });
+        Toast.show({ type: "info", text1: "File downloaded", text2: fileUri });
       }
     } catch (error) {
       Toast.show({
-        type: 'error',
-        text1: 'Download Error',
-        text2: error instanceof Error ? error.message : 'Failed to download file.'
+        type: "error",
+        text1: "Download Error",
+        text2:
+          error instanceof Error ? error.message : "Failed to download file.",
       });
     }
   };
 
   const handleDownloadCombinedForm20 = async (document: any) => {
     try {
-      const response = await downloadCombineForm20(document?.certificateRef?.chassisNumber);
+      const response = await downloadCombineForm20(
+        document?.certificateRef?.chassisNumber
+      );
       if (response instanceof Blob) {
-        await saveAndShareBlob(response, 'Combined_Form20.pdf', 'application/pdf');
+        await saveAndShareBlob(
+          response,
+          "Combined_Form20.pdf",
+          "application/pdf"
+        );
       } else {
-        Toast.show({ type: 'error', text1: 'No file to download' });
+        Toast.show({ type: "error", text1: "No file to download" });
       }
     } catch (error) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: (error as any).message || 'An error occurred while downloading the combined Form 20.',
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while downloading the combined Form 20.",
       });
     }
   };
@@ -577,64 +632,94 @@ export default function DeliveriesHome() {
   const handleDownloadAll = async (document: any) => {
     try {
       console.log("Downloading all documents for chassis number:", document);
-      const response = await downloadCombineZip(document?.certificateRef?.chassisNumber,document?.customerName,document?.createdAt);
+      const response = await downloadCombineZip(
+        document?.certificateRef?.chassisNumber,
+        document?.customerName,
+        document?.createdAt
+      );
       if (response instanceof Blob) {
-        await saveAndShareBlob(response, 'All_Documents.zip', 'application/zip');
+        await saveAndShareBlob(
+          response,
+          "All_Documents.zip",
+          "application/zip"
+        );
       } else {
-        Toast.show({ type: 'error', text1: 'No file to download' });
+        Toast.show({ type: "error", text1: "No file to download" });
       }
     } catch (error) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: (error as any).message || 'An error occurred while downloading the combined ZIP.',
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while downloading the combined ZIP.",
       });
     }
   };
 
   const handleDownloadCombinedAadhaar = async (document: any) => {
     try {
-      console.log("Downloading combined Aadhaar for chassis number:", document?.certificateRef?.chassisNumber);
-      const response = await downloadCombineAadhaar(document?.certificateRef?.chassisNumber);
+      console.log(
+        "Downloading combined Aadhaar for chassis number:",
+        document?.certificateRef?.chassisNumber
+      );
+      const response = await downloadCombineAadhaar(
+        document?.certificateRef?.chassisNumber
+      );
       if (response instanceof Blob) {
-        await saveAndShareBlob(response, 'Combined_Aadhaar.pdf', 'application/pdf');
+        await saveAndShareBlob(
+          response,
+          "Combined_Aadhaar.pdf",
+          "application/pdf"
+        );
       } else {
-        Toast.show({ type: 'error', text1: 'No file to download' });
+        Toast.show({ type: "error", text1: "No file to download" });
       }
     } catch (error) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: (error as any).message || 'An error occurred while downloading the combined Aadhaar.',
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while downloading the combined Aadhaar.",
       });
     }
   };
-  const handleDownloadDocument = async(document: any) => {
+  const handleDownloadDocument = async (document: any) => {
     console.log("Downloading document:", document);
     try {
       const response = await generatePdfUrl(document?.fileUrl);
       const downloadUrl = (response as any)?.downloadUrl;
       if (!downloadUrl) {
-        Toast.show({ type: 'error', text1: 'No download URL found' });
+        Toast.show({ type: "error", text1: "No download URL found" });
         return;
       }
-      const fileName = ((document?.documentName || 'Document').replace(/\s+/g, '_')) + '.pdf';
+      const fileName =
+        (document?.documentName || "Document").replace(/\s+/g, "_") + ".pdf";
       const fileUri = FileSystem.cacheDirectory + fileName;
       const downloadRes = await FileSystem.downloadAsync(downloadUrl, fileUri);
       if (downloadRes && downloadRes.status === 200) {
         if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(downloadRes.uri, { mimeType: 'application/pdf' });
+          await Sharing.shareAsync(downloadRes.uri, {
+            mimeType: "application/pdf",
+          });
         } else {
-          Toast.show({ type: 'info', text1: 'File downloaded', text2: downloadRes.uri });
+          Toast.show({
+            type: "info",
+            text1: "File downloaded",
+            text2: downloadRes.uri,
+          });
         }
       } else {
-        Toast.show({ type: 'error', text1: 'Download failed' });
+        Toast.show({ type: "error", text1: "Download failed" });
       }
     } catch (error) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: (error as any).message || 'An error occurred while downloading the document.',
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while downloading the document.",
       });
     }
   };
@@ -884,6 +969,7 @@ export default function DeliveriesHome() {
                   placeholder="Frame Number"
                   value={frameNumber}
                   onChangeText={setFrameNumber}
+                  maxLength={17}
                 />
 
                 <TextInput
@@ -904,7 +990,7 @@ export default function DeliveriesHome() {
                   <Text
                     style={[
                       allStyles.dropdownText,
-                      startDate ? { color: COLORS.black } : { color: '#999' },
+                      startDate ? { color: COLORS.black } : null,
                     ]}
                   >
                     {startDate ? formatDateForDisplay(startDate) : "Start Date"}
@@ -921,7 +1007,7 @@ export default function DeliveriesHome() {
                   <Text
                     style={[
                       allStyles.dropdownText,
-                      endDate ? { color: COLORS.black } : { color: '#999' },
+                      endDate ? { color: COLORS.black } : null,
                     ]}
                   >
                     {endDate ? formatDateForDisplay(endDate) : "End Date"}
@@ -931,10 +1017,42 @@ export default function DeliveriesHome() {
 
                 {/* Date Validation Error */}
                 {dateValidationError ? (
-                  <Text style={{ color: 'red', fontSize: 12, marginTop: 5, marginBottom: 10 }}>
+                  <Text
+                    style={{
+                      color: "red",
+                      fontSize: 12,
+                      marginTop: 5,
+                      marginBottom: 10,
+                    }}
+                  >
                     {dateValidationError}
                   </Text>
                 ) : null}
+
+                {/* User Dropdown */}
+                {(user?.userType === "main_dealer" || (deliveriesData as any)?.isRtoDelarAdmin) && (
+                  <>
+                  <TouchableOpacity
+                    style={[globalStyles.input, styles.dropdownButton]}
+                    onPress={() => setShowUserModal(true)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        allStyles.dropdownText,
+                        selectedUser ? { color: COLORS.black } : null,
+                      ]}
+                    >
+                      {selectedUser
+                        ? users.find(
+                            (user) => (user.id || user._id) === selectedUser
+                          )?.name || "Select User"
+                        : "Select User "}
+                    </Text>
+                    <Ionicons name="chevron-down" size={20} color="#6C757D" />
+                  </TouchableOpacity>
+                  </>
+                )}
 
                 {/* Model Dropdown */}
                 <TouchableOpacity
@@ -951,7 +1069,7 @@ export default function DeliveriesHome() {
                     {selectedModel
                       ? modelsData.find((model) => model._id === selectedModel)
                           ?.name || selectedModel
-                      : "Select Model *"}
+                      : "Select Model"}
                   </Text>
                   <Ionicons name="chevron-down" size={20} color="#6C757D" />
                 </TouchableOpacity>
@@ -966,6 +1084,82 @@ export default function DeliveriesHome() {
                   <Text style={allStyles.btnText}>Apply</Text>
                 </TouchableOpacity>
               </View>
+            </View>
+          </View>
+        </Modal>
+        {/* Model Selection User - Center of screen */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showUserModal}
+          onRequestClose={() => setShowUserModal(false)}
+        >
+          <View style={styles.modelModalOverlay}>
+            <View style={styles.modelModalContent}>
+              <View style={styles.modelModalHeader}>
+                <Text style={styles.modelModalTitle}>Select User</Text>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setShowUserModal(false)}
+                >
+                  <Ionicons name="close" size={24} color="#6C757D" />
+                </TouchableOpacity>
+              </View>
+              <ScrollView
+                style={styles.modelScrollView}
+                showsVerticalScrollIndicator={false}
+              >
+                {Array.isArray(users) && users.length > 0 ? (
+                  users.map((user, index) => {
+                    const userId = user.id || user._id;
+                    const isSelected = selectedUser === userId;
+
+                    return (
+                      <TouchableOpacity
+                        key={userId || index}
+                        style={[
+                          styles.modelOption,
+                          isSelected && styles.selectedModelOption,
+                        ]}
+                        onPress={() => {
+                          console.log(
+                            "Selected user:",
+                            user.name,
+                            "ID:",
+                            userId
+                          );
+                          setSelectedUser(userId);
+                          setShowUserModal(false);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.modelOptionText,
+                            isSelected && styles.selectedModelText,
+                          ]}
+                        >
+                          {user.name}
+                        </Text>
+                        {isSelected && (
+                          <Ionicons
+                            name="checkmark"
+                            size={20}
+                            color={COLORS.primaryBlue}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })
+                ) : (
+                  <View style={{ padding: 20, alignItems: "center" }}>
+                    <Text style={{ color: "#666", fontSize: 14 }}>
+                      {users === null || users === undefined
+                        ? "Loading users..."
+                        : "No users available"}
+                    </Text>
+                  </View>
+                )}
+              </ScrollView>
             </View>
           </View>
         </Modal>
@@ -1147,8 +1341,12 @@ export default function DeliveriesHome() {
                 {/* Show Combined Aadhaar button only if both AADHAAR FRONT and AADHAAR BACK are present */}
                 {(() => {
                   const docs = selectedDelivery?.downloadDocuments || [];
-                  const hasAadhaarFront = docs.some((d: any) => d.documentName === 'AADHAAR FRONT');
-                  const hasAadhaarBack = docs.some((d: any) => d.documentName === 'AADHAAR BACK');
+                  const hasAadhaarFront = docs.some(
+                    (d: any) => d.documentName === "AADHAAR FRONT"
+                  );
+                  const hasAadhaarBack = docs.some(
+                    (d: any) => d.documentName === "AADHAAR BACK"
+                  );
                   if (hasAadhaarFront || hasAadhaarBack) {
                     return (
                       <TouchableOpacity
@@ -1158,7 +1356,9 @@ export default function DeliveriesHome() {
                           setShowDocsModal(false);
                         }}
                       >
-                        <Text style={[allStyles.modalOptionText]}>Combined Aadhaar</Text>
+                        <Text style={[allStyles.modalOptionText]}>
+                          Combined Aadhaar
+                        </Text>
                       </TouchableOpacity>
                     );
                   }
@@ -1168,9 +1368,15 @@ export default function DeliveriesHome() {
                 {/* Show Combined Form 20 button only if all three FORM 20 pages are present */}
                 {(() => {
                   const docs = selectedDelivery?.downloadDocuments || [];
-                  const hasForm20_1 = docs.some((d: any) => d.documentName === 'FORM 20 1ST PAGE');
-                  const hasForm20_2 = docs.some((d: any) => d.documentName === 'FORM 20 2ND PAGE');
-                  const hasForm20_3 = docs.some((d: any) => d.documentName === 'FORM 20 3RD PAGE');
+                  const hasForm20_1 = docs.some(
+                    (d: any) => d.documentName === "FORM 20 1ST PAGE"
+                  );
+                  const hasForm20_2 = docs.some(
+                    (d: any) => d.documentName === "FORM 20 2ND PAGE"
+                  );
+                  const hasForm20_3 = docs.some(
+                    (d: any) => d.documentName === "FORM 20 3RD PAGE"
+                  );
                   if (hasForm20_1 || hasForm20_2 || hasForm20_3) {
                     return (
                       <TouchableOpacity
@@ -1180,7 +1386,9 @@ export default function DeliveriesHome() {
                           setShowDocsModal(false);
                         }}
                       >
-                        <Text style={[allStyles.modalOptionText]}>Combined Form 20</Text>
+                        <Text style={[allStyles.modalOptionText]}>
+                          Combined Form 20
+                        </Text>
                       </TouchableOpacity>
                     );
                   }
@@ -1247,7 +1455,7 @@ export default function DeliveriesHome() {
           onRequestClose={() => setShowStartDatePicker(false)}
         >
           <View style={styles.filterModalOverlay}>
-            <View style={[styles.filterModalContent, { height: '60%' }]}>
+            <View style={[styles.filterModalContent, { height: "60%" }]}>
               {/* Modal Header */}
               <View style={styles.filterModalHeader}>
                 <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
@@ -1266,19 +1474,19 @@ export default function DeliveriesHome() {
                   markedDates={{
                     [startDate]: {
                       selected: true,
-                      selectedColor: COLORS.primaryBlue || '#007AFF',
+                      selectedColor: COLORS.primaryBlue || "#007AFF",
                     },
                   }}
-                  maxDate={new Date().toISOString().split('T')[0]} // Today's date
+                  maxDate={new Date().toISOString().split("T")[0]} // Today's date
                   theme={{
-                    selectedDayBackgroundColor: COLORS.primaryBlue || '#007AFF',
-                    selectedDayTextColor: '#ffffff',
-                    todayTextColor: COLORS.primaryBlue || '#007AFF',
-                    dayTextColor: '#2d4150',
-                    textDisabledColor: '#d9e1e8',
-                    arrowColor: COLORS.primaryBlue || '#007AFF',
-                    monthTextColor: COLORS.primaryBlue || '#007AFF',
-                    indicatorColor: COLORS.primaryBlue || '#007AFF',
+                    selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+                    selectedDayTextColor: "#ffffff",
+                    todayTextColor: COLORS.primaryBlue || "#007AFF",
+                    dayTextColor: "#2d4150",
+                    textDisabledColor: "#d9e1e8",
+                    arrowColor: COLORS.primaryBlue || "#007AFF",
+                    monthTextColor: COLORS.primaryBlue || "#007AFF",
+                    indicatorColor: COLORS.primaryBlue || "#007AFF",
                   }}
                 />
               </View>
@@ -1294,7 +1502,7 @@ export default function DeliveriesHome() {
           onRequestClose={() => setShowEndDatePicker(false)}
         >
           <View style={styles.filterModalOverlay}>
-            <View style={[styles.filterModalContent, { height: '60%' }]}>
+            <View style={[styles.filterModalContent, { height: "60%" }]}>
               {/* Modal Header */}
               <View style={styles.filterModalHeader}>
                 <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
@@ -1313,20 +1521,20 @@ export default function DeliveriesHome() {
                   markedDates={{
                     [endDate]: {
                       selected: true,
-                      selectedColor: COLORS.primaryBlue || '#007AFF',
+                      selectedColor: COLORS.primaryBlue || "#007AFF",
                     },
                   }}
-                  maxDate={new Date().toISOString().split('T')[0]} // Today's date
+                  maxDate={new Date().toISOString().split("T")[0]} // Today's date
                   minDate={startDate || undefined} // Minimum date is start date if selected
                   theme={{
-                    selectedDayBackgroundColor: COLORS.primaryBlue || '#007AFF',
-                    selectedDayTextColor: '#ffffff',
-                    todayTextColor: COLORS.primaryBlue || '#007AFF',
-                    dayTextColor: '#2d4150',
-                    textDisabledColor: '#d9e1e8',
-                    arrowColor: COLORS.primaryBlue || '#007AFF',
-                    monthTextColor: COLORS.primaryBlue || '#007AFF',
-                    indicatorColor: COLORS.primaryBlue || '#007AFF',
+                    selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+                    selectedDayTextColor: "#ffffff",
+                    todayTextColor: COLORS.primaryBlue || "#007AFF",
+                    dayTextColor: "#2d4150",
+                    textDisabledColor: "#d9e1e8",
+                    arrowColor: COLORS.primaryBlue || "#007AFF",
+                    monthTextColor: COLORS.primaryBlue || "#007AFF",
+                    indicatorColor: COLORS.primaryBlue || "#007AFF",
                   }}
                 />
               </View>

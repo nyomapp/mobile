@@ -1,4 +1,3 @@
-
 // API Configuration
 export const API_CONFIG = {
   BASE_URL: "https://nyomx.com/api/v1/",
@@ -19,10 +18,14 @@ export const API_ENDPOINTS = {
     GET: "deliveries?status={STATUS}",
     DELETE: "deliveries/:deliveryId",
     UPDATE: "deliveries/:deliveryId",
-    DOWNLOAD_COMBINED_AADHAAR: "upload/download-combine-aadhaar-pdf?frameNumber={frameNumber}&isTemp=false",
-    DOWNLOAD_COMBINED_FORM20: "upload/download-combine-form20-pdf?frameNumber={frameNumber}&isTemp=false",
-    DOWNLOAD_ALL_ZIP: "upload/download-folder-zip?frameNumber={frameNumber}&customerName={customerName}&date={date}&isTemp=false",
+    DOWNLOAD_COMBINED_AADHAAR:
+      "upload/download-combine-aadhaar-pdf?frameNumber={frameNumber}&isTemp=false",
+    DOWNLOAD_COMBINED_FORM20:
+      "upload/download-combine-form20-pdf?frameNumber={frameNumber}&isTemp=false",
+    DOWNLOAD_ALL_ZIP:
+      "upload/download-folder-zip?frameNumber={frameNumber}&customerName={customerName}&date={date}&isTemp=false",
     GENERATE_PDF_URL: "upload/generate-download-url/{url}",
+    GET_ALL_USERS: "users?userType=user&limit=10000S&page=1",
   },
   MasterData: {
     GET: "master",
