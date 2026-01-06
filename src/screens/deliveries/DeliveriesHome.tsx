@@ -337,7 +337,7 @@ export default function DeliveriesHome() {
     setShowFilterModal(true);
     try {
       await getAllModels();
-      if(user?.userType === 'main_dealer'){
+      if(user?.userType === 'main_dealer' || (deliveriesData as any)?.isRtoDelarAdmin){
       const response = await getAllUsers();
       // console.log("Users fetched:", response);
       setUsers((response as any).results || []);

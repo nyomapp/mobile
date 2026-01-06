@@ -11,8 +11,9 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "backgroundColor": "#FFFFFF",
-      "resizeMode": "contain"
+      "resizeMode": "cover"
     },
+    
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sivesh.nyom",
@@ -42,7 +43,7 @@
         {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
-          "resizeMode": "contain",
+          "resizeMode": "cover",
           "backgroundColor": "#1a1a2e",
           "dark": {
             "backgroundColor": "#1a1a2e"
