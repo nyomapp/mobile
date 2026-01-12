@@ -25,7 +25,7 @@ export const API_ENDPOINTS = {
     DOWNLOAD_ALL_ZIP:
       "upload/download-folder-zip?frameNumber={frameNumber}&customerName={customerName}&date={date}&isTemp=false",
     GENERATE_PDF_URL: "upload/generate-download-url/{url}",
-    GET_ALL_USERS: "users?userType=user&limit=10000S&page=1",
+    GET_ALL_USERS: "users?userType=user&limit=10000&page=1",
   },
   MasterData: {
     GET: "master",
