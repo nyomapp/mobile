@@ -20,9 +20,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect } from "react";
-// import PieChart from "react-native-pie-chart";
+import { PieChart } from "react-native-svg-charts";
 import Toast from "react-native-toast-message";
 import { styles } from "../../styles/homeStyles";
+
 const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
@@ -90,7 +91,6 @@ export default function HomeScreen() {
       value: activeValue,
       color: COLORS.secondaryBlue,
     },
-
     {
       name: "Pending",
       value: pendingValue,
@@ -98,55 +98,56 @@ export default function HomeScreen() {
     },
   ];
 
-  // RadialChart component with correct props
+  // Donut Chart Component
   const RadialChart = () => {
-    // Create series array with just numbers
-    const series = [
-      { value: activeValue, color: COLORS.secondaryBlue },
-      { value: totalValue, color: COLORS.primaryBlue },
-      { value: pendingValue, color: "#67E8F9" },
+    // Handle empty data
+    if (activeValue + pendingValue + totalValue <= 0) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const chartDataForKit = [
+      {
+        value: activeValue,
+        svg: { fill: COLORS.secondaryBlue },
+        key: "delivered",
+      },
+      {
+        value: pendingValue,
+        svg: { fill: "#67E8F9" },
+        key: "pending",
+      },
+      {
+        value: totalValue,
+        svg: { fill: COLORS.primaryBlue },
+        key: "total",
+      },
     ];
-    // const sliceColors = [COLORS.primaryBlue, COLORS.secondaryBlue, '#67E8F9'];
-
-    // Check if all values are zero to prevent the error
-    // const hasData = series.some(value => value as any > 0);
-
-    // if (!hasData) {
-    //   // Show placeholder when no data
-    //   return (
-    //     <View style={styles.radialChartContainer}>
-    //       <View style={styles.progressCirclesContainer}>
-    //         <View style={[styles.centerContent, { width: 120, height: 120, borderRadius: 60, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' }]}>
-    //           <Text style={styles.centerText}>0</Text>
-    //           <Text style={styles.centerSubText}>No Data</Text>
-    //         </View>
-    //       </View>
-    //     </View>
-    //   );
-    // }
 
     return (
       <View style={styles.radialChartContainer}>
         <View
-          style={[
-            styles.progressCirclesContainer,
-            { height: "auto", justifyContent: "center", alignItems: "center" },
-          ]}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: 240,
+          }}
         >
-          {activeValue + pendingValue + totalValue <= 0 ? (
-            <View style={styles.centerContent}>
-              {/* <Text style={styles.centerText}>0</Text> */}
-              {/* <Text style={styles.centerSubText}>No Data</Text> */}
-            </View>
-          ) : (
-            <></>
-            // <PieChart
-            //   widthAndHeight={150}
-            //   series={series}
-            //   cover={0.6}
-            // />
-          )}
-
+          <PieChart
+            style={{ height: 240, width: screenWidth - 80 }}
+            data={chartDataForKit}
+            innerRadius="50%"
+            outerRadius="85%"
+            spacing={0}
+            padAngle={0}
+          />
         </View>
       </View>
     );
@@ -156,7 +157,6 @@ export default function HomeScreen() {
     <SafeAreaView style={allStyles.safeArea} edges={["top"]}>
       <ScrollView
         style={allStyles.container}
-        // contentContainerStyle={allStyles.scrollContent}
       >
         {/* Header Section */}
         <View style={styles.headingContainer}>
@@ -223,7 +223,6 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.statValue}>
               {(dashBoardData as any)?.pieChart?.total}
-    
             </Text>
           </LinearGradient>
 
@@ -243,7 +242,6 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.statValue}>
               {(dashBoardData as any)?.avgDiscount}
-              
             </Text>
           </LinearGradient>
 
@@ -263,7 +261,6 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.statValue}>
               {(dashBoardData as any)?.totalAccessories}
-              
             </Text>
           </LinearGradient>
 
@@ -283,29 +280,27 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.statValue}>
               {(dashBoardData as any)?.noOfHelmets}
-              
             </Text>
           </LinearGradient>
         </View>
-          <LinearGradient
-            colors={["#183B64", "#3077CA"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[allStyles.statCard, styles.gradientCard]}
-          >
-            <View style={styles.statCardHeader}>
-              <Text style={styles.statLabel}>Total{"\n"}Loyality</Text>
-              <Image
-                source={require("@/assets/icons/LoyalityIcon.png")}
-                style={styles.img}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.statValue}>
-              {(dashBoardData as any)?.totalLoyality}
-    
-            </Text>
-          </LinearGradient>
+        <LinearGradient
+          colors={["#183B64", "#3077CA"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[allStyles.statCard, styles.gradientCard]}
+        >
+          <View style={styles.statCardHeader}>
+            <Text style={styles.statLabel}>Total{"\n"}Loyality</Text>
+            <Image
+              source={require("@/assets/icons/LoyalityIcon.png")}
+              style={styles.img}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={styles.statValue}>
+            {(dashBoardData as any)?.totalLoyality}
+          </Text>
+        </LinearGradient>
       </ScrollView>
 
       {/* Floating Action Button */}

@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     // height: 140,
     // width: 140,
-    position: "relative",
+    // position: "relative",
   },
   radialChart: {
     alignSelf: "center",
