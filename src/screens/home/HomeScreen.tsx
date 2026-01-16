@@ -146,7 +146,7 @@ export default function HomeScreen() {
             innerRadius="50%"
             outerRadius="85%"
             spacing={0}
-            padAngle={0}
+            // padAngle={0}
           />
         </View>
       </View>

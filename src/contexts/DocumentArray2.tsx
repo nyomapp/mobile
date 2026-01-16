@@ -123,6 +123,36 @@ const initialDocumentTypes: DocumentType[] = [
     fileSize: 390,
     fileType: "PDF",
   },
+  {
+    id: 10,
+    title: "RENT DOCUMENT 1",
+    icon: require("@/assets/icons/Rent Doc 1.png"),
+    uploaded: false,
+    documentName: "RENT DOCUMENT 1",
+    fileUrl: "",
+    fileSize: 130,
+    fileType: "PDF",
+  },
+  {
+    id: 11,
+    title: "RENT DOCUMENT 2",
+    icon: require("@/assets/icons/Rent Doc 2.png"),
+    uploaded: false,
+    documentName: "RENT DOCUMENT 2",
+    fileUrl: "",
+    fileSize: 130,
+    fileType: "PDF",
+  },
+  {
+    id: 12,
+    title: "RENT DOCUMENT 3",
+    icon: require("@/assets/icons/Rent Doc 3.png"),
+    uploaded: false,
+    documentName: "RENT DOCUMENT 3",
+    fileUrl: "",
+    fileSize: 130,
+    fileType: "PDF",
+  }
 ];
 
 // Create context
