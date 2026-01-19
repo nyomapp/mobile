@@ -8,7 +8,7 @@ export interface DocumentType {
   documentName: string;
   fileUrl: string;
   fileSize: number;
-  fileType: "PDF" | "JPG";
+  fileType: "PDF" | "JPG" | "png";
 }
 
 interface DocumentArrayContextType {
@@ -16,7 +16,7 @@ interface DocumentArrayContextType {
   updateDocumentStatus: (
     documentName: string,
     uploaded: boolean,
-    fileUrl: string
+    fileUrl: string,
   ) => void;
   updateBulkDocuments: (
     downloadDocuments: Array<{
@@ -24,7 +24,7 @@ interface DocumentArrayContextType {
       fileUrl: string;
       fileSize: number;
       fileType: "PDF" | "JPG";
-    }>
+    }>,
   ) => void;
   resetDocuments: () => void;
   isOtherDocumentsUpload: boolean;
@@ -152,7 +152,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileUrl: "",
     fileSize: 130,
     fileType: "PDF",
-  }
+  },
 ];
 
 // Create context
@@ -176,43 +176,57 @@ export const DocumentArray2Provider: React.FC<DocumentArrayProviderProps> = ({
   const updateDocumentStatus = (
     documentName: string,
     uploaded: boolean,
-    fileUrl: string
+    fileUrl: string,
   ) => {
     setDocumentTypes((prevDocs) =>
       prevDocs.map((doc) =>
-        doc.documentName === documentName ? { ...doc, uploaded, fileUrl } : doc
-      )
+        doc.documentName === documentName ? { ...doc, uploaded, fileUrl } : doc,
+      ),
     );
   };
 
   const updateBulkDocuments = (
-    downloadDocuments: Array<{ documentName: string; fileUrl: string; fileSize: number; fileType: 'PDF' | 'JPG' }>
+    downloadDocuments: Array<{
+      documentName: string;
+      fileUrl: string;
+      fileSize: number;
+      fileType: "PDF" | "JPG";
+    }>,
   ) => {
-    console.log('Updating bulk documents:', downloadDocuments);
-    
+    console.log("Updating bulk documents:", downloadDocuments);
+
     // Filter downloadDocuments to only include documents that exist in documentTypes
-    const validDocumentNames = initialDocumentTypes.map(doc => doc.documentName);
-    const filteredDownloadDocuments = downloadDocuments.filter(
-      doc => validDocumentNames.includes(doc.documentName)
+    const validDocumentNames = initialDocumentTypes.map(
+      (doc) => doc.documentName,
     );
-    
-    console.log('Filtered documents (only existing keys):', filteredDownloadDocuments);
-    
-    setDocumentTypes(prevDocs =>
-      prevDocs.map(doc => {
-        const matchingDoc = filteredDownloadDocuments.find(d => d.documentName === doc.documentName);
+    const filteredDownloadDocuments = downloadDocuments.filter((doc) =>
+      validDocumentNames.includes(doc.documentName),
+    );
+
+    console.log(
+      "Filtered documents (only existing keys):",
+      filteredDownloadDocuments,
+    );
+
+    setDocumentTypes((prevDocs) =>
+      prevDocs.map((doc) => {
+        const matchingDoc = filteredDownloadDocuments.find(
+          (d) => d.documentName === doc.documentName,
+        );
         if (matchingDoc) {
-          const hasFileUrl = !!(matchingDoc.fileUrl && matchingDoc.fileUrl.trim() !== '');
+          const hasFileUrl = !!(
+            matchingDoc.fileUrl && matchingDoc.fileUrl.trim() !== ""
+          );
           const newDoc: DocumentType = {
             ...doc,
             uploaded: hasFileUrl,
-            fileUrl: hasFileUrl ? matchingDoc.fileUrl : '',
+            fileUrl: hasFileUrl ? matchingDoc.fileUrl : "",
             fileSize: hasFileUrl ? matchingDoc.fileSize : doc.fileSize,
           };
           return newDoc;
         }
         return doc;
-      })
+      }),
     );
   };
 
@@ -248,7 +262,7 @@ export const useDocumentArray2 = (): DocumentArrayContextType => {
   const context = useContext(DocumentArray2Context);
   if (!context) {
     throw new Error(
-      "useDocumentArray2 must be used within a DocumentArray2Provider"
+      "useDocumentArray2 must be used within a DocumentArray2Provider",
     );
   }
   return context;

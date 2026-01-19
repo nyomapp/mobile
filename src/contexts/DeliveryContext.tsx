@@ -1,28 +1,29 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 // Document size configuration
 export const documentSizeConfig = {
-  FRONT: { maxSize: 390, fileType: 'PDF' },
-  LEFT: { maxSize: 390, fileType: 'PDF' },
-  RIGHT: { maxSize: 390, fileType: 'PDF' },
-  BACK: { maxSize: 390, fileType: 'PDF' },
-  ODOMETER: { maxSize: 390, fileType: 'PDF' },
-  CHASSIS: { maxSize: 390, fileType: 'PDF' },
-  'AADHAAR FRONT': { maxSize: 195, fileType: 'PDF' },
-  'AADHAAR BACK': { maxSize: 195, fileType: 'PDF' },
-  'PAN': { maxSize: 195, fileType: 'PDF' },
-  Customer: { maxSize: 390, fileType: 'PDF' },
-  'TAX INVOICE': { maxSize: 390, fileType: 'PDF' },
-  INSURANCE: { maxSize: 390, fileType: 'PDF' },
-  'HELMET INVOICE': { maxSize: 390, fileType: 'PDF' },
-  'FORM 20 1ST PAGE': { maxSize: 130, fileType: 'PDF' },
-  'FORM 20 2ND PAGE': { maxSize: 130, fileType: 'PDF' },
-  'FORM 20 3RD PAGE': { maxSize: 130, fileType: 'PDF' },
-  'FORM 21': { maxSize: 390, fileType: 'PDF' },
-  'FORM 22': { maxSize: 390, fileType: 'PDF' },
-  AFFIDAVIT: { maxSize: 390, fileType: 'PDF' },
-  'OTHER 1': { maxSize: 390, fileType: 'PDF' },
-  'OTHER 2': { maxSize: 390, fileType: 'PDF' },
+  FRONT: { maxSize: 390, fileType: "PDF" },
+  LEFT: { maxSize: 390, fileType: "PDF" },
+  RIGHT: { maxSize: 390, fileType: "PDF" },
+  BACK: { maxSize: 390, fileType: "PDF" },
+  ODOMETER: { maxSize: 390, fileType: "PDF" },
+  CHASSIS: { maxSize: 390, fileType: "PDF" },
+  "AADHAAR FRONT": { maxSize: 195, fileType: "PDF" },
+  "AADHAAR BACK": { maxSize: 195, fileType: "PDF" },
+  PAN: { maxSize: 195, fileType: "PDF" },
+  Customer: { maxSize: 390, fileType: "PDF" },
+  "TAX INVOICE": { maxSize: 390, fileType: "PDF" },
+  INSURANCE: { maxSize: 390, fileType: "PDF" },
+  "HELMET INVOICE": { maxSize: 390, fileType: "PDF" },
+  "FORM 20 1ST PAGE": { maxSize: 130, fileType: "PDF" },
+  "FORM 20 2ND PAGE": { maxSize: 130, fileType: "PDF" },
+  "FORM 20 3RD PAGE": { maxSize: 130, fileType: "PDF" },
+  "FORM 21": { maxSize: 390, fileType: "PDF" },
+  "FORM 22": { maxSize: 390, fileType: "PDF" },
+  AFFIDAVIT: { maxSize: 390, fileType: "PDF" },
+  "OTHER 1": { maxSize: 390, fileType: "PDF" },
+  "OTHER 2": { maxSize: 390, fileType: "PDF" },
+  "Customer Photo": { maxSize: 10000, fileType: "png" },
 };
 
 // Types
@@ -32,7 +33,7 @@ export interface DownloadDocument {
   documentName: DocumentName;
   fileUrl: string;
   fileSize: number;
-  fileType: 'PDF' | 'JPG';
+  fileType: "PDF" | "JPG" | "png";
 }
 
 export interface Delivery {
@@ -104,10 +105,10 @@ interface DeliveryContextType {
 // Initial delivery state
 const initialDelivery: Partial<Delivery> = {
   isRenewal: false,
-  customerName: '',
-  mobileNumber: '',
-  chassisNo: '',
-  registrationNumber: '',
+  customerName: "",
+  mobileNumber: "",
+  chassisNo: "",
+  registrationNumber: "",
   exShowAmount: undefined,
   insuranceAmount: undefined,
   rtoAmount: undefined,
@@ -124,23 +125,27 @@ const initialDelivery: Partial<Delivery> = {
   discount: undefined,
   totalAmount: undefined,
   downloadDocuments: [],
-  purchaseType: '',
+  purchaseType: "",
   financeAmount: undefined,
-  financierPlan1: '',
+  financierPlan1: "",
   financierPlan2: undefined,
   //   status: 'pending',
   rtoLocation: null,
 };
 
 // Create context
-const DeliveryContext = createContext<DeliveryContextType | undefined>(undefined);
+const DeliveryContext = createContext<DeliveryContextType | undefined>(
+  undefined,
+);
 
 // Provider component
 interface DeliveryProviderProps {
   children: ReactNode;
 }
 
-export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) => {
+export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({
+  children,
+}) => {
   const [currentDelivery, setCurrentDelivery] = useState<Delivery | null>(null);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -171,7 +176,7 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
     if (currentDelivery) {
       const existingDocuments = currentDelivery.downloadDocuments || [];
       const filteredDocuments = existingDocuments.filter(
-        doc => doc.documentName !== document.documentName
+        (doc) => doc.documentName !== document.documentName,
       );
       const updatedDocuments = [...filteredDocuments, document];
 
@@ -186,7 +191,7 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
     if (currentDelivery) {
       const existingDocuments = currentDelivery.downloadDocuments || [];
       const filteredDocuments = existingDocuments.filter(
-        doc => doc.documentName !== documentName
+        (doc) => doc.documentName !== documentName,
       );
 
       setCurrentDelivery({
@@ -215,8 +220,20 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
       loyalityCardAmount = 0,
     } = currentDelivery;
 
-    const total = exShowAmount + insuranceAmount + rtoAmount + accessoriesAmount +
-      rsaAmount + others1 + others2 + others3 + others4 + others5 + loyalityCardAmount - discount - schemeDiscount;
+    const total =
+      exShowAmount +
+      insuranceAmount +
+      rtoAmount +
+      accessoriesAmount +
+      rsaAmount +
+      others1 +
+      others2 +
+      others3 +
+      others4 +
+      others5 +
+      loyalityCardAmount -
+      discount -
+      schemeDiscount;
     return Math.max(0, total);
   };
 
@@ -251,7 +268,9 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({ children }) 
 export const useDeliveryContext = (): DeliveryContextType => {
   const context = useContext(DeliveryContext);
   if (!context) {
-    throw new Error('useDeliveryContext must be used within a DeliveryProvider');
+    throw new Error(
+      "useDeliveryContext must be used within a DeliveryProvider",
+    );
   }
   return context;
 };

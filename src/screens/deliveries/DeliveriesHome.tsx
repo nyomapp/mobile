@@ -20,6 +20,7 @@ import {
   deleteDeliveryById,
   downloadCombineAadhaar,
   downloadCombineForm20,
+  downloadCombineRentDocuments,
   downloadCombineZip,
   generatePdfUrl,
   getAllUsers,
@@ -67,7 +68,7 @@ export default function DeliveriesHome() {
   } = useModels();
   const { users, setUsers, resetUsers } = useUsersData();
   const [activeTab, setActiveTab] = useState<"delivered" | "pending">(
-    "delivered"
+    "delivered",
   );
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showModelModal, setShowModelModal] = useState(false);
@@ -97,7 +98,7 @@ export default function DeliveriesHome() {
     endDate?: string;
   }>();
 
-    // Reset all filters on initial mount
+  // Reset all filters on initial mount
   useEffect(() => {
     setFrameNumber("");
     setMobileNumber("");
@@ -249,7 +250,7 @@ export default function DeliveriesHome() {
       modelRef?: string;
       startDate?: string;
       endDate?: string;
-    }
+    },
   ) => {
     console.log("Fetching deliveries with filters:", filters);
     try {
@@ -261,7 +262,7 @@ export default function DeliveriesHome() {
         status,
         page,
         10,
-        filters
+        filters,
       )) as any;
       // console.log("API Response with filters:", response);
 
@@ -302,7 +303,7 @@ export default function DeliveriesHome() {
       const nextPage = deliveriesData.page + 1;
       console.log(
         `Loading more deliveries - Page ${nextPage} with filters:`,
-        currentFilters
+        currentFilters,
       );
       getDeleverirsData(activeTab, nextPage, true, currentFilters);
     }
@@ -337,10 +338,13 @@ export default function DeliveriesHome() {
     setShowFilterModal(true);
     try {
       await getAllModels();
-      if(user?.userType === 'main_dealer' || (deliveriesData as any)?.isRtoDelarAdmin){
-      const response = await getAllUsers();
-      // console.log("Users fetched:", response);
-      setUsers((response as any).results || []);
+      if (
+        user?.userType === "main_dealer" ||
+        (deliveriesData as any)?.isRtoDelarAdmin
+      ) {
+        const response = await getAllUsers();
+        // console.log("Users fetched:", response);
+        setUsers((response as any).results || []);
       }
     } catch (error) {
       console.error("Error loading users:", error);
@@ -572,7 +576,7 @@ export default function DeliveriesHome() {
   const saveAndShareBlob = async (
     blob: Blob,
     fileName: string,
-    mimeType: string
+    mimeType: string,
   ) => {
     try {
       const reader = new FileReader();
@@ -607,13 +611,13 @@ export default function DeliveriesHome() {
   const handleDownloadCombinedForm20 = async (document: any) => {
     try {
       const response = await downloadCombineForm20(
-        document?.certificateRef?.chassisNumber
+        document?.certificateRef?.chassisNumber,
       );
       if (response instanceof Blob) {
         await saveAndShareBlob(
           response,
           "Combined_Form20.pdf",
-          "application/pdf"
+          "application/pdf",
         );
       } else {
         Toast.show({ type: "error", text1: "No file to download" });
@@ -629,19 +633,44 @@ export default function DeliveriesHome() {
     }
   };
 
+  const handleDownloadCombinedRentDocuments = async (document: any) => {
+    try {
+      const response = await downloadCombineRentDocuments(
+        document?.certificateRef?.chassisNumber,
+      );
+      if (response instanceof Blob) {
+        await saveAndShareBlob(
+          response,
+          "Combined_Rent_Documents.pdf",
+          "application/pdf",
+        );
+      } else {
+        Toast.show({ type: "error", text1: "No file to download" });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while downloading the combined Rent Documents.",
+      });
+    }
+  };
+
   const handleDownloadAll = async (document: any) => {
     try {
       console.log("Downloading all documents for chassis number:", document);
       const response = await downloadCombineZip(
         document?.certificateRef?.chassisNumber,
         document?.customerName,
-        document?.createdAt
+        document?.createdAt,
       );
       if (response instanceof Blob) {
         await saveAndShareBlob(
           response,
           "All_Documents.zip",
-          "application/zip"
+          "application/zip",
         );
       } else {
         Toast.show({ type: "error", text1: "No file to download" });
@@ -661,16 +690,16 @@ export default function DeliveriesHome() {
     try {
       console.log(
         "Downloading combined Aadhaar for chassis number:",
-        document?.certificateRef?.chassisNumber
+        document?.certificateRef?.chassisNumber,
       );
       const response = await downloadCombineAadhaar(
-        document?.certificateRef?.chassisNumber
+        document?.certificateRef?.chassisNumber,
       );
       if (response instanceof Blob) {
         await saveAndShareBlob(
           response,
           "Combined_Aadhaar.pdf",
-          "application/pdf"
+          "application/pdf",
         );
       } else {
         Toast.show({ type: "error", text1: "No file to download" });
@@ -694,14 +723,21 @@ export default function DeliveriesHome() {
         Toast.show({ type: "error", text1: "No download URL found" });
         return;
       }
+
+      // Determine if document is PNG or PDF
+      const isPng = document?.documentName === "Customer Photo";
+      const fileExtension = isPng ? ".png" : ".pdf";
+      const mimeType = isPng ? "image/png" : "application/pdf";
+
       const fileName =
-        (document?.documentName || "Document").replace(/\s+/g, "_") + ".pdf";
+        (document?.documentName || "Document").replace(/\s+/g, "_") +
+        fileExtension;
       const fileUri = FileSystem.cacheDirectory + fileName;
       const downloadRes = await FileSystem.downloadAsync(downloadUrl, fileUri);
       if (downloadRes && downloadRes.status === 200) {
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(downloadRes.uri, {
-            mimeType: "application/pdf",
+            mimeType: mimeType,
           });
         } else {
           Toast.show({
@@ -1030,27 +1066,28 @@ export default function DeliveriesHome() {
                 ) : null}
 
                 {/* User Dropdown */}
-                {(user?.userType === "main_dealer" || (deliveriesData as any)?.isRtoDelarAdmin) && (
+                {(user?.userType === "main_dealer" ||
+                  (deliveriesData as any)?.isRtoDelarAdmin) && (
                   <>
-                  <TouchableOpacity
-                    style={[globalStyles.input, styles.dropdownButton]}
-                    onPress={() => setShowUserModal(true)}
-                    activeOpacity={0.7}
-                  >
-                    <Text
-                      style={[
-                        allStyles.dropdownText,
-                        selectedUser ? { color: COLORS.black } : null,
-                      ]}
+                    <TouchableOpacity
+                      style={[globalStyles.input, styles.dropdownButton]}
+                      onPress={() => setShowUserModal(true)}
+                      activeOpacity={0.7}
                     >
-                      {selectedUser
-                        ? users.find(
-                            (user) => (user.id || user._id) === selectedUser
-                          )?.name || "Select User"
-                        : "Select User "}
-                    </Text>
-                    <Ionicons name="chevron-down" size={20} color="#6C757D" />
-                  </TouchableOpacity>
+                      <Text
+                        style={[
+                          allStyles.dropdownText,
+                          selectedUser ? { color: COLORS.black } : null,
+                        ]}
+                      >
+                        {selectedUser
+                          ? users.find(
+                              (user) => (user.id || user._id) === selectedUser,
+                            )?.name || "Select User"
+                          : "Select User "}
+                      </Text>
+                      <Ionicons name="chevron-down" size={20} color="#6C757D" />
+                    </TouchableOpacity>
                   </>
                 )}
 
@@ -1126,7 +1163,7 @@ export default function DeliveriesHome() {
                             "Selected user:",
                             user.name,
                             "ID:",
-                            userId
+                            userId,
                           );
                           setSelectedUser(userId);
                           setShowUserModal(false);
@@ -1342,10 +1379,10 @@ export default function DeliveriesHome() {
                 {(() => {
                   const docs = selectedDelivery?.downloadDocuments || [];
                   const hasAadhaarFront = docs.some(
-                    (d: any) => d.documentName === "AADHAAR FRONT"
+                    (d: any) => d.documentName === "AADHAAR FRONT",
                   );
                   const hasAadhaarBack = docs.some(
-                    (d: any) => d.documentName === "AADHAAR BACK"
+                    (d: any) => d.documentName === "AADHAAR BACK",
                   );
                   if (hasAadhaarFront || hasAadhaarBack) {
                     return (
@@ -1369,13 +1406,13 @@ export default function DeliveriesHome() {
                 {(() => {
                   const docs = selectedDelivery?.downloadDocuments || [];
                   const hasForm20_1 = docs.some(
-                    (d: any) => d.documentName === "FORM 20 1ST PAGE"
+                    (d: any) => d.documentName === "FORM 20 1ST PAGE",
                   );
                   const hasForm20_2 = docs.some(
-                    (d: any) => d.documentName === "FORM 20 2ND PAGE"
+                    (d: any) => d.documentName === "FORM 20 2ND PAGE",
                   );
                   const hasForm20_3 = docs.some(
-                    (d: any) => d.documentName === "FORM 20 3RD PAGE"
+                    (d: any) => d.documentName === "FORM 20 3RD PAGE",
                   );
                   if (hasForm20_1 || hasForm20_2 || hasForm20_3) {
                     return (
@@ -1394,6 +1431,41 @@ export default function DeliveriesHome() {
                   }
                   return null;
                 })()}
+
+                {/* Show Combined Form 20 button only if all three FORM 20 pages are present */}
+                {(() => {
+                  const docs = selectedDelivery?.downloadDocuments || [];
+                  const hasRentDocument1 = docs.some(
+                    (d: any) => d.documentName === "RENT DOCUMENT 1",
+                  );
+                  const hasRentDocument2 = docs.some(
+                    (d: any) => d.documentName === "RENT DOCUMENT 2",
+                  );
+                  const hasRentDocument3 = docs.some(
+                    (d: any) => d.documentName === "RENT DOCUMENT 3",
+                  );
+                  if (
+                    hasRentDocument1 ||
+                    hasRentDocument2 ||
+                    hasRentDocument3
+                  ) {
+                    return (
+                      <TouchableOpacity
+                        style={[allStyles.modalOption]}
+                        onPress={() => {
+                          handleDownloadCombinedRentDocuments(selectedDelivery);
+                          setShowDocsModal(false);
+                        }}
+                      >
+                        <Text style={[allStyles.modalOptionText]}>
+                          Combined Rent Documents
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                  return null;
+                })()}
+
                 {selectedDelivery?.downloadDocuments?.map(
                   (document: any, index: any) => (
                     <TouchableOpacity
@@ -1408,39 +1480,50 @@ export default function DeliveriesHome() {
                         {document.documentName === "FRONT"
                           ? "Vehicle Front Image"
                           : document.documentName === "LEFT"
-                          ? "Vehicle Side Image"
-                          : document.documentName === "CHASSIS"
-                          ? "Vehicle Frame Image"
-                          : document.documentName === "Customer"
-                          ? "Customer Image"
-                          : document.documentName === "AADHAAR FRONT"
-                          ? "Adhaar Front Image"
-                          : document.documentName === "AADHAAR BACK"
-                          ? "Aadhaar Back Image"
-                          : document.documentName === "PAN"
-                          ? "Pan Card Image"
-                          : document.documentName === "TAX INVOICE"
-                          ? "Tax Invoice Image"
-                          : document.documentName === "INSURANCE"
-                          ? "Insurance Image"
-                          : document.documentName === "HELMET INVOICE"
-                          ? "Helmet Invoice Image"
-                          : document.documentName === "FORM 20 1ST PAGE"
-                          ? "Form 20 1st Page Image"
-                          : document.documentName === "FORM 20 2ND PAGE"
-                          ? "Form 20 2nd Page Image"
-                          : document.documentName === "FORM 20 3RD PAGE"
-                          ? "Form 20 3rd Page Image"
-                          : document.documentName === "FORM 21"
-                          ? "Form 21 Image"
-                          : document.documentName === "FORM 22"
-                          ? "Form 22 Image"
-                          : document.documentName === "AFFIDAVIT"
-                          ? "Affidavit Image"
-                          : document.documentName}
+                            ? "Vehicle Side Image"
+                            : document.documentName === "CHASSIS"
+                              ? "Vehicle Frame Image"
+                              : document.documentName === "Customer"
+                                ? "Customer Image"
+                                : document.documentName === "Customer Photo"
+                                  ? "Customer Image Png"
+                                  : document.documentName === "AADHAAR FRONT"
+                                    ? "Adhaar Front Image"
+                                    : document.documentName === "AADHAAR BACK"
+                                      ? "Aadhaar Back Image"
+                                      : document.documentName === "PAN"
+                                        ? "Pan Card Image"
+                                        : document.documentName ===
+                                            "TAX INVOICE"
+                                          ? "Tax Invoice Image"
+                                          : document.documentName ===
+                                              "INSURANCE"
+                                            ? "Insurance Image"
+                                            : document.documentName ===
+                                                "HELMET INVOICE"
+                                              ? "Helmet Invoice Image"
+                                              : document.documentName ===
+                                                  "FORM 20 1ST PAGE"
+                                                ? "Form 20 1st Page Image"
+                                                : document.documentName ===
+                                                    "FORM 20 2ND PAGE"
+                                                  ? "Form 20 2nd Page Image"
+                                                  : document.documentName ===
+                                                      "FORM 20 3RD PAGE"
+                                                    ? "Form 20 3rd Page Image"
+                                                    : document.documentName ===
+                                                        "FORM 21"
+                                                      ? "Form 21 Image"
+                                                      : document.documentName ===
+                                                          "FORM 22"
+                                                        ? "Form 22 Image"
+                                                        : document.documentName ===
+                                                            "AFFIDAVIT"
+                                                          ? "Affidavit Image"
+                                                          : document.documentName}
                       </Text>
                     </TouchableOpacity>
-                  )
+                  ),
                 )}
               </ScrollView>
             </View>

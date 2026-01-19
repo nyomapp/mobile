@@ -39,7 +39,7 @@ export default function DocumentsScreen() {
     ) {
       console.log(
         "Edit mode detected. Loading existing documents:",
-        currentDelivery.downloadDocuments
+        currentDelivery.downloadDocuments,
       );
       updateBulkDocuments(currentDelivery.downloadDocuments as any);
     }
@@ -69,7 +69,7 @@ export default function DocumentsScreen() {
       currentDocumentData.length !== existingDocs.length ||
       currentDocumentData.some((newDoc) => {
         const existingDoc = existingDocs.find(
-          (existing) => existing.documentName === newDoc.documentName
+          (existing) => existing.documentName === newDoc.documentName,
         );
         return !existingDoc || existingDoc.fileUrl !== newDoc.fileUrl;
       });
@@ -104,7 +104,7 @@ export default function DocumentsScreen() {
 
       console.log(
         "Synced DocumentArray1 changes to DeliveryContext:",
-        updatedDownloadDocuments
+        updatedDownloadDocuments,
       );
 
       // Reset the flag after a short delay
@@ -150,13 +150,14 @@ export default function DocumentsScreen() {
           | "AADHAAR FRONT"
           | "AADHAAR BACK"
           | "Customer"
+          | "Customer Photo"
           | "TAX INVOICE"
           | "INSURANCE"
           | "HELMET INVOICE"
           | "FORM 20 1ST PAGE",
         fileUrl: doc.fileUrl,
         fileSize: doc.fileSize,
-        fileType: doc.fileType as "PDF" | "JPG",
+        fileType: doc.fileType as "PDF" | "JPG" | "png",
       }));
 
     // Store documents in DeliveryContext - ensure we don't lose existing data
@@ -243,40 +244,42 @@ export default function DocumentsScreen() {
           <Text style={allStyles.Title}>Documents</Text>
 
           {/* Document Upload Cards */}
-          {documentTypes.map((doc) => (
-            <TouchableOpacity
-              key={doc.id}
-              style={[
-                globalStyles.input,
-                styles.documentCard,
-                doc.uploaded && styles.documentUploadedCard,
-              ]}
-              onPress={() => handleDocumentUpload(doc)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.documentLeft}>
-                <View style={styles.iconContainer}>
+          {documentTypes
+            .filter((doc) => doc.documentName !== "Customer Photo")
+            .map((doc) => (
+              <TouchableOpacity
+                key={doc.id}
+                style={[
+                  globalStyles.input,
+                  styles.documentCard,
+                  doc.uploaded && styles.documentUploadedCard,
+                ]}
+                onPress={() => handleDocumentUpload(doc)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.documentLeft}>
+                  <View style={styles.iconContainer}>
+                    <Image
+                      source={doc.icon}
+                      style={{ width: 32, height: 32 }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                  <Text style={styles.documentTitle}>{doc.title}</Text>
+                </View>
+                <TouchableOpacity onPress={() => handleDocumentUpload(doc)}>
                   <Image
-                    source={doc.icon}
-                    style={{ width: 32, height: 32 }}
+                    source={
+                      doc.uploaded
+                        ? require("@/assets/icons/documentspagetickicon.png")
+                        : require("@/assets/icons/documentpageuplaodicon.png")
+                    }
+                    style={{ width: 25, height: 25 }}
                     resizeMode="contain"
                   />
-                </View>
-                <Text style={styles.documentTitle}>{doc.title}</Text>
-              </View>
-              <TouchableOpacity onPress={() => handleDocumentUpload(doc)}>
-                <Image
-                  source={
-                    doc.uploaded
-                      ? require("@/assets/icons/documentspagetickicon.png")
-                      : require("@/assets/icons/documentpageuplaodicon.png")
-                  }
-                  style={{ width: 25, height: 25 }}
-                  resizeMode="contain"
-                />
+                </TouchableOpacity>
               </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
+            ))}
         </ScrollView>
 
         {/* Bottom Buttons */}

@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     UPDATE: "deliveries/:deliveryId",
     DOWNLOAD_COMBINED_AADHAAR:
       "upload/download-combine-aadhaar-pdf?frameNumber={frameNumber}&isTemp=false",
+    DOWNLOAD_COMBINED_RENT_DOCUMENTS:
+      "/upload/download-combine-rent-pdf?frameNumber={frameNumber}&isTemp=false",
     DOWNLOAD_COMBINED_FORM20:
       "upload/download-combine-form20-pdf?frameNumber={frameNumber}&isTemp=false",
     DOWNLOAD_ALL_ZIP:

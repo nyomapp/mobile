@@ -6,6 +6,7 @@ import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
 import { convertImageToPdfAndCompress } from "@/src/utils/documentConversionUtils";
 import { CameraView } from "expo-camera";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -33,6 +34,7 @@ export default function DocumentScanner({}: DocumentScannerProps) {
   const {
     uploadingDocument,
     resetUploadingDocument,
+    setUploadingDocument,
     isTemp,
     setIsTemp,
     resetIsTemp,
@@ -150,7 +152,7 @@ export default function DocumentScanner({}: DocumentScannerProps) {
       if (!resolvedDocumentType) {
         throw new Error(
           "Document type is missing. uploadingDocument: " +
-            JSON.stringify(uploadingDocument)
+            JSON.stringify(uploadingDocument),
         );
       }
 
@@ -162,16 +164,98 @@ export default function DocumentScanner({}: DocumentScannerProps) {
       console.log(`Starting document processing for: ${resolvedDocumentType}`);
       console.log(`Image URI: ${capturedImage}`);
 
+      if (uploadingDocument?.documentName === "Customer") {
+        // Ensure the image is in PNG format
+        console.log("Processing Customer Photo - converting to PNG...");
+
+        // Use expo-image-manipulator to convert the image to PNG format
+        const manipulatedImage = await ImageManipulator.manipulateAsync(
+          capturedImage,
+          [], // No transformations needed, just format conversion
+          {
+            compress: 1, // Maximum quality
+            format: ImageManipulator.SaveFormat.PNG, // Force PNG format
+          },
+        );
+
+        console.log(
+          `Image converted to PNG. URI: ${manipulatedImage.uri}, Size: ${manipulatedImage.width}x${manipulatedImage.height}`,
+        );
+
+        // Fetch the converted PNG image
+        const imageResponse = await fetch(manipulatedImage.uri);
+        const imageBlob = await imageResponse.blob();
+
+        console.log(
+          `PNG blob created. Type: ${imageBlob.type}, Size: ${imageBlob.size} bytes`,
+        );
+
+        // Get upload URL from server
+        const uploadResponse = await uploadDocument({
+          fileName: `customer_photo_${frameNumber}.png`,
+          contentType: "image/png",
+          frameNumber: frameNumber,
+          documentType: "Customer Photo",
+        });
+
+        // Upload the PNG image to the presigned URL
+        const uploadResult = await fetch((uploadResponse as any).uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "image/png",
+          },
+          body: imageBlob,
+        });
+
+        if (!uploadResult.ok) {
+          throw new Error(`Upload failed with status ${uploadResult.status}`);
+        }
+
+        console.log(
+          `Upload successful. File key: ${(uploadResponse as any).fileKey}`,
+        );
+
+        // Update document status with the file URL
+        const fileUrl = (uploadResponse as any).fileKey || "";
+
+        if (isOtherDocumentsUpload) {
+          updateOtherDocumentStatus("Customer Photo", true, fileUrl);
+          console.log("Updated Customer Photo in other documents array");
+        } else {
+          updateDocumentStatus("Customer Photo", true, fileUrl);
+          console.log(
+            "Updated Customer Photo in main documents array with the url:",
+            fileUrl,
+          );
+        }
+
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Customer Photo uploaded successfully",
+        });
+
+        // setTimeout(() => {
+        //   if (isOtherDocumentsUpload) {
+        //     router.push("/other-documents");
+        //   } else {
+        //     router.push("/document-screen");
+        //   }
+        // }, 1000);
+
+        // return; // Exit early since we've handled the upload
+      }
+
       // Convert image to PDF and compress
       const processedDocument = await convertImageToPdfAndCompress(
         capturedImage,
         resolvedDocumentType,
         frameNumber,
-        frameNumber
+        frameNumber,
       );
 
       if (processedDocument) {
-        console.log("Processed Document:", processedDocument);
+        // console.log("Processed Document:", processedDocument);
 
         try {
           const { fileUri, fileSize, ...finalObject } = processedDocument;
@@ -188,19 +272,19 @@ export default function DocumentScanner({}: DocumentScannerProps) {
 
           // Get upload URL from server
           const response = await uploadDocument(finalObject);
-          console.log("Upload URL received:", (response as any).uploadUrl);
+          // console.log("Upload URL received:", (response as any).uploadUrl);
 
           // Read the processed file from local fileUri
-          console.log("Reading file for upload from URI:", fileUri);
+          // console.log("Reading file for upload from URI:", fileUri);
           const fileResponse = await fetch(fileUri);
           const fileBlob = await fileResponse.blob();
-          console.log(
-            `File blob created. Size: ${fileBlob.size} bytes, Type: ${fileBlob.type}`
-          );
+          // console.log(
+          //   `File blob created. Size: ${fileBlob.size} bytes, Type: ${fileBlob.type}`
+          // );
 
           // Upload the processed file to the presigned URL
           console.log(
-            `Uploading with Content-Type: ${finalObject.contentType}`
+            `Uploading with Content-Type: ${finalObject.contentType}`,
           );
           const finalUploadedResponse = await fetch(
             (response as any).uploadUrl,
@@ -210,12 +294,12 @@ export default function DocumentScanner({}: DocumentScannerProps) {
                 "Content-Type": finalObject.contentType,
               },
               body: fileBlob,
-            }
+            },
           );
 
           if (!finalUploadedResponse.ok) {
             throw new Error(
-              `Upload failed with status ${finalUploadedResponse.status}`
+              `Upload failed with status ${finalUploadedResponse.status}`,
             );
           }
 
@@ -223,13 +307,13 @@ export default function DocumentScanner({}: DocumentScannerProps) {
             updateOtherDocumentStatus(
               (uploadingDocument as any)?.documentName,
               true,
-              (response as any).fileKey
+              (response as any).fileKey,
             );
           } else {
             updateDocumentStatus(
               (uploadingDocument as any)?.documentName,
               true,
-              (response as any).fileKey
+              (response as any).fileKey,
             );
           }
 
@@ -239,13 +323,13 @@ export default function DocumentScanner({}: DocumentScannerProps) {
             text2: `${resolvedDocumentType} uploaded successfully`,
           });
 
-          setTimeout(() => {
-            if (isOtherDocumentsUpload) {
-              router.push("/other-documents");
-            } else {
-              router.push("/document-screen");
-            }
-          }, 1000);
+          // setTimeout(() => {
+          if (isOtherDocumentsUpload) {
+            router.push("/other-documents");
+          } else {
+            router.push("/document-screen");
+          }
+          // }, 1000);
         } catch (error) {
           console.error("Upload error:", error);
           Toast.show({
@@ -393,20 +477,20 @@ export default function DocumentScanner({}: DocumentScannerProps) {
 
             {/* Action Buttons */}
             <View style={styles.bottomButtonsContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[
                   allStyles.btn,
-                  isUploading && { opacity: 0.7 } // Dim the button when uploading
-                ]} 
+                  isUploading && { opacity: 0.7 }, // Dim the button when uploading
+                ]}
                 onPress={handleUpload}
                 disabled={isUploading} // Disable button when uploading
               >
                 {isUploading ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <ActivityIndicator 
-                      size="small" 
-                      color="white" 
-                      style={{ marginRight: 8 }} 
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <ActivityIndicator
+                      size="small"
+                      color="white"
+                      style={{ marginRight: 8 }}
                     />
                     <Text style={allStyles.btnText}>Uploading...</Text>
                   </View>

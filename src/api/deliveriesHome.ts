@@ -12,13 +12,13 @@ export const getDeliveriesData = async (
     modelRef?: string;
     startDate?: string;
     endDate?: string;
-  }
+  },
 ) => {
   try {
     let endpoint =
       API_ENDPOINTS.DELIVERIES_HOME.GET.replace("{STATUS}", status) +
       `&page=${page}&limit=${limit}`;
-    
+
     // Add filter parameters if provided
     if (filters) {
       if (filters.frameNumber && filters.frameNumber.trim()) {
@@ -40,9 +40,9 @@ export const getDeliveriesData = async (
         endpoint += `&endDate=${encodeURIComponent(filters.endDate.trim())}`;
       }
     }
-    
+
     console.log("API Endpoint with filters:", endpoint);
-    
+
     const response = await apiClient.get(endpoint);
     // Check if the API client returned an error response
     if (!response.success || response.error) {
@@ -56,7 +56,7 @@ export const getDeliveriesData = async (
 export const deleteDeliveryById = async (id: any) => {
   try {
     const response = await apiClient.delete(
-      API_ENDPOINTS.DELIVERIES_HOME.DELETE.replace(":deliveryId", id)
+      API_ENDPOINTS.DELIVERIES_HOME.DELETE.replace(":deliveryId", id),
     );
     // Check if the API client returned an error response
     if (!response.success || response.error) {
@@ -71,7 +71,7 @@ export const updateDeliveryById = async (id: any, data: any) => {
   try {
     const response = await apiClient.patch(
       API_ENDPOINTS.DELIVERIES_HOME.UPDATE.replace(":deliveryId", id),
-      data
+      data,
     );
     // Check if the API client returned an error response
     if (!response.success || response.error) {
@@ -82,42 +82,74 @@ export const updateDeliveryById = async (id: any, data: any) => {
     throw error;
   }
 };
-export const downloadCombineAadhaar  = async (frameNumber: any) => {
-try {
-    const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_AADHAAR.replace("{frameNumber}", frameNumber);
+export const downloadCombineAadhaar = async (frameNumber: any) => {
+  try {
+    const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_AADHAAR.replace(
+      "{frameNumber}",
+      frameNumber,
+    );
     const fullUrl = apiClient.baseURL + url;
-    const res = await fetch(fullUrl, { method: 'GET' });
+    const res = await fetch(fullUrl, { method: "GET" });
     if (!res.ok) {
-      throw new Error('Failed to download Combined Aadhaar PDF');
+      throw new Error("Failed to download Combined Aadhaar PDF");
     }
     const blob = await res.blob();
     return blob;
-} catch (error) {
-  throw error;
-}
+  } catch (error) {
+    throw error;
+  }
 };
-export const downloadCombineForm20  = async (frameNumber: any) => {
-try {
-    const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_FORM20.replace("{frameNumber}", frameNumber);
+export const downloadCombineForm20 = async (frameNumber: any) => {
+  try {
+    const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_FORM20.replace(
+      "{frameNumber}",
+      frameNumber,
+    );
     const fullUrl = apiClient.baseURL + url;
-    const res = await fetch(fullUrl, { method: 'GET' });
+    const res = await fetch(fullUrl, { method: "GET" });
     if (!res.ok) {
-      throw new Error('Failed to download Combined Form 20 PDF');
+      throw new Error("Failed to download Combined Form 20 PDF");
     }
     const blob = await res.blob();
     return blob;
-} catch (error) {
-  throw error;
-}
+  } catch (error) {
+    throw error;
+  }
 };
-export const downloadCombineZip  = async (frameNumber: any,customerName:any, createdAt:any) => {
-try {
-      const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_ALL_ZIP
-        .replace("{frameNumber}", frameNumber)
-        .replace("{customerName}", customerName)
-        .replace("{date}", createdAt);
+
+export const downloadCombineRentDocuments = async (frameNumber: any) => {
+  try {
+    const url =
+      API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_RENT_DOCUMENTS.replace(
+        "{frameNumber}",
+        frameNumber,
+      );
     const fullUrl = apiClient.baseURL + url;
-    const res = await fetch(fullUrl, { method: 'GET' });
+    const res = await fetch(fullUrl, { method: "GET" });
+    if (!res.ok) {
+      throw new Error("Failed to download Combined Form 20 PDF");
+    }
+    const blob = await res.blob();
+    return blob;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const downloadCombineZip = async (
+  frameNumber: any,
+  customerName: any,
+  createdAt: any,
+) => {
+  try {
+    const url = API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_ALL_ZIP.replace(
+      "{frameNumber}",
+      frameNumber,
+    )
+      .replace("{customerName}", customerName)
+      .replace("{date}", createdAt);
+    const fullUrl = apiClient.baseURL + url;
+    const res = await fetch(fullUrl, { method: "GET" });
     if (!res.ok) {
       let errText: string | null = null;
       try {
@@ -137,26 +169,28 @@ try {
     }
     const blob = await res.blob();
     return blob;
-} catch (error) {
-  throw error;
-}
+  } catch (error) {
+    throw error;
+  }
 };
-export const generatePdfUrl  = async (url: any) => {
-try {
-    const response=await apiClient.get(API_ENDPOINTS.DELIVERIES_HOME.GENERATE_PDF_URL.replace("{url}", url));
+export const generatePdfUrl = async (url: any) => {
+  try {
+    const response = await apiClient.get(
+      API_ENDPOINTS.DELIVERIES_HOME.GENERATE_PDF_URL.replace("{url}", url),
+    );
     // Check if the API client returned an error response
     if (!response.success || response.error) {
       throw new Error(response.error || "API request failed");
     }
     return response.data;
-} catch (error) {
-  throw error
-}
+  } catch (error) {
+    throw error;
+  }
 };
 export const getAllUsers = async () => {
   try {
     const response = await apiClient.get(
-      API_ENDPOINTS.DELIVERIES_HOME.GET_ALL_USERS
+      API_ENDPOINTS.DELIVERIES_HOME.GET_ALL_USERS,
     );
     // Check if the API client returned an error response
     if (!response.success || response.error) {

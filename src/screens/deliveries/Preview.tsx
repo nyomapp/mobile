@@ -108,7 +108,7 @@ export default function PreviewScreen() {
           "N/A",
         financierPlan1Name:
           masterData?.financierPlans?.find(
-            (p: any) => p._id === currentDelivery.financierPlan1
+            (p: any) => p._id === currentDelivery.financierPlan1,
           )?.name ||
           currentDelivery.financierPlan1 ||
           "N/A",
@@ -263,7 +263,7 @@ export default function PreviewScreen() {
         const filePath = FileSystem.documentDirectory + fileName;
         const downloadResult = await FileSystem.downloadAsync(
           fileUrl,
-          filePath
+          filePath,
         );
 
         console.log("File downloaded to:", downloadResult.uri);
@@ -375,7 +375,12 @@ export default function PreviewScreen() {
     console.log("deliveryId:", deliveryId);
     try {
       if (isEdit) {
-        await updateDeliveryById(deliveryId, currentDelivery);
+        // Remove createdAt from delivery data before updating
+        const deliveryDataWithoutCreatedAt = currentDelivery
+          ? (({ createdAt, ...rest }: any) => rest)(currentDelivery)
+          : {};
+
+        await updateDeliveryById(deliveryId, deliveryDataWithoutCreatedAt);
         resetIsEdit();
         resetDeliveryId();
         Toast.show({
@@ -423,7 +428,7 @@ export default function PreviewScreen() {
   const renderDetailSection = (
     title: string,
     data: DetailField[],
-    showAsInputs: boolean = false
+    showAsInputs: boolean = false,
   ) => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
@@ -516,60 +521,62 @@ export default function PreviewScreen() {
                 />
               </TouchableOpacity>
             </View>
-            {documentTypes.map((doc) => (
-              <TouchableOpacity
-                key={doc.id}
-                style={[
-                  globalStyles.input,
-                  styles.documentCard,
-                  doc.uploaded && styles.documentUploadedCard,
-                ]}
-                // onPress={() => handleDocumentUpload(doc)}
+            {documentTypes
+              .filter((doc) => doc.documentName !== "Customer Photo")
+              .map((doc) => (
+                <TouchableOpacity
+                  key={doc.id}
+                  style={[
+                    globalStyles.input,
+                    styles.documentCard,
+                    doc.uploaded && styles.documentUploadedCard,
+                  ]}
+                  // onPress={() => handleDocumentUpload(doc)}
 
-                activeOpacity={1}
-              >
-                <View style={styles.documentLeft}>
-                  <View style={styles.iconContainer}>
-                    <Image
-                      source={doc.icon}
-                      style={{ width: 32, height: 32 }}
-                      resizeMode="contain"
-                    />
+                  activeOpacity={1}
+                >
+                  <View style={styles.documentLeft}>
+                    <View style={styles.iconContainer}>
+                      <Image
+                        source={doc.icon}
+                        style={{ width: 32, height: 32 }}
+                        resizeMode="contain"
+                      />
+                    </View>
+                    <Text style={styles.documentPreviewTitle}>{doc.title}</Text>
                   </View>
-                  <Text style={styles.documentPreviewTitle}>{doc.title}</Text>
-                </View>
-                <View style={styles.documentRightButtons}>
-                  {doc.fileUrl && (
-                    <TouchableOpacity
-                      //   style={styles.uploadButton}
-                      onPress={() => handleView(doc)}
-                    >
-                      <Image
-                        source={require("@/assets/icons/viewicon.png")}
-                        style={{ width: 20, height: 20 }}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
-                  )}
-                  {doc.fileUrl && (
-                    <TouchableOpacity
-                      //   style={styles.uploadButton}
-                      onPress={() => handleDownload(doc)}
-                    >
-                      <Image
-                        source={
-                          doc.uploaded
-                            ? require("@/assets/icons/dowmloadiconpreviewpage.png")
-                            : require("@/assets/icons/documentpageuplaodicon.png")
-                        }
-                        style={{ width: 20, height: 20 }}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
+                  <View style={styles.documentRightButtons}>
+                    {doc.fileUrl && (
+                      <TouchableOpacity
+                        //   style={styles.uploadButton}
+                        onPress={() => handleView(doc)}
+                      >
+                        <Image
+                          source={require("@/assets/icons/viewicon.png")}
+                          style={{ width: 20, height: 20 }}
+                          resizeMode="contain"
+                        />
+                      </TouchableOpacity>
+                    )}
+                    {doc.fileUrl && (
+                      <TouchableOpacity
+                        //   style={styles.uploadButton}
+                        onPress={() => handleDownload(doc)}
+                      >
+                        <Image
+                          source={
+                            doc.uploaded
+                              ? require("@/assets/icons/dowmloadiconpreviewpage.png")
+                              : require("@/assets/icons/documentpageuplaodicon.png")
+                          }
+                          style={{ width: 20, height: 20 }}
+                          resizeMode="contain"
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ))}
           </View>
 
           {/* More Details Section */}
@@ -677,7 +684,7 @@ export default function PreviewScreen() {
           <WebView
             source={{
               uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
-                pdfUrl
+                pdfUrl,
               )}`,
             }}
             style={{
