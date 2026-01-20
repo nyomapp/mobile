@@ -1,11 +1,4 @@
-import {
-  Dimensions,
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, ScrollView, Text, View } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,17 +9,15 @@ import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
 import { useDashBoard } from "@/src/contexts/DashBoardContext";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect } from "react";
 import { PieChart } from "react-native-svg-charts";
 import Toast from "react-native-toast-message";
 import { styles } from "../../styles/homeStyles";
 
 const screenWidth = Dimensions.get("window").width;
 
-export default function HomeScreen() {
+export default function DealerHomeScreen() {
   const { user, updateUser } = useAuth();
   const {
     dashBoardData,
@@ -70,6 +61,10 @@ export default function HomeScreen() {
       });
     }
   };
+
+  useEffect(() => {
+    console.log("Dashboard data updated:", dashBoardData);
+  }, [dashBoardData]);
 
   // Chart data calculation
   const totalValue = (dashBoardData as any)?.pieChart?.total || 0;
@@ -197,108 +192,10 @@ export default function HomeScreen() {
             <RadialChart />
           </View>
         </View>
-
-        {/* Total Sales Section */}
-        <Text style={allStyles.sectionHeader}>Total Sales</Text>
-        <View style={allStyles.statsContainer}>
-          <LinearGradient
-            colors={["#183B64", "#3077CA"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[allStyles.statCard, styles.gradientCard]}
-          >
-            <View style={styles.statCardHeader}>
-              <Text style={styles.statLabel}>Total{"\n"}Deliveries</Text>
-              <Image
-                source={require("@/assets/icons/totaldeliveriesicon.png")}
-                style={styles.img}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.statValue}>
-              {(dashBoardData as any)?.pieChart?.total}
-            </Text>
-          </LinearGradient>
-
-          <LinearGradient
-            colors={["#183B64", "#3077CA"]}
-            start={{ x: 1, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={[allStyles.statCard, styles.gradientCard]}
-          >
-            <View style={styles.statCardHeader}>
-              <Text style={styles.statLabel}>Average{"\n"}Discount</Text>
-              <Image
-                source={require("@/assets/icons/averagediscounticon.png")}
-                style={styles.img}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.statValue}>
-              {(dashBoardData as any)?.avgDiscount}
-            </Text>
-          </LinearGradient>
-
-          <LinearGradient
-            colors={["#183B64", "#3077CA"]}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-            style={[allStyles.statCard, styles.gradientCard]}
-          >
-            <View style={styles.statCardHeader}>
-              <Text style={styles.statLabel}>Total{"\n"}Accessories</Text>
-              <Image
-                source={require("@/assets/icons/totalaccessoriesicon.png")}
-                style={styles.img}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.statValue}>
-              {(dashBoardData as any)?.totalAccessories}
-            </Text>
-          </LinearGradient>
-
-          <LinearGradient
-            colors={["#183B64", "#3077CA"]}
-            start={{ x: 1, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={[allStyles.statCard, styles.gradientCard]}
-          >
-            <View style={styles.statCardHeader}>
-              <Text style={styles.statLabel}>Total{"\n"}Helmets</Text>
-              <Image
-                source={require("@/assets/icons/noofhelmetsicon.png")}
-                style={styles.img}
-                resizeMode="contain"
-              />
-            </View>
-            <Text style={styles.statValue}>
-              {(dashBoardData as any)?.noOfHelmets}
-            </Text>
-          </LinearGradient>
-        </View>
-        <LinearGradient
-          colors={["#183B64", "#3077CA"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[allStyles.statCard, styles.gradientCard]}
-        >
-          <View style={styles.statCardHeader}>
-            <Text style={styles.statLabel}>Total{"\n"}Loyality</Text>
-            <Image
-              source={require("@/assets/icons/LoyalityIcon.png")}
-              style={styles.img}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={styles.statValue}>
-            {(dashBoardData as any)?.totalLoyality}
-          </Text>
-        </LinearGradient>
       </ScrollView>
 
       {/* Floating Action Button */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => {
           setIsEdit(false);
           router.push("/add-delivery");
@@ -306,7 +203,7 @@ export default function HomeScreen() {
         style={allStyles.floatingButton}
       >
         <Ionicons name="add" size={32} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <Toast />
     </SafeAreaView>
   );

@@ -7,14 +7,19 @@ const screenMap = {
   // "edit-profile": () => require("../src/screens/profile/EditProfile").default,
   // "personal-info": () => require("../src/screens/profile/PersonalInfo").default,
   // notification: () => require("../src/screens/home/NotificationScreen").default,
-  "add-delivery": () => require("../src/screens/deliveries/AddDelivery").default,
-  "document-screen": () => require("../src/screens/deliveries/DocumentsScreen").default,
+  "add-delivery": () =>
+    require("../src/screens/deliveries/AddDelivery").default,
+  "document-screen": () =>
+    require("../src/screens/deliveries/DocumentsScreen").default,
   "document-scanner": () => require("../src/components/common/Scanner").default,
-  "amount": () => require("../src/screens/deliveries/Amount").default,
-  "preview": () => require("../src/screens/deliveries/Preview").default,
-  "other-documents": () => require("../src/screens/deliveries/OtherDocumentsScreen").default,
-  "change-password": () => require("../src/screens/settings/ChangePassword").default,
-  "payment-mode": () => require("../src/screens/deliveries/PaymentMode").default,
+  amount: () => require("../src/screens/deliveries/Amount").default,
+  preview: () => require("../src/screens/deliveries/Preview").default,
+  "other-documents": () =>
+    require("../src/screens/deliveries/OtherDocumentsScreen").default,
+  "change-password": () =>
+    require("../src/screens/settings/ChangePassword").default,
+  "payment-mode": () =>
+    require("../src/screens/deliveries/PaymentMode").default,
 };
 
 export default function DynamicScreen() {

@@ -13,7 +13,7 @@
       "backgroundColor": "#1a1a2e",
       "resizeMode": "cover"
     },
-    
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sivesh.nyom",
