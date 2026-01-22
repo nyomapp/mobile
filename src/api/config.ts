@@ -29,6 +29,10 @@ export const API_ENDPOINTS = {
     GENERATE_PDF_URL: "upload/generate-download-url/{url}",
     GET_ALL_USERS: "users?userType=user&limit=10000&page=1",
   },
+  DEALAR_DASHBOARD: {
+    GET_EXECUTIVES: "/executive",
+    GET_FINANCIERS: "/financer",
+  },
   MasterData: {
     GET: "master",
   },

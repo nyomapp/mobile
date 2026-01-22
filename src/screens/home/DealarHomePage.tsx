@@ -1,20 +1,32 @@
-import { Dimensions, ScrollView, Text, View } from "react-native";
-import { useAuth } from "../../contexts/AuthContext";
-
-import { SafeAreaView } from "react-native-safe-area-context";
-import { allStyles } from "../../styles/global";
-
 import { getDashBoardData } from "@/src/api/dashBoard";
+import { getExecutives, getFinanciers } from "@/src/api/dealerHome";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS } from "@/src/constants";
 import { useDashBoard } from "@/src/contexts/DashBoardContext";
-import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { useExecutiveData } from "@/src/contexts/ExecutiveDataContext";
+import { useFinancierData } from "@/src/contexts/FinancierDataContext";
+import { globalStyles } from "@/src/styles";
+import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
-import { useCallback, useEffect } from "react";
-import { PieChart } from "react-native-svg-charts";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Dimensions,
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Calendar } from "react-native-calendars";
+import { responsiveWidth } from "react-native-responsive-dimensions";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Text as SvgText } from "react-native-svg";
+import { BarChart, LineChart, PieChart } from "react-native-svg-charts";
 import Toast from "react-native-toast-message";
+import { useAuth } from "../../contexts/AuthContext";
+import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/homeStyles";
-
 const screenWidth = Dimensions.get("window").width;
 
 export default function DealerHomeScreen() {
@@ -27,22 +39,64 @@ export default function DealerHomeScreen() {
     addNotification,
     isLoading,
   } = useDashBoard();
+  const { executives, setExecutives, resetExecutives } = useExecutiveData();
   const {
-    currentDelivery,
-    resetCurrentDelivery,
-    isEdit,
-    deliveryId,
-    resetDeliveryId,
-    setIsEdit,
-    resetIsEdit,
-  } = useDeliveryContext();
+    data: financiers,
+    setData: setFinanciers,
+    resetData: resetFinanciers,
+  } = useFinancierData();
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [dateValidationError, setDateValidationError] = useState<string>("");
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showModelModal, setShowModelModal] = useState(false);
+  const [selectedExecutives, setSelectedExecutives] = useState<Array<string>>(
+    [],
+  );
+  const [selectedFinanciers, setSelectedFinanciers] = useState<Array<string>>(
+    [],
+  );
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [currentFilters, setCurrentFilters] = useState<{
+    executiveRef: string[];
+    financierRef: string[];
+    startDate: string;
+    endDate: string;
+    includingCash: boolean;
+  }>({
+    executiveRef: [],
+    financierRef: [],
+    startDate: "",
+    endDate: "",
+    includingCash: false,
+  });
 
+  // Reset all filters on initial mount
+  useEffect(() => {
+    setCurrentFilters({
+      executiveRef: [],
+      financierRef: [],
+      startDate: "",
+      endDate: "",
+      includingCash: false,
+    });
+  }, []);
   useFocusEffect(
     useCallback(() => {
       console.log("Home screen focused - fetching dashboard data");
       fetchDashBoardData();
     }, []),
   );
+
+  const fetchFinanciers = async () => {
+    const response = await getFinanciers();
+    setFinanciers((response as any) || []);
+  };
+
+  const fetchExecutives = async () => {
+    const response = await getExecutives();
+    setExecutives((response as any) || []);
+  };
 
   const fetchDashBoardData = async () => {
     try {
@@ -62,21 +116,151 @@ export default function DealerHomeScreen() {
     }
   };
 
-  useEffect(() => {
-    console.log("Dashboard data updated:", dashBoardData);
-  }, [dashBoardData]);
+  // Add helper functions for date formatting:
+  const formatDateForDisplay = (dateString: string): string => {
+    if (!dateString) return "";
+    // Convert YYYY-MM-DD to DD/MM/YYYY for display
+    const parts = dateString.split("-");
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateString;
+  };
+
+  const formatDateForAPI = (dateString: string): string => {
+    if (!dateString) return "";
+    // If already in YYYY-MM-DD format, return as is
+    if (dateString.includes("-") && dateString.split("-").length === 3) {
+      return dateString;
+    }
+    // Convert DD/MM/YYYY to YYYY-MM-DD for API
+    const parts = dateString.split("/");
+    if (parts.length === 3) {
+      const day = parts[0].padStart(2, "0");
+      const month = parts[1].padStart(2, "0");
+      const year = parts[2];
+      return `${year}-${month}-${day}`;
+    }
+    return dateString;
+  };
+
+  // Update date validation function:
+  const validateDateRange = (start: string, end: string): string => {
+    if (!start && !end) {
+      return ""; // Both empty is valid
+    }
+
+    if ((start && !end) || (!start && end)) {
+      return "Both start date and end date are required when filtering by date";
+    }
+
+    if (start && end) {
+      const startDateObj = new Date(formatDateForAPI(start));
+      const endDateObj = new Date(formatDateForAPI(end));
+
+      if (startDateObj > endDateObj) {
+        return "Start date cannot be greater than end date";
+      }
+    }
+
+    return "";
+  };
+
+  // Calendar handlers:
+  const handleStartDateSelect = (day: any) => {
+    setCurrentFilters((prev) => ({ ...prev, startDate: day.dateString })); // Store in YYYY-MM-DD format
+    setShowStartDatePicker(false);
+
+    // Clear validation error when user selects a date
+    if (dateValidationError) {
+      setDateValidationError("");
+    }
+  };
+
+  const handleEndDateSelect = (day: any) => {
+    setCurrentFilters((prev) => ({ ...prev, endDate: day.dateString })); // Store in YYYY-MM-DD format
+    setShowEndDatePicker(false);
+
+    // Clear validation error when user selects a date
+    if (dateValidationError) {
+      setDateValidationError("");
+    }
+  };
+  const handleFilterPress = async () => {
+    setShowFilterModal(true);
+    try {
+      fetchExecutives();
+      fetchFinanciers();
+    } catch (error) {
+      console.error("Error loading users:", error);
+      Toast.show({
+        type: "error",
+        text1: "API Error",
+        text2: `Failed to load users: ${(error as Error).message}`,
+        visibilityTime: 3000,
+      });
+    }
+  };
+
+  const handleApplyFilter = () => {
+    // Validate date range
+    const dateError = validateDateRange(
+      currentFilters.startDate,
+      currentFilters.endDate,
+    );
+    if (dateError) {
+      setDateValidationError(dateError);
+      Toast.show({
+        type: "error",
+        text1: "Date Validation Error",
+        text2: dateError,
+      });
+      return;
+    }
+
+    setDateValidationError("");
+
+    console.log("Applying filter:", currentFilters);
+
+    // Close modal
+    setShowFilterModal(false);
+
+    Toast.show({
+      type: "success",
+      text1: "Filter Applied",
+      text2: "Deliveries filtered successfully",
+    });
+  };
+
+  const handleResetFilter = () => {
+    setCurrentFilters({
+      executiveRef: [],
+      financierRef: [],
+      startDate: "",
+      endDate: "",
+      includingCash: false,
+    });
+    setSelectedExecutives([]);
+    setSelectedFinanciers([]);
+
+    // Close modal
+    setShowFilterModal(false);
+
+    Toast.show({
+      type: "success",
+      text1: "Filter Reset",
+      text2: "All filters cleared",
+    });
+  };
 
   // Chart data calculation
   const totalValue = (dashBoardData as any)?.pieChart?.total || 0;
   const activeValue = (dashBoardData as any)?.pieChart?.delivered || 0;
   const pendingValue = (dashBoardData as any)?.pieChart?.pending || 0;
+  // Delivery Location Wise
 
-  const chartData = [
-    {
-      name: "Total",
-      value: totalValue,
-      color: COLORS.primaryBlue,
-    },
+  //  delivery
+  const chartData_1 = [
     {
       name: "Delivered",
       value: activeValue,
@@ -88,11 +272,131 @@ export default function DealerHomeScreen() {
       color: "#67E8F9",
     },
   ];
+  // delivery vs accessories
+  const chartData_2 = [
+    {
+      name: "Deliveries",
+      value1: 5,
+      value2: 1000,
 
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "Accessories",
+      value1: 3,
+      value2: 1500,
+      color: "#67E8F9",
+    },
+  ];
+  //  delivery vs rsa
+  const chartData_3 = [
+    {
+      name: "Deliveries",
+      value1: 5,
+      value2: 1000,
+
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "RSA",
+      value1: 3,
+      value2: 1500,
+      color: "#67E8F9",
+    },
+  ];
+  //  delivery vs helmet
+  const chartData_4 = [
+    {
+      name: "Deliveries",
+      value1: 9,
+      value2: 1000,
+
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "Helmet",
+      value1: 1,
+      value2: 1500,
+      color: "#67E8F9",
+    },
+  ];
+  //  Delivery VS Discount & Scheme Discount
+  const chartData_5 = [
+    {
+      name: "Deliveries",
+      value: 9,
+
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "Discount",
+      value: 5,
+      color: "#67E8F9",
+    },
+    {
+      name: "Scheme Discount",
+      value: 3,
+      color: "#10B981",
+    },
+    {
+      name: "Average Discount",
+      value: 1,
+      color: "#F59E0B",
+    },
+    {
+      name: "Average Scheme Discount",
+      value: 1,
+      color: "#8B5CF6",
+    },
+  ];
+
+  //  Delivery Location Wise
+  const chartData_6 = [
+    { name: "Location A", value1: 5, value2: 10, color: COLORS.primaryBlue },
+    { name: "Location B", value1: 10, value2: 20, color: "#67E8F9" },
+    { name: "Location C", value1: 15, value2: 30, color: "#10B981" },
+    { name: "Location D", value1: 20, value2: 40, color: "#F59E0B" },
+    { name: "Location E", value1: 25, value2: 50, color: "#8B5CF6" },
+  ];
+  // Delivery Model wise
+  const chartData_7 = [
+    { name: "Modal 1", value: 5, color: COLORS.primaryBlue },
+    { name: "Modal 2", value: 10, color: "#67E8F9" },
+    { name: "Modal 3", value: 15, color: "#10B981" },
+    { name: "Modal 4", value: 20, color: "#F59E0B" },
+    { name: "Modal 5", value: 25, color: "#8B5CF6" },
+  ];
+  // Delivery RTO Location (Same City, Other City/Same State, Other State)
+  const chartData_8 = [
+    { name: "Total", value1: 5, value2: 10, color: COLORS.primaryBlue },
+    { name: "Same City", value1: 10, value2: 20, color: "#67E8F9" },
+    { name: "Other City/Same State", value1: 15, value2: 30, color: "#10B981" },
+    { name: "Other State", value1: 20, value2: 40, color: "#F59E0B" },
+  ];
+  const chartData_9 = [
+    {
+      name: "Cash",
+      value: 5,
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "Finance",
+      value: 9,
+      color: "#67E8F9",
+    },
+  ];
+  //  Delivery Financier Wise
+  const chartData_10 = [
+    { name: "Financier 1", value1: 25, value2: 50, color: COLORS.primaryBlue },
+    { name: "Financier 2", value1: 20, value2: 40, color: "#67E8F9" },
+    { name: "Financier 3", value1: 15, value2: 30, color: "#10B981" },
+    { name: "Financier 4", value1: 10, value2: 20, color: "#F59E0B" },
+    { name: "Financier 5", value1: 5, value2: 10, color: "#8B5CF6" },
+  ];
   // Donut Chart Component
-  const RadialChart = () => {
+  const PieChart_1 = () => {
     // Handle empty data
-    if (activeValue + pendingValue + totalValue <= 0) {
+    if (chartData_1.reduce((sum, item) => sum + item.value, 0) <= 0) {
       return (
         <View style={styles.radialChartContainer}>
           <View style={styles.progressCirclesContainer}>
@@ -105,21 +409,43 @@ export default function DealerHomeScreen() {
 
     const chartDataForKit = [
       {
-        value: activeValue,
+        value: chartData_1[0].value,
         svg: { fill: COLORS.secondaryBlue },
         key: "delivered",
       },
       {
-        value: pendingValue,
+        value: chartData_1[1].value,
         svg: { fill: "#67E8F9" },
         key: "pending",
       },
-      {
-        value: totalValue,
-        svg: { fill: COLORS.primaryBlue },
-        key: "total",
-      },
     ];
+
+    const total = chartData_1.reduce((sum, item) => sum + item.value, 0);
+
+    const Labels = ({ slices }: any) => {
+      return slices.map((slice: any, index: number) => {
+        const { pieCentroid, data } = slice;
+        const percentage = ((data.value / total) * 100).toFixed(1);
+        // Adjust position to be closer to center to avoid overflow
+        const x = pieCentroid[0] * 1;
+        const y = pieCentroid[1] * 1;
+        return (
+          <SvgText
+            key={index}
+            x={x}
+            y={y}
+            fill="white"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fontSize={9}
+            fontWeight="bold"
+            fontFamily="YellixMedium"
+          >
+            {percentage}%
+          </SvgText>
+        );
+      });
+    };
 
     return (
       <View style={styles.radialChartContainer}>
@@ -134,16 +460,862 @@ export default function DealerHomeScreen() {
           <PieChart
             style={{ height: 240, width: screenWidth - 80 }}
             data={chartDataForKit}
-            innerRadius="50%"
-            outerRadius="85%"
+            innerRadius={"50%"}
+            // outerRadius={"85%"}
             spacing={0}
-            // padAngle={0}
-          />
+          >
+            <Labels />
+          </PieChart>
         </View>
       </View>
     );
   };
+  const PieChart_2 = () => {
+    // Handle empty data
+    if (chartData_2.reduce((sum, item) => sum + item.value1, 0) <= 0) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
 
+    const chartDataForKit = [
+      {
+        value: chartData_2[0].value1,
+        svg: { fill: COLORS.secondaryBlue },
+        key: "deliveries",
+      },
+      {
+        value: chartData_2[1].value1,
+        svg: { fill: "#67E8F9" },
+        key: "accessories",
+      },
+    ];
+
+    const total = chartData_2.reduce((sum, item) => sum + item.value1, 0);
+
+    const Labels = ({ slices }: any) => {
+      return slices.map((slice: any, index: number) => {
+        const { pieCentroid, data } = slice;
+        const percentage = ((data.value / total) * 100).toFixed(1);
+        // Adjust position to be closer to center to avoid overflow
+        const x = pieCentroid[0] * 1;
+        const y = pieCentroid[1] * 1;
+        return (
+          <SvgText
+            key={index}
+            x={x}
+            y={y}
+            fill="white"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fontSize={9}
+            fontWeight="bold"
+            fontFamily="YellixMedium"
+          >
+            {percentage}%
+          </SvgText>
+        );
+      });
+    };
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: 240,
+          }}
+        >
+          <PieChart
+            style={{ height: 240, width: screenWidth - 80 }}
+            data={chartDataForKit}
+            innerRadius={"0%"}
+            // outerRadius={"0%"}
+            spacing={0}
+          >
+            <Labels />
+          </PieChart>
+        </View>
+      </View>
+    );
+  };
+  const PieChart_3 = () => {
+    // Handle empty data
+    if (chartData_3.reduce((sum, item) => sum + item.value1, 0) <= 0) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const chartDataForKit = [
+      {
+        value: chartData_3[0].value1,
+        svg: { fill: COLORS.secondaryBlue },
+        key: "deliveries",
+      },
+      {
+        value: chartData_3[1].value1,
+        svg: { fill: "#67E8F9" },
+        key: "accessories",
+      },
+    ];
+
+    const total = chartData_3.reduce((sum, item) => sum + item.value1, 0);
+
+    const Labels = ({ slices }: any) => {
+      return slices.map((slice: any, index: number) => {
+        const { pieCentroid, data } = slice;
+        const percentage = ((data.value / total) * 100).toFixed(1);
+        // Adjust position to be closer to center to avoid overflow
+        const x = pieCentroid[0] * 1;
+        const y = pieCentroid[1] * 1;
+        return (
+          <SvgText
+            key={index}
+            x={x}
+            y={y}
+            fill="white"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fontSize={9}
+            fontWeight="bold"
+            fontFamily="YellixMedium"
+          >
+            {percentage}%
+          </SvgText>
+        );
+      });
+    };
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: 240,
+          }}
+        >
+          <PieChart
+            style={{ height: 240, width: screenWidth - 80 }}
+            data={chartDataForKit}
+            innerRadius={"50%"}
+            spacing={0}
+          >
+            <Labels />
+          </PieChart>
+        </View>
+      </View>
+    );
+  };
+  const PieChart_4 = () => {
+    // Handle empty data
+    if (chartData_4.reduce((sum, item) => sum + item.value1, 0) <= 0) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const chartDataForKit = [
+      {
+        value: chartData_4[0].value1,
+        svg: { fill: COLORS.secondaryBlue },
+        key: "deliveries",
+      },
+      {
+        value: chartData_4[1].value1,
+        svg: { fill: "#67E8F9" },
+        key: "accessories",
+      },
+    ];
+
+    const total = chartData_4.reduce((sum, item) => sum + item.value1, 0);
+
+    const Labels = ({ slices }: any) => {
+      return slices.map((slice: any, index: number) => {
+        const { pieCentroid, data } = slice;
+        const percentage = ((data.value / total) * 100).toFixed(1);
+        // Adjust position to be closer to center to avoid overflow
+        const x = pieCentroid[0] * 1;
+        const y = pieCentroid[1] * 1;
+        return (
+          <SvgText
+            key={index}
+            x={x}
+            y={y}
+            fill="white"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fontSize={9}
+            fontWeight="bold"
+            fontFamily="YellixMedium"
+          >
+            {percentage}%
+          </SvgText>
+        );
+      });
+    };
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: 240,
+          }}
+        >
+          <PieChart
+            style={{ height: 240, width: screenWidth - 80 }}
+            data={chartDataForKit}
+            innerRadius={"0%"}
+            spacing={0}
+          >
+            <Labels />
+          </PieChart>
+        </View>
+      </View>
+    );
+  };
+  const BarChart_1 = () => {
+    // Handle empty data
+    if (chartData_5.reduce((sum, item) => sum + item.value, 0) <= 0) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const chartDataForKit = [
+      {
+        value: chartData_5[0].value,
+        label: chartData_5[0].name,
+        svg: { fill: COLORS.secondaryBlue },
+      },
+      {
+        value: chartData_5[1].value,
+        label: chartData_5[1].name,
+        svg: { fill: "#67E8F9" },
+      },
+      {
+        value: chartData_5[2].value,
+        label: chartData_5[2].name,
+        svg: { fill: "#10B981" },
+      },
+    ];
+
+    // Labels component to show values on top of bars
+    const ValueLabels = ({ x, y, bandwidth, data }: any) =>
+      data.map((value: any, index: number) => (
+        <SvgText
+          key={index}
+          x={x(index) + bandwidth / 2}
+          y={y(value.value) - 10}
+          fontSize={12}
+          fill={COLORS.black}
+          alignmentBaseline="middle"
+          textAnchor="middle"
+          fontWeight="bold"
+          fontFamily="YellixMedium"
+        >
+          {value.value}
+        </SvgText>
+      ));
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            paddingVertical: 20,
+          }}
+        >
+          <BarChart
+            style={{ height: 200, width: screenWidth - 80 }}
+            data={chartDataForKit}
+            yAccessor={({
+              item,
+            }: {
+              item: { value: number; label: string; svg: { fill: string } };
+            }) => item.value}
+            contentInset={{ top: 30, bottom: 10 }}
+            spacing={0.4}
+            gridMin={0}
+          >
+            <ValueLabels />
+          </BarChart>
+
+          {/* Bottom labels */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-around",
+              width: screenWidth - 80,
+              marginTop: 10,
+            }}
+          >
+            {chartDataForKit.map((item, index) => (
+              <Text
+                key={index}
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  fontSize: 10,
+                  color: COLORS.black,
+                  fontFamily: "YellixMedium",
+                }}
+              >
+                {item.label}
+              </Text>
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  };
+  const BarChart_2 = () => {
+    // Handle empty data
+    if (
+      chartData_6.reduce((sum, item) => sum + item.value1, 0) <= 0 &&
+      chartData_6.reduce((sum, item) => sum + item.value2, 0) <= 0
+    ) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    // Flatten data to create grouped bars
+    const chartDataForKit: any[] = [];
+    chartData_6.forEach((item, index) => {
+      chartDataForKit.push({
+        value: item.value1,
+        svg: { fill: COLORS.secondaryBlue },
+        label: item.name,
+        type: "count",
+      });
+      chartDataForKit.push({
+        value: item.value2,
+        svg: { fill: "#67E8F9" },
+        label: item.name,
+        type: "amount",
+      });
+    });
+
+    const maxValue = Math.max(
+      ...chartData_6.map((item) => Math.max(item.value1, item.value2)),
+    );
+
+    // Calculate dynamic width based on number of locations
+    // Each location has 2 bars, so we need space for pairs
+    const minBarWidth = 40; // Minimum width per bar
+    const calculatedWidth = chartData_6.length * minBarWidth * 2 + 100; // 2 bars per location + padding
+    const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
+
+    // Labels component to show values on top of bars
+    const ValueLabels = ({ x, y, bandwidth, data }: any) =>
+      data.map((value: any, index: number) => (
+        <SvgText
+          key={index}
+          x={x(index) + bandwidth / 2}
+          y={y(value.value) - 5}
+          fontSize={10}
+          fill={COLORS.black}
+          alignmentBaseline="middle"
+          textAnchor="middle"
+          fontWeight="bold"
+          fontFamily="YellixMedium"
+        >
+          {value.value}
+        </SvgText>
+      ));
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            paddingVertical: 20,
+          }}
+        >
+          {/* Horizontal ScrollView for chart */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={true}
+            style={{ width: screenWidth - 80 }}
+            contentContainerStyle={{ paddingRight: 20 }}
+          >
+            <View>
+              <BarChart
+                style={{ height: 200, width: chartWidth }}
+                data={chartDataForKit}
+                yAccessor={({ item }: { item: { value: number } }) =>
+                  item.value
+                }
+                contentInset={{ top: 30, bottom: 10 }}
+                spacing={0.2}
+                gridMin={0}
+                gridMax={maxValue * 1.1}
+              >
+                <ValueLabels />
+              </BarChart>
+
+              {/* Bottom labels - showing only unique location names */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: chartWidth,
+                  marginTop: 10,
+                }}
+              >
+                {chartData_6.map((item, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: 9,
+                        color: COLORS.black,
+                        fontFamily: "YellixMedium",
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    );
+  };
+  const PieChart_5 = () => {
+    // Handle empty data
+    if (chartData_7.reduce((sum, item) => sum + item.value, 0) <= 0) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const chartDataForKit = chartData_7.map((item) => ({
+      value: item.value,
+      svg: { fill: item.color },
+      key: item.name,
+    }));
+
+    const total = chartData_7.reduce((sum, item) => sum + item.value, 0);
+
+    const Labels = ({ slices }: any) => {
+      return slices.map((slice: any, index: number) => {
+        const { pieCentroid, data } = slice;
+        const percentage = ((data.value / total) * 100).toFixed(1);
+        // Adjust position to be closer to center to avoid overflow
+        const x = pieCentroid[0] * 1;
+        const y = pieCentroid[1] * 1;
+        return (
+          <SvgText
+            key={index}
+            x={x}
+            y={y}
+            fill="white"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fontSize={9}
+            fontWeight="bold"
+            fontFamily="YellixMedium"
+          >
+            {percentage}%
+          </SvgText>
+        );
+      });
+    };
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: 240,
+          }}
+        >
+          <PieChart
+            style={{ height: 240, width: screenWidth - 80 }}
+            data={chartDataForKit}
+            innerRadius={"0%"}
+            spacing={0}
+          >
+            <Labels />
+          </PieChart>
+        </View>
+      </View>
+    );
+  };
+  const LineChart_1 = () => {
+    // Handle empty data
+    if (
+      chartData_8.reduce((sum, item) => sum + item.value1, 0) <= 0 &&
+      chartData_8.reduce((sum, item) => sum + item.value2, 0) <= 0
+    ) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    // Create two separate data arrays for the two lines
+    const lineData1 = chartData_8.map((item) => item.value1);
+    const lineData2 = chartData_8.map((item) => item.value2);
+
+    const data = [
+      {
+        data: lineData1,
+        svg: { stroke: COLORS.primaryBlue, strokeWidth: 3 },
+      },
+      {
+        data: lineData2,
+        svg: { stroke: "#67E8F9", strokeWidth: 3 },
+      },
+    ];
+
+    // Get max value for proper scaling
+    const maxValue = Math.max(
+      ...chartData_8.map((item) => Math.max(item.value1, item.value2)),
+    );
+
+    // Decorator for line 1 (value1)
+    const Decorator1 = ({ x, y }: any) => {
+      return lineData1.map((value: any, index: number) => (
+        <SvgText
+          key={`line1-${index}`}
+          x={x(index)}
+          y={y(value) + 15}
+          fontSize={10}
+          fill={COLORS.primaryBlue}
+          alignmentBaseline="middle"
+          textAnchor="middle"
+          fontWeight="bold"
+          fontFamily="YellixMedium"
+        >
+          {value}
+        </SvgText>
+      ));
+    };
+
+    // Decorator for line 2 (value2)
+    const Decorator2 = ({ x, y }: any) => {
+      return lineData2.map((value: any, index: number) => (
+        <SvgText
+          key={`line2-${index}`}
+          x={x(index)}
+          y={y(value) - 15}
+          fontSize={10}
+          fill="#67E8F9"
+          alignmentBaseline="middle"
+          textAnchor="middle"
+          fontWeight="bold"
+          fontFamily="YellixMedium"
+        >
+          {value}
+        </SvgText>
+      ));
+    };
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            paddingVertical: 20,
+          }}
+        >
+          <LineChart
+            style={{ height: 200, width: screenWidth - 80 }}
+            data={data}
+            contentInset={{ top: 30, bottom: 10, left: 20, right: 20 }}
+            gridMin={0}
+            gridMax={maxValue * 1.2}
+          >
+            <Decorator1 />
+            <Decorator2 />
+          </LineChart>
+
+          {/* Bottom labels */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-around",
+              width: screenWidth - 80,
+              marginTop: 10,
+            }}
+          >
+            {chartData_8.map((item, index) => (
+              <Text
+                key={index}
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  fontSize: 10,
+                  color: COLORS.black,
+                  fontFamily: "YellixMedium",
+                }}
+              >
+                {item.name}
+              </Text>
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  };
+  const PieChart_6 = () => {
+    // Handle empty data
+    if (chartData_9.reduce((sum, item) => sum + item.value, 0) <= 0) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const chartDataForKit = chartData_9.map((item) => ({
+      value: item.value,
+      svg: { fill: item.color },
+      key: item.name,
+    }));
+
+    const total = chartData_9.reduce((sum, item) => sum + item.value, 0);
+
+    const Labels = ({ slices }: any) => {
+      return slices.map((slice: any, index: number) => {
+        const { pieCentroid, data } = slice;
+        const percentage = ((data.value / total) * 100).toFixed(1);
+        // Adjust position to be closer to center to avoid overflow
+        const x = pieCentroid[0] * 1;
+        const y = pieCentroid[1] * 1;
+        return (
+          <SvgText
+            key={index}
+            x={x}
+            y={y}
+            fill="white"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fontSize={9}
+            fontWeight="bold"
+            fontFamily="YellixMedium"
+          >
+            {percentage}%
+          </SvgText>
+        );
+      });
+    };
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: 240,
+          }}
+        >
+          <PieChart
+            style={{ height: 240, width: screenWidth - 80 }}
+            data={chartDataForKit}
+            innerRadius={"0%"}
+            // outerRadius={"85%"}
+            spacing={0}
+          >
+            <Labels />
+          </PieChart>
+        </View>
+      </View>
+    );
+  };
+  const BarChart_3 = () => {
+    // Handle empty data
+    if (
+      chartData_10.reduce((sum, item) => sum + item.value1, 0) <= 0 &&
+      chartData_10.reduce((sum, item) => sum + item.value2, 0) <= 0
+    ) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    // Flatten data to create grouped bars
+    const chartDataForKit: any[] = [];
+    chartData_10.forEach((item, index) => {
+      chartDataForKit.push({
+        value: item.value1,
+        svg: { fill: COLORS.secondaryBlue },
+        label: item.name,
+        type: "total Deliveries",
+      });
+      chartDataForKit.push({
+        value: item.value2,
+        svg: { fill: "#67E8F9" },
+        label: item.name,
+        type: "amount",
+      });
+    });
+
+    const maxValue = Math.max(
+      ...chartData_10.map((item) => Math.max(item.value1, item.value2)),
+    );
+
+    // Calculate dynamic width based on number of locations
+    // Each location has 2 bars, so we need space for pairs
+    const minBarWidth = 40; // Minimum width per bar
+    const calculatedWidth = chartData_10.length * minBarWidth * 2 + 100; // 2 bars per location + padding
+    const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
+
+    // Labels component to show values on top of bars
+    const ValueLabels = ({ x, y, bandwidth, data }: any) =>
+      data.map((value: any, index: number) => (
+        <SvgText
+          key={index}
+          x={x(index) + bandwidth / 2}
+          y={y(value.value) - 5}
+          fontSize={10}
+          fill={COLORS.black}
+          alignmentBaseline="middle"
+          textAnchor="middle"
+          fontWeight="bold"
+          fontFamily="YellixMedium"
+        >
+          {value.value}
+        </SvgText>
+      ));
+
+    return (
+      <View style={styles.radialChartContainer}>
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            paddingVertical: 20,
+          }}
+        >
+          {/* Horizontal ScrollView for chart */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={true}
+            style={{ width: screenWidth - 80 }}
+            contentContainerStyle={{ paddingRight: 20 }}
+          >
+            <View>
+              <BarChart
+                style={{ height: 200, width: chartWidth }}
+                data={chartDataForKit}
+                yAccessor={({ item }: { item: { value: number } }) =>
+                  item.value
+                }
+                contentInset={{ top: 30, bottom: 10 }}
+                spacing={0.2}
+                gridMin={0}
+                gridMax={maxValue * 1.1}
+              >
+                <ValueLabels />
+              </BarChart>
+
+              {/* Bottom labels - showing only unique location names */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: chartWidth,
+                  marginTop: 10,
+                }}
+              >
+                {chartData_10.map((item, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: 9,
+                        color: COLORS.black,
+                        fontFamily: "YellixMedium",
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    );
+  };
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top"]}>
       <ScrollView style={allStyles.container}>
@@ -167,7 +1339,26 @@ export default function DealerHomeScreen() {
           </View>
           <HeaderIcon />
         </View>
-
+        {/* filter button */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginBottom: responsiveWidth(6),
+          }}
+        >
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={handleFilterPress}
+          >
+            <Image
+              source={require("@/assets/icons/filtericon.png")}
+              // width={24}
+              style={styles.filterIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        </View>
         {/* Delivery Card */}
         <View style={[allStyles.card, styles.deliveryCard]}>
           <View style={styles.deliveryHeader}>
@@ -176,7 +1367,7 @@ export default function DealerHomeScreen() {
 
           {/* Legend */}
           <View style={styles.legendContainer}>
-            {chartData.map((item, index) => (
+            {chartData_1.map((item, index) => (
               <View key={index} style={styles.legendItem}>
                 <View
                   style={[styles.legendDot, { backgroundColor: item.color }]}
@@ -189,7 +1380,269 @@ export default function DealerHomeScreen() {
 
           {/* Progress Chart */}
           <View style={styles.chartContainer}>
-            <RadialChart />
+            <PieChart_1 />
+          </View>
+        </View>
+        {/* Delivery VS Accessories Card */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>Delivery VS Accessories </Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            {chartData_2.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.legendText}>{item.name}</Text>
+                <Text style={styles.legendValue}>
+                  {item.value1}
+                  {item.value2 ? ` / ₹${item.value2}` : ""}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Progress Chart2 */}
+          <View style={styles.chartContainer}>
+            <PieChart_2 />
+          </View>
+        </View>
+        {/* Delivery VS RSA Card */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>Delivery VS RSA</Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            {chartData_3.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.legendText}>{item.name}</Text>
+                <Text style={styles.legendValue}>
+                  {item.value1}
+                  {item.value2 ? ` / ₹${item.value2}` : ""}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Progress Chart2 */}
+          <View style={styles.chartContainer}>
+            <PieChart_3 />
+          </View>
+        </View>
+        {/* Delivery VS Helmet Card */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>Delivery VS Helmet</Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            {chartData_4.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.legendText}>{item.name}</Text>
+                <Text style={styles.legendValue}>
+                  {item.value1}
+                  {item.value2 ? ` / ₹${item.value2}` : ""}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Progress Chart4 */}
+          <View style={styles.chartContainer}>
+            <PieChart_4 />
+          </View>
+        </View>
+        {/* Delivery VS Discount & Scheme Discount Card */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>
+              Delivery VS Discount & Scheme Discount
+            </Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            {chartData_5.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.legendText}>{item.name}</Text>
+                <Text style={styles.legendValue}>
+                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Progress Chart4 */}
+          <View style={styles.chartContainer}>
+            <BarChart_1 />
+          </View>
+        </View>
+        {/* Delivery Location Wise Card */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>Delivery Location Wise</Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            <View style={styles.legendItem}>
+              <View
+                style={[
+                  styles.legendDot,
+                  { backgroundColor: COLORS.lightBlue },
+                ]}
+              />
+              <Text style={styles.legendText}>Amount</Text>
+              {/* <Text style={styles.legendValue}>
+                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
+                </Text> */}
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: "#67E8F9" }]}
+              />
+              <Text style={styles.legendText}>Cash</Text>
+              {/* <Text style={styles.legendValue}>
+                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
+                </Text> */}
+            </View>
+          </View>
+
+          {/* Progress Chart4 */}
+          <View style={styles.chartContainer}>
+            <BarChart_2 />
+          </View>
+        </View>
+        {/* Delivery Model wise  Card */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>Delivery Model wise</Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            {chartData_7.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.legendText}>{item.name}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Progress Chart4 */}
+          <View style={styles.chartContainer}>
+            <PieChart_5 />
+          </View>
+        </View>
+        {/* Delivery RTO Location (Same City, Other City/Same State, Other State)  */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>Delivery Model wise</Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            {/* {chartData_8.map((item, index) => ( */}
+            <View style={styles.legendItem}>
+              <View
+                style={[
+                  styles.legendDot,
+                  { backgroundColor: COLORS.primaryBlue },
+                ]}
+              />
+              <Text style={styles.legendText}>Amount</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: "#67E8F9" }]}
+              />
+              <Text style={styles.legendText}>Count</Text>
+            </View>
+            {/* ))} */}
+          </View>
+
+          {/* Progress Chart4 */}
+          <View style={styles.chartContainer}>
+            <LineChart_1 />
+          </View>
+        </View>
+        {/* Delivery Financier Overview  */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>
+              Delivery Financier Overview{" "}
+            </Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            {chartData_9.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View
+                  style={[styles.legendDot, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.legendText}>{item.name}</Text>
+                <Text style={styles.legendValue}>{item.value}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Progress Chart */}
+          <View style={styles.chartContainer}>
+            <PieChart_6 />
+          </View>
+        </View>
+        {/* Delivery Financier Wise  */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>Delivery Financier Wise </Text>
+          </View>
+
+          {/* Legend */}
+          <View style={styles.legendContainer}>
+            <View style={styles.legendItem}>
+              <View
+                style={[
+                  styles.legendDot,
+                  { backgroundColor: COLORS.lightBlue },
+                ]}
+              />
+              <Text style={styles.legendText}>Total Deliveries</Text>
+              {/* <Text style={styles.legendValue}>
+                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
+                </Text> */}
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: "#67E8F9" }]}
+              />
+              <Text style={styles.legendText}>Amount</Text>
+              {/* <Text style={styles.legendValue}>
+                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
+                </Text> */}
+            </View>
+          </View>
+
+          {/* Progress Chart4 */}
+          <View style={styles.chartContainer}>
+            <BarChart_3 />
           </View>
         </View>
       </ScrollView>
@@ -205,6 +1658,515 @@ export default function DealerHomeScreen() {
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity> */}
       <Toast />
+
+      {/* Filter Modal - Slides up from bottom */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showFilterModal}
+        onRequestClose={() => setShowFilterModal(false)}
+      >
+        <View style={styles.filterModalOverlay}>
+          <View style={styles.filterModalContent}>
+            {/* Modal Header */}
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity onPress={() => setShowFilterModal(false)}>
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Filter</Text>
+              <TouchableOpacity onPress={handleResetFilter}>
+                <Text style={styles.resetText}>Reset</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Filter Form */}
+            <ScrollView
+              style={styles.filterForm}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Start Date Picker */}
+              <TouchableOpacity
+                style={[globalStyles.input, styles.dropdownButton]}
+                onPress={() => setShowStartDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    allStyles.dropdownText,
+                    currentFilters.startDate ? { color: COLORS.black } : null,
+                  ]}
+                >
+                  {currentFilters.startDate
+                    ? formatDateForDisplay(currentFilters.startDate)
+                    : "Start Date"}
+                </Text>
+                <Ionicons name="calendar" size={20} color="#6C757D" />
+              </TouchableOpacity>
+
+              {/* End Date Picker */}
+              <TouchableOpacity
+                style={[globalStyles.input, styles.dropdownButton]}
+                onPress={() => setShowEndDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    allStyles.dropdownText,
+                    currentFilters.endDate ? { color: COLORS.black } : null,
+                  ]}
+                >
+                  {currentFilters.endDate
+                    ? formatDateForDisplay(currentFilters.endDate)
+                    : "End Date"}
+                </Text>
+                <Ionicons name="calendar" size={20} color="#6C757D" />
+              </TouchableOpacity>
+
+              {/* Date Validation Error */}
+              {dateValidationError ? (
+                <Text
+                  style={{
+                    color: "red",
+                    fontSize: 12,
+                    marginTop: 5,
+                    marginBottom: 10,
+                  }}
+                >
+                  {dateValidationError}
+                </Text>
+              ) : null}
+
+              {/* Executive Dropdown */}
+              <TouchableOpacity
+                style={[globalStyles.input, styles.dropdownButton]}
+                onPress={() => setShowUserModal(true)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    allStyles.dropdownText,
+                    selectedExecutives.length > 0
+                      ? { color: COLORS.black }
+                      : null,
+                  ]}
+                >
+                  {selectedExecutives.length > 0
+                    ? executives
+                        .filter((exec) =>
+                          selectedExecutives.includes(exec.id || exec._id),
+                        )
+                        .map((exec) => exec.name)
+                        .join(", ") || "Select Executive"
+                    : "Select Executive"}
+                </Text>
+                <Ionicons name="chevron-down" size={20} color="#6C757D" />
+              </TouchableOpacity>
+
+              {/* Financier Dropdown */}
+              <TouchableOpacity
+                style={[globalStyles.input, styles.dropdownButton]}
+                onPress={() => setShowModelModal(true)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    allStyles.dropdownText,
+                    selectedFinanciers.length > 0
+                      ? { color: COLORS.black }
+                      : null,
+                  ]}
+                >
+                  {selectedFinanciers.length > 0
+                    ? financiers
+                        .filter((financier) =>
+                          selectedFinanciers.includes(
+                            financier.id || financier._id,
+                          ),
+                        )
+                        .map((financier) => financier.name)
+                        .join(", ") || "Select Financier"
+                    : "Select Financier"}
+                </Text>
+                <Ionicons name="chevron-down" size={20} color="#6C757D" />
+              </TouchableOpacity>
+            </ScrollView>
+
+            {/* Apply Button */}
+            <View style={styles.filterButtonContainer}>
+              <TouchableOpacity
+                style={allStyles.btn}
+                onPress={handleApplyFilter}
+              >
+                <Text style={allStyles.btnText}>Apply</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      {/* Start Date Calendar Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showStartDatePicker}
+        onRequestClose={() => setShowStartDatePicker(false)}
+      >
+        <View style={styles.filterModalOverlay}>
+          <View style={[styles.filterModalContent, { height: "60%" }]}>
+            {/* Modal Header */}
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Select Start Date</Text>
+              <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                <Text style={styles.resetText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Calendar */}
+            <View style={{ flex: 1, padding: 20 }}>
+              <Calendar
+                onDayPress={handleStartDateSelect}
+                markedDates={{
+                  [currentFilters.startDate]: {
+                    selected: true,
+                    selectedColor: COLORS.primaryBlue || "#007AFF",
+                  },
+                }}
+                maxDate={new Date().toISOString().split("T")[0]} // Today's date
+                theme={{
+                  selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+                  selectedDayTextColor: "#ffffff",
+                  todayTextColor: COLORS.primaryBlue || "#007AFF",
+                  dayTextColor: "#2d4150",
+                  textDisabledColor: "#d9e1e8",
+                  arrowColor: COLORS.primaryBlue || "#007AFF",
+                  monthTextColor: COLORS.primaryBlue || "#007AFF",
+                  indicatorColor: COLORS.primaryBlue || "#007AFF",
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+      {/* Executives Selection Modal - Center of screen */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showUserModal}
+        onRequestClose={() => setShowUserModal(false)}
+      >
+        <View style={styles.modelModalOverlay}>
+          <View style={styles.modelModalContent}>
+            <View style={styles.modelModalHeader}>
+              <Text style={styles.modelModalTitle}>Select Executives</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowUserModal(false)}
+              >
+                <Ionicons name="close" size={24} color="#6C757D" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              style={styles.modelScrollView}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Select All Option */}
+              <TouchableOpacity
+                style={[
+                  styles.modelOption,
+                  selectedExecutives.length === executives.length &&
+                    styles.selectedModelOption,
+                ]}
+                onPress={() => {
+                  if (selectedExecutives.length === executives.length) {
+                    setSelectedExecutives([]);
+                    setCurrentFilters((prev) => ({
+                      ...prev,
+                      executiveRef: [],
+                    }));
+                  } else {
+                    const allIds = executives.map(
+                      (exec) => exec.id || exec._id,
+                    );
+                    setSelectedExecutives(allIds);
+                    setCurrentFilters((prev) => ({
+                      ...prev,
+                      executiveRef: allIds,
+                    }));
+                  }
+                }}
+              >
+                <Text
+                  style={[
+                    styles.modelOptionText,
+                    selectedExecutives.length === executives.length &&
+                      styles.selectedModelText,
+                  ]}
+                >
+                  All
+                </Text>
+                {selectedExecutives.length === executives.length && (
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color={COLORS.primaryBlue}
+                  />
+                )}
+              </TouchableOpacity>
+
+              {Array.isArray(executives) && executives.length > 0 ? (
+                executives.map((executive, index) => {
+                  const executiveId = executive.id || executive._id;
+                  const isSelected = selectedExecutives.includes(executiveId);
+
+                  return (
+                    <TouchableOpacity
+                      key={executiveId || index}
+                      style={[
+                        styles.modelOption,
+                        isSelected && styles.selectedModelOption,
+                      ]}
+                      onPress={() => {
+                        console.log(
+                          "Toggling executive:",
+                          executive.name,
+                          "ID:",
+                          executiveId,
+                        );
+                        setSelectedExecutives((prev) => {
+                          const newSelection = prev.includes(executiveId)
+                            ? prev.filter((id) => id !== executiveId)
+                            : [...prev, executiveId];
+                          setCurrentFilters((filters) => ({
+                            ...filters,
+                            executiveRef: newSelection,
+                          }));
+                          return newSelection;
+                        });
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.modelOptionText,
+                          isSelected && styles.selectedModelText,
+                        ]}
+                      >
+                        {executive.name}
+                      </Text>
+                      {isSelected && (
+                        <Ionicons
+                          name="checkmark"
+                          size={20}
+                          color={COLORS.primaryBlue}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })
+              ) : (
+                <View style={{ padding: 20, alignItems: "center" }}>
+                  <Text style={{ color: "#666", fontSize: 14 }}>
+                    {executives === null || executives === undefined
+                      ? "Loading executives..."
+                      : "No executives available"}
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+            <View style={styles.filterButtonContainer}>
+              <TouchableOpacity
+                style={[allStyles.btn, { marginBottom: responsiveWidth(2) }]}
+                onPress={() => setShowUserModal(false)}
+              >
+                <Text style={allStyles.btnText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      {/* Financiers Selection Modal - Center of screen */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showModelModal}
+        onRequestClose={() => setShowModelModal(false)}
+      >
+        <View style={styles.modelModalOverlay}>
+          <View style={styles.modelModalContent}>
+            <View style={styles.modelModalHeader}>
+              <Text style={styles.modelModalTitle}>Select Financiers</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowModelModal(false)}
+              >
+                <Ionicons name="close" size={24} color="#6C757D" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView
+              style={styles.modelScrollView}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Select All Option */}
+              <TouchableOpacity
+                style={[
+                  styles.modelOption,
+                  selectedFinanciers.length === financiers.length &&
+                    styles.selectedModelOption,
+                ]}
+                onPress={() => {
+                  if (selectedFinanciers.length === financiers.length) {
+                    setSelectedFinanciers([]);
+                    setCurrentFilters((prev) => ({
+                      ...prev,
+                      financierRef: [],
+                    }));
+                  } else {
+                    const allIds = financiers.map((fin) => fin.id || fin._id);
+                    setSelectedFinanciers(allIds);
+                    setCurrentFilters((prev) => ({
+                      ...prev,
+                      financierRef: allIds,
+                    }));
+                  }
+                }}
+              >
+                <Text
+                  style={[
+                    styles.modelOptionText,
+                    selectedFinanciers.length === financiers.length &&
+                      styles.selectedModelText,
+                  ]}
+                >
+                  All
+                </Text>
+                {selectedFinanciers.length === financiers.length && (
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color={COLORS.primaryBlue}
+                  />
+                )}
+              </TouchableOpacity>
+
+              {Array.isArray(financiers) && financiers.length > 0 ? (
+                financiers.map((financier, index) => {
+                  const financierId = financier.id || financier._id;
+                  const isSelected = selectedFinanciers.includes(financierId);
+
+                  return (
+                    <TouchableOpacity
+                      key={financierId || index}
+                      style={[
+                        styles.modelOption,
+                        isSelected && styles.selectedModelOption,
+                      ]}
+                      onPress={() => {
+                        console.log(
+                          "Toggling financier:",
+                          financier.name,
+                          "ID:",
+                          financierId,
+                        );
+                        setSelectedFinanciers((prev) => {
+                          const newSelection = prev.includes(financierId)
+                            ? prev.filter((id) => id !== financierId)
+                            : [...prev, financierId];
+                          setCurrentFilters((filters) => ({
+                            ...filters,
+                            financierRef: newSelection,
+                          }));
+                          return newSelection;
+                        });
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.modelOptionText,
+                          isSelected && styles.selectedModelText,
+                        ]}
+                      >
+                        {financier.name}
+                      </Text>
+                      {isSelected && (
+                        <Ionicons
+                          name="checkmark"
+                          size={20}
+                          color={COLORS.primaryBlue}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })
+              ) : (
+                <View style={{ padding: 20, alignItems: "center" }}>
+                  <Text style={{ color: "#666", fontSize: 14 }}>
+                    {financiers === null || financiers === undefined
+                      ? "Loading financiers..."
+                      : "No financiers available"}
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+            <View style={styles.filterButtonContainer}>
+              <TouchableOpacity
+                style={[allStyles.btn, { marginBottom: responsiveWidth(2) }]}
+                onPress={() => setShowModelModal(false)}
+              >
+                <Text style={allStyles.btnText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* End Date Calendar Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showEndDatePicker}
+        onRequestClose={() => setShowEndDatePicker(false)}
+      >
+        <View style={styles.filterModalOverlay}>
+          <View style={[styles.filterModalContent, { height: "60%" }]}>
+            {/* Modal Header */}
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Select End Date</Text>
+              <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                <Text style={styles.resetText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Calendar */}
+            <View style={{ flex: 1, padding: 20 }}>
+              <Calendar
+                onDayPress={handleEndDateSelect}
+                markedDates={{
+                  [currentFilters.endDate]: {
+                    selected: true,
+                    selectedColor: COLORS.primaryBlue || "#007AFF",
+                  },
+                }}
+                maxDate={new Date().toISOString().split("T")[0]} // Today's date
+                minDate={currentFilters.startDate || undefined} // Minimum date is start date if selected
+                theme={{
+                  selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+                  selectedDayTextColor: "#ffffff",
+                  todayTextColor: COLORS.primaryBlue || "#007AFF",
+                  dayTextColor: "#2d4150",
+                  textDisabledColor: "#d9e1e8",
+                  arrowColor: COLORS.primaryBlue || "#007AFF",
+                  monthTextColor: COLORS.primaryBlue || "#007AFF",
+                  indicatorColor: COLORS.primaryBlue || "#007AFF",
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -6,6 +6,7 @@ import { DeliveryHomePageProvider } from "./DeliveryHomePageContext";
 import { DocumentArrayProvider } from "./DocumentArray1";
 import { DocumentArray2Provider } from "./DocumentArray2";
 import { DocumentUploadProvider } from "./DocumentUploadContext";
+import { ExecutiveDataProvider } from "./ExecutiveDataContext";
 import { FinancierDataProvider } from "./FinancierDataContext";
 import { MasterDataProvider } from "./MasterDataContext";
 import { ModelsProvider } from "./ModelsContext";
@@ -31,7 +32,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                       <DocumentArray2Provider>
                         <SearchProvider>
                           <UsersDataProvider>
-                          <DashBoardProvider>{children}</DashBoardProvider>
+                            <ExecutiveDataProvider>
+                              <DashBoardProvider>{children}</DashBoardProvider>
+                            </ExecutiveDataProvider>
                           </UsersDataProvider>
                         </SearchProvider>
                       </DocumentArray2Provider>
