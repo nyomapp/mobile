@@ -286,7 +286,7 @@ export default function HomeScreen() {
           <View style={styles.statCardHeader}>
             <Text style={styles.statLabel}>Total{"\n"}Loyality</Text>
             <Image
-              source={require("@/assets/icons/LoyalityIcon.png")}
+              source={require("@/assets/icons/loyalityicon.png")}
               style={styles.img}
               resizeMode="contain"
             />

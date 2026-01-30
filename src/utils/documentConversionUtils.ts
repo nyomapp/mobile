@@ -23,6 +23,7 @@ export const DOCUMENT_SIZE_CONFIG = {
   "HELMET INVOICE": { maxSize: 390, minSize: 300 },
   "FORM 20 1ST PAGE": { maxSize: 130, minSize: 90 },
   "FORM 20 2ND PAGE": { maxSize: 130, minSize: 90 },
+  "FORM 20 3RD PAGE": { maxSize: 130, minSize: 90 },
   "RENT DOCUMENT 1": { maxSize: 130, minSize: 90 },
   "RENT DOCUMENT 2": { maxSize: 130, minSize: 90 },
   "RENT DOCUMENT 3": { maxSize: 130, minSize: 90 },
@@ -68,11 +69,9 @@ const createPdfFromImage = async (imageUri: string) => {
   const pdfBytes = await pdfDoc.save();
   const pdfPath = `${FileSystem.documentDirectory}DOC_${Date.now()}.pdf`;
 
-  await FileSystem.writeAsStringAsync(
-    pdfPath,
-    uint8ToBase64(pdfBytes),
-    { encoding: FileSystem.EncodingType.Base64 }
-  );
+  await FileSystem.writeAsStringAsync(pdfPath, uint8ToBase64(pdfBytes), {
+    encoding: FileSystem.EncodingType.Base64,
+  });
 
   return {
     uri: pdfPath,
@@ -84,10 +83,7 @@ const createPdfFromImage = async (imageUri: string) => {
 /* CORE LOGIC – GUARANTEED SIZE */
 /* ------------------------------------------------------------------ */
 
-const compressToTargetPDFSize = async (
-  imageUri: string,
-  maxKB: number
-) => {
+const compressToTargetPDFSize = async (imageUri: string, maxKB: number) => {
   // Adaptive strategy
   const widths = [1600, 1400, 1300, 1200, 1100, 1000];
   const qualities = [0.9, 0.85, 0.8, 0.75, 0.7];
@@ -102,7 +98,7 @@ const compressToTargetPDFSize = async (
         {
           compress: quality,
           format: ImageManipulator.SaveFormat.JPEG,
-        }
+        },
       );
 
       const pdf = await createPdfFromImage(img.uri);
@@ -125,7 +121,7 @@ const compressToTargetPDFSize = async (
     {
       compress: 0.65,
       format: ImageManipulator.SaveFormat.JPEG,
-    }
+    },
   );
 
   const forcedPdf = await createPdfFromImage(forcedImg.uri);
@@ -139,13 +135,11 @@ const compressToTargetPDFSize = async (
 
 export const compressAndConvertToPDF = async (
   imageUri: string,
-  documentType: string
+  documentType: string,
 ): Promise<{ uri: string; sizeKB: number } | null> => {
   try {
     const cfg =
-      DOCUMENT_SIZE_CONFIG[
-        documentType as keyof typeof DOCUMENT_SIZE_CONFIG
-      ];
+      DOCUMENT_SIZE_CONFIG[documentType as keyof typeof DOCUMENT_SIZE_CONFIG];
 
     const maxKB = cfg?.maxSize ?? 390;
 
@@ -188,7 +182,7 @@ export const convertImageToPdfAndCompress = async (
   imageUri: string,
   documentType: string,
   frameNumber: string,
-  chassisNo: string
+  chassisNo: string,
 ): Promise<ProcessedDocument | null> => {
   const result = await compressAndConvertToPDF(imageUri, documentType);
   if (!result) return null;
@@ -217,8 +211,6 @@ export const formatFileSize = (bytes: number): string => {
 
 export const getSizeLimitText = (documentType: string): string => {
   const cfg =
-    DOCUMENT_SIZE_CONFIG[
-      documentType as keyof typeof DOCUMENT_SIZE_CONFIG
-    ];
+    DOCUMENT_SIZE_CONFIG[documentType as keyof typeof DOCUMENT_SIZE_CONFIG];
   return `Max file size: ${cfg?.maxSize ?? 390}KB`;
 };

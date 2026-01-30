@@ -103,7 +103,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 8,
     title: "Customer Photo",
-    icon: require("@/assets/icons/Rent Doc 3.png"),
+    icon: require("@/assets/icons/rent doc 3.png"),
     uploaded: false,
     documentName: "Customer Photo",
     fileUrl: "",

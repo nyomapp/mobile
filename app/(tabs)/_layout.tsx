@@ -18,12 +18,12 @@ export default function TabLayout() {
           fontFamily: FONTS.Yellix,
           fontSize: 10,
           fontWeight: "300",
-          textAlign: 'center',
+          textAlign: "center",
           // marginTop: 2,
         },
         tabBarItemStyle: {
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
         },
         // tabBarIconStyle: {
         //   marginBottom: 2,
@@ -40,7 +40,7 @@ export default function TabLayout() {
 
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ justifyContent: "center", alignItems: "center" }}>
               <Image
                 source={
                   focused
@@ -86,7 +86,7 @@ export default function TabLayout() {
           title: "Search",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ justifyContent: "center", alignItems: "center" }}>
               <Image
                 source={
                   focused
@@ -111,8 +111,8 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                justifyContent: 'center',
-                alignItems: 'center',
+                justifyContent: "center",
+                alignItems: "center",
                 // backgroundColor: focused ? "#fff" : "#fff",
               }}
             >

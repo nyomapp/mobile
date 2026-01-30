@@ -126,7 +126,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 10,
     title: "RENT DOCUMENT 1",
-    icon: require("@/assets/icons/Rent Doc 1.png"),
+    icon: require("@/assets/icons/rent doc 1.png"),
     uploaded: false,
     documentName: "RENT DOCUMENT 1",
     fileUrl: "",
@@ -136,7 +136,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 11,
     title: "RENT DOCUMENT 2",
-    icon: require("@/assets/icons/Rent Doc 2.png"),
+    icon: require("@/assets/icons/rent doc 2.png"),
     uploaded: false,
     documentName: "RENT DOCUMENT 2",
     fileUrl: "",
@@ -146,7 +146,7 @@ const initialDocumentTypes: DocumentType[] = [
   {
     id: 12,
     title: "RENT DOCUMENT 3",
-    icon: require("@/assets/icons/Rent Doc 3.png"),
+    icon: require("@/assets/icons/rent doc 3.png"),
     uploaded: false,
     documentName: "RENT DOCUMENT 3",
     fileUrl: "",
