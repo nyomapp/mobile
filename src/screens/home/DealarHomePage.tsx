@@ -1,7 +1,10 @@
-import { getDashBoardData } from "@/src/api/dashBoard";
-import { getExecutives, getFinanciers } from "@/src/api/dealerHome";
+import {
+  getDealerGraphData,
+  getExecutives,
+  getFinanciers,
+} from "@/src/api/dealerHome";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
-import { COLORS } from "@/src/constants";
+import { COLORS, FONTS } from "@/src/constants";
 import { useDashBoard } from "@/src/contexts/DashBoardContext";
 import { useExecutiveData } from "@/src/contexts/ExecutiveDataContext";
 import { useFinancierData } from "@/src/contexts/FinancierDataContext";
@@ -98,10 +101,11 @@ export default function DealerHomeScreen() {
     setExecutives((response as any) || []);
   };
 
-  const fetchDashBoardData = async () => {
+  const fetchDashBoardData = async (filters?: typeof currentFilters) => {
     try {
       console.log("Fetching dashboard data...");
-      const response = await getDashBoardData();
+      const filtersToUse = filters !== undefined ? filters : currentFilters;
+      const response = await getDealerGraphData(filtersToUse);
       console.log("Dashboard data fetched successfully:", response);
       setDashBoardData(response as any);
     } catch (error) {
@@ -221,7 +225,7 @@ export default function DealerHomeScreen() {
     setDateValidationError("");
 
     console.log("Applying filter:", currentFilters);
-
+    fetchDashBoardData();
     // Close modal
     setShowFilterModal(false);
 
@@ -233,15 +237,20 @@ export default function DealerHomeScreen() {
   };
 
   const handleResetFilter = () => {
-    setCurrentFilters({
+    const emptyFilters = {
       executiveRef: [],
       financierRef: [],
       startDate: "",
       endDate: "",
       includingCash: false,
-    });
+    };
+
+    setCurrentFilters(emptyFilters);
     setSelectedExecutives([]);
     setSelectedFinanciers([]);
+
+    // Fetch data with empty filters
+    fetchDashBoardData(emptyFilters);
 
     // Close modal
     setShowFilterModal(false);
@@ -252,9 +261,67 @@ export default function DealerHomeScreen() {
       text2: "All filters cleared",
     });
   };
+  let colors = [
+    COLORS.secondaryBlue,
+    "#67E8F9",
+    "#10B981",
+    "#F59E0B",
+    "#ecb3ff",
+    "#8B5CF6",
+    "#EF4444",
+    "#F472B6",
+    "#A78BFA",
+    "#60A5FA",
+    "#34D399",
+    "#FBBF24",
+    "#FB923C",
+    "#F87171",
+    "#FCA5A5",
+    "#FDA4AF",
+    "#C084FC",
+    "#A3E635",
+    "#4ADE80",
+    "#2DD4BF",
+    "#22D3EE",
+    "#38BDF8",
+    "#818CF8",
+    "#E879F9",
+    "#F9A8D4",
+    "#FCD34D",
+    "#FDE047",
+    "#BEF264",
+    "#86EFAC",
+    "#6EE7B7",
+    "#5EEAD4",
+    "#7DD3FC",
+    "#93C5FD",
+    "#A5B4FC",
+    "#C4B5FD",
+    "#D8B4FE",
+    "#F0ABFC",
+    "#FBB6CE",
+    "#FECACA",
+    "#FED7AA",
+    "#FEF3C7",
+    "#FEF08A",
+    "#D9F99D",
+    "#BBF7D0",
+    "#99F6E4",
+    "#A5F3FC",
+    "#BAE6FD",
+    "#BFDBFE",
+    "#C7D2FE",
+    "#DDD6FE",
+    "#E9D5FF",
+    "#F5D0FE",
+    "#FBCFE8",
+    "#FECDD3",
+    "#FED7D7",
+    "#FFEDD5",
+  ];
 
   // Chart data calculation
-  const totalValue = (dashBoardData as any)?.pieChart?.total || 0;
+  // const totalValue = (dashBoardData as any)?.pieChart?.total || 0;
   const activeValue = (dashBoardData as any)?.pieChart?.delivered || 0;
   const pendingValue = (dashBoardData as any)?.pieChart?.pending || 0;
   // Delivery Location Wise
@@ -276,15 +343,15 @@ export default function DealerHomeScreen() {
   const chartData_2 = [
     {
       name: "Deliveries",
-      value1: 5,
-      value2: 1000,
+      value1: (dashBoardData as any)?.accessoriesData?.deliveries || 0,
+      value2: (dashBoardData as any)?.accessoriesData?.deliveriesAmount || 0,
 
       color: COLORS.secondaryBlue,
     },
     {
       name: "Accessories",
-      value1: 3,
-      value2: 1500,
+      value1: (dashBoardData as any)?.accessoriesData?.accessories || 0,
+      value2: (dashBoardData as any)?.accessoriesData?.accessoriesAmount || 0,
       color: "#67E8F9",
     },
   ];
@@ -292,15 +359,15 @@ export default function DealerHomeScreen() {
   const chartData_3 = [
     {
       name: "Deliveries",
-      value1: 5,
-      value2: 1000,
+      value1: (dashBoardData as any)?.rsaData?.deliveries || 0,
+      value2: (dashBoardData as any)?.rsaData?.deliveriesAmount || 0,
 
       color: COLORS.secondaryBlue,
     },
     {
       name: "RSA",
-      value1: 3,
-      value2: 1500,
+      value1: (dashBoardData as any)?.rsaData?.rsa || 0,
+      value2: (dashBoardData as any)?.rsaData?.rsaAmount || 0,
       color: "#67E8F9",
     },
   ];
@@ -308,15 +375,15 @@ export default function DealerHomeScreen() {
   const chartData_4 = [
     {
       name: "Deliveries",
-      value1: 9,
-      value2: 1000,
+      value1: (dashBoardData as any)?.helmetData?.deliveries || 0,
+      value2: (dashBoardData as any)?.helmetData?.deliveriesAmount || 0,
 
       color: COLORS.secondaryBlue,
     },
     {
       name: "Helmet",
-      value1: 1,
-      value2: 1500,
+      value1: (dashBoardData as any)?.helmetData?.helmet || 0,
+      value2: (dashBoardData as any)?.helmetData?.helmetAmount || 0,
       color: "#67E8F9",
     },
   ];
@@ -324,28 +391,28 @@ export default function DealerHomeScreen() {
   const chartData_5 = [
     {
       name: "Deliveries",
-      value: 9,
+      value: (dashBoardData as any)?.discountData?.deliveries || 0,
 
       color: COLORS.secondaryBlue,
     },
     {
       name: "Discount",
-      value: 5,
+      value: (dashBoardData as any)?.discountData?.discount || 0,
       color: "#67E8F9",
     },
     {
       name: "Scheme Discount",
-      value: 3,
+      value: (dashBoardData as any)?.discountData?.schemeDiscount || 0,
       color: "#10B981",
     },
     {
       name: "Average Discount",
-      value: 1,
+      value: (dashBoardData as any)?.discountData?.avgDiscount || 0,
       color: "#F59E0B",
     },
     {
       name: "Average Scheme Discount",
-      value: 1,
+      value: (dashBoardData as any)?.discountData?.avgSchemeDiscount || 0,
       color: "#8B5CF6",
     },
   ];
@@ -359,40 +426,75 @@ export default function DealerHomeScreen() {
     { name: "Location E", value1: 25, value2: 50, color: "#8B5CF6" },
   ];
   // Delivery Model wise
-  const chartData_7 = [
-    { name: "Modal 1", value: 5, color: COLORS.primaryBlue },
-    { name: "Modal 2", value: 10, color: "#67E8F9" },
-    { name: "Modal 3", value: 15, color: "#10B981" },
-    { name: "Modal 4", value: 20, color: "#F59E0B" },
-    { name: "Modal 5", value: 25, color: "#8B5CF6" },
-  ];
+  const chartData_7 =
+    (dashBoardData as any)?.modelWiseData?.map((item: any, index: number) => ({
+      name: item.name,
+      value: item.count,
+      color: colors[index],
+    })) || [];
+  //   || [
+  //   { name: "Modal 1", value: 5, color: COLORS.primaryBlue },
+  //   { name: "Modal 2", value: 10, color: "#67E8F9" },
+  //   { name: "Modal 3", value: 15, color: "#10B981" },
+  //   { name: "Modal 4", value: 20, color: "#F59E0B" },
+  //   { name: "Modal 5", value: 25, color: "#8B5CF6" },
+  // ];
   // Delivery RTO Location (Same City, Other City/Same State, Other State)
   const chartData_8 = [
-    { name: "Total", value1: 5, value2: 10, color: COLORS.primaryBlue },
-    { name: "Same City", value1: 10, value2: 20, color: "#67E8F9" },
-    { name: "Other City/Same State", value1: 15, value2: 30, color: "#10B981" },
-    { name: "Other State", value1: 20, value2: 40, color: "#F59E0B" },
+    {
+      name: "Total",
+      value1: (dashBoardData as any)?.rtoLocationData?.total?.amount,
+      value2: (dashBoardData as any)?.rtoLocationData?.total?.count,
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "Same City",
+      value1: (dashBoardData as any)?.rtoLocationData?.sameCity?.amount,
+      value2: (dashBoardData as any)?.rtoLocationData?.sameCity?.count,
+      color: "#67E8F9",
+    },
+    {
+      name: "Other City/Same State",
+      value1: (dashBoardData as any)?.rtoLocationData?.sameState?.amount,
+      value2: (dashBoardData as any)?.rtoLocationData?.sameState?.count,
+      color: "#10B981",
+    },
+    {
+      name: "Other State",
+      value1: (dashBoardData as any)?.rtoLocationData?.otherState?.amount,
+      value2: (dashBoardData as any)?.rtoLocationData?.otherState?.count,
+      color: "#F59E0B",
+    },
   ];
   const chartData_9 = [
     {
       name: "Cash",
-      value: 5,
+      value: (dashBoardData as any)?.financierOverviewData?.cash?.count,
       color: COLORS.secondaryBlue,
     },
     {
       name: "Finance",
-      value: 9,
+      value: (dashBoardData as any)?.financierOverviewData?.finance?.count,
       color: "#67E8F9",
     },
   ];
   //  Delivery Financier Wise
-  const chartData_10 = [
-    { name: "Financier 1", value1: 25, value2: 50, color: COLORS.primaryBlue },
-    { name: "Financier 2", value1: 20, value2: 40, color: "#67E8F9" },
-    { name: "Financier 3", value1: 15, value2: 30, color: "#10B981" },
-    { name: "Financier 4", value1: 10, value2: 20, color: "#F59E0B" },
-    { name: "Financier 5", value1: 5, value2: 10, color: "#8B5CF6" },
-  ];
+  const chartData_10 =
+    (dashBoardData as any)?.financierWiseData?.map(
+      (item: any, index: number) => ({
+        name: item.name,
+        value1: item.count,
+        value2: item.amount,
+        color: colors[index],
+      }),
+    ) || [];
+  //  [
+  //   { name: "Financier 1", value1: 25, value2: 50, color: COLORS.primaryBlue },
+  //   { name: "Financier 2", value1: 20, value2: 40, color: "#67E8F9" },
+  //   { name: "Financier 3", value1: 15, value2: 30, color: "#10B981" },
+  //   { name: "Financier 4", value1: 10, value2: 20, color: "#F59E0B" },
+  //   { name: "Financier 5", value1: 5, value2: 10, color: "#8B5CF6" },
+  // ];
   // Donut Chart Component
   const PieChart_1 = () => {
     // Handle empty data
@@ -929,7 +1031,7 @@ export default function DealerHomeScreen() {
   };
   const PieChart_5 = () => {
     // Handle empty data
-    if (chartData_7.reduce((sum, item) => sum + item.value, 0) <= 0) {
+    if (chartData_7.reduce((sum: any, item: any) => sum + item.value, 0) <= 0) {
       return (
         <View style={styles.radialChartContainer}>
           <View style={styles.progressCirclesContainer}>
@@ -940,13 +1042,16 @@ export default function DealerHomeScreen() {
       );
     }
 
-    const chartDataForKit = chartData_7.map((item) => ({
+    const chartDataForKit = chartData_7.map((item: any, index: number) => ({
       value: item.value,
       svg: { fill: item.color },
       key: item.name,
     }));
 
-    const total = chartData_7.reduce((sum, item) => sum + item.value, 0);
+    const total = chartData_7.reduce(
+      (sum: any, item: any) => sum + item.value,
+      0,
+    );
 
     const Labels = ({ slices }: any) => {
       return slices.map((slice: any, index: number) => {
@@ -1190,8 +1295,8 @@ export default function DealerHomeScreen() {
   const BarChart_3 = () => {
     // Handle empty data
     if (
-      chartData_10.reduce((sum, item) => sum + item.value1, 0) <= 0 &&
-      chartData_10.reduce((sum, item) => sum + item.value2, 0) <= 0
+      chartData_10.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0 &&
+      chartData_10.reduce((sum: any, item: any) => sum + item.value2, 0) <= 0
     ) {
       return (
         <View style={styles.radialChartContainer}>
@@ -1205,7 +1310,7 @@ export default function DealerHomeScreen() {
 
     // Flatten data to create grouped bars
     const chartDataForKit: any[] = [];
-    chartData_10.forEach((item, index) => {
+    chartData_10.forEach((item: any, index: number) => {
       chartDataForKit.push({
         value: item.value1,
         svg: { fill: COLORS.secondaryBlue },
@@ -1221,7 +1326,7 @@ export default function DealerHomeScreen() {
     });
 
     const maxValue = Math.max(
-      ...chartData_10.map((item) => Math.max(item.value1, item.value2)),
+      ...chartData_10.map((item: any) => Math.max(item.value1, item.value2)),
     );
 
     // Calculate dynamic width based on number of locations
@@ -1289,7 +1394,7 @@ export default function DealerHomeScreen() {
                   marginTop: 10,
                 }}
               >
-                {chartData_10.map((item, index) => (
+                {chartData_10.map((item: any, index: number) => (
                   <View
                     key={index}
                     style={{
@@ -1399,7 +1504,7 @@ export default function DealerHomeScreen() {
                 <Text style={styles.legendText}>{item.name}</Text>
                 <Text style={styles.legendValue}>
                   {item.value1}
-                  {item.value2 ? ` / ₹${item.value2}` : ""}
+                  {` / ₹${item.value2}`}
                 </Text>
               </View>
             ))}
@@ -1426,7 +1531,7 @@ export default function DealerHomeScreen() {
                 <Text style={styles.legendText}>{item.name}</Text>
                 <Text style={styles.legendValue}>
                   {item.value1}
-                  {item.value2 ? ` / ₹${item.value2}` : ""}
+                  {` / ₹${item.value2}`}
                 </Text>
               </View>
             ))}
@@ -1453,7 +1558,7 @@ export default function DealerHomeScreen() {
                 <Text style={styles.legendText}>{item.name}</Text>
                 <Text style={styles.legendValue}>
                   {item.value1}
-                  {item.value2 ? ` / ₹${item.value2}` : ""}
+                  {` / ₹${item.value2}`}
                 </Text>
               </View>
             ))}
@@ -1481,7 +1586,7 @@ export default function DealerHomeScreen() {
                 />
                 <Text style={styles.legendText}>{item.name}</Text>
                 <Text style={styles.legendValue}>
-                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
+                  {item.name == "Deliveries" ? item.value : `${item.value}`}
                 </Text>
               </View>
             ))}
@@ -1536,7 +1641,7 @@ export default function DealerHomeScreen() {
 
           {/* Legend */}
           <View style={styles.legendContainer}>
-            {chartData_7.map((item, index) => (
+            {chartData_7.map((item: any, index: number) => (
               <View key={index} style={styles.legendItem}>
                 <View
                   style={[styles.legendDot, { backgroundColor: item.color }]}
@@ -1554,7 +1659,7 @@ export default function DealerHomeScreen() {
         {/* Delivery RTO Location (Same City, Other City/Same State, Other State)  */}
         <View style={[allStyles.card, styles.deliveryCard]}>
           <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery Model wise</Text>
+            <Text style={styles.deliveryTitle}>Delivery RTO Location</Text>
           </View>
 
           {/* Legend */}
@@ -1788,6 +1893,55 @@ export default function DealerHomeScreen() {
                     : "Select Financier"}
                 </Text>
                 <Ionicons name="chevron-down" size={20} color="#6C757D" />
+              </TouchableOpacity>
+
+              {/* Including Cash Checkbox */}
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  // paddingVertical: 12,
+                  // marginTop: 16,
+                }}
+                onPress={() => {
+                  setCurrentFilters((prev) => ({
+                    ...prev,
+                    includingCash: !prev.includingCash,
+                  }));
+                }}
+                activeOpacity={0.7}
+              >
+                <View
+                  style={[
+                    {
+                      width: 20,
+                      height: 20,
+                      borderWidth: 2,
+                      borderColor: "#6C757D",
+                      borderRadius: 4,
+                      marginRight: 12,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    },
+                    currentFilters.includingCash && {
+                      backgroundColor: COLORS.primaryBlue,
+                      borderColor: COLORS.primaryBlue,
+                    },
+                  ]}
+                >
+                  {currentFilters.includingCash && (
+                    <Ionicons name="checkmark" size={16} color="white" />
+                  )}
+                </View>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: COLORS.black,
+                    fontFamily: FONTS.YellixThin,
+                  }}
+                >
+                  Including Cash
+                </Text>
               </TouchableOpacity>
             </ScrollView>
 

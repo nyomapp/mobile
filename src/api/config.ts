@@ -32,6 +32,7 @@ export const API_ENDPOINTS = {
   DEALAR_DASHBOARD: {
     GET_EXECUTIVES: "/executive",
     GET_FINANCIERS: "/financer",
+    GET_DEALER_GRAPH_DATA: "deliveries/dashboard/graphs",
   },
   MasterData: {
     GET: "master",
