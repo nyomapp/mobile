@@ -25,7 +25,7 @@ import { Calendar } from "react-native-calendars";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text as SvgText } from "react-native-svg";
-import { BarChart, LineChart, PieChart } from "react-native-svg-charts";
+import { BarChart, PieChart } from "react-native-svg-charts";
 import Toast from "react-native-toast-message";
 import { useAuth } from "../../contexts/AuthContext";
 import { allStyles } from "../../styles/global";
@@ -318,11 +318,207 @@ export default function DealerHomeScreen() {
     "#FECDD3",
     "#FED7D7",
     "#FFEDD5",
+    "#FF6B6B",
+    "#4ECDC4",
+    "#45B7D1",
+    "#FFA07A",
+    "#98D8C8",
+    "#F7DC6F",
+    "#BB8FCE",
+    "#85C1E2",
+    "#F8B88B",
+    "#52B788",
+    "#FFD93D",
+    "#6BCF7F",
+    "#95E1D3",
+    "#F38181",
+    "#AA96DA",
+    "#FCBAD3",
+    "#FFFFD2",
+    "#A8D8EA",
+    "#FFAAA6",
+    "#FFD3B5",
+    "#DCEDC2",
+    "#FFC8C8",
+    "#D4A5A5",
+    "#9FE2BF",
+    "#40E0D0",
+    "#FFB6C1",
+    "#DDA0DD",
+    "#87CEEB",
+    "#FF69B4",
+    "#BA55D3",
+    "#48D1CC",
+    "#FF7F50",
+    "#9370DB",
+    "#3CB371",
+    "#FF1493",
+    "#00CED1",
+    "#FF4500",
+    "#DA70D6",
+    "#32CD32",
+    "#FF6347",
+    "#9932CC",
+    "#00FA9A",
+    "#DC143C",
+    "#8A2BE2",
+    "#00FF7F",
+    "#B22222",
+    "#9400D3",
+    "#7CFC00",
+    "#CD5C5C",
+    "#8B008B",
+    "#ADFF2F",
+    "#A52A2A",
+    "#9966CC",
+    "#7FFF00",
+    "#D2691E",
+    "#BA55D3",
+    "#00FF00",
+    "#FF8C00",
+    "#DA70D6",
+    "#32CD32",
+    "#FF6347",
+    "#DDA0DD",
+    "#228B22",
+    "#FF4500",
+    "#EE82EE",
+    "#6B8E23",
+    "#FF0000",
+    "#D8BFD8",
+    "#9ACD32",
+    "#DC143C",
+    "#DDA0DD",
+    "#00FA9A",
+    "#C71585",
+    "#EE82EE",
+    "#00FF7F",
+    "#FF1493",
+    "#9370DB",
+    "#3CB371",
+    "#FFB6C1",
+    "#7B68EE",
+    "#2E8B57",
+    "#FFC0CB",
+    "#6A5ACD",
+    "#8FBC8F",
+    "#FF69B4",
+    "#483D8B",
+    "#66CDAA",
+    "#DB7093",
+    "#9370DB",
+    "#20B2AA",
+    "#C71585",
+    "#BA55D3",
+    "#48D1CC",
+    "#FF1493",
+    "#8B008B",
+    "#40E0D0",
+    "#8B4789",
+    "#00CED1",
+    "#7B3F8B",
+    "#00FFFF",
+    "#6B238E",
+    "#E0FFFF",
+    "#9B59B6",
+    "#AFEEEE",
+    "#8E44AD",
+    "#7FFFD4",
+    "#663399",
+    "#5F9EA0",
+    "#4B0082",
+    "#4682B4",
+    "#6A0DAD",
+    "#00BFFF",
+    "#8A2BE2",
+    "#1E90FF",
+    "#9966FF",
+    "#87CEEB",
+    "#7B68EE",
+    "#87CEFA",
+    "#6495ED",
+    "#B0C4DE",
+    "#4169E1",
+    "#ADD8E6",
+    "#0000FF",
+    "#B0E0E6",
+    "#0000CD",
+    "#AFEEEE",
+    "#00008B",
+    "#E0FFFF",
+    "#191970",
+    "#7FFFD4",
+    "#1C1C8E",
+    "#40E0D0",
+    "#3A3A98",
+    "#48D1CC",
+    "#5555AA",
+    "#00CED1",
+    "#7070BB",
+    "#00FFFF",
+    "#8B8BCC",
+    "#E0FFFF",
+    "#A6A6DD",
+    "#AFEEEE",
+    "#C1C1EE",
+    "#00FA9A",
+    "#9B59D6",
+    "#00FF7F",
+    "#B19CD9",
+    "#3CB371",
+    "#C8A2E0",
+    "#2E8B57",
+    "#DDA0DD",
+    "#66CDAA",
+    "#EE82EE",
+    "#8FBC8F",
+    "#DA70D6",
+    "#20B2AA",
+    "#D8BFD8",
+    "#48D1CC",
+    "#E6E6FA",
+    "#5F9EA0",
+    "#F8F8FF",
+    "#4682B4",
+    "#F0E68C",
+    "#6495ED",
+    "#FAFAD2",
+    "#4169E1",
+    "#FFFFE0",
+    "#1E90FF",
+    "#FFFACD",
+    "#00BFFF",
+    "#FFF8DC",
+    "#87CEEB",
+    "#FFEBCD",
+    "#87CEFA",
+    "#FFE4B5",
+    "#B0C4DE",
+    "#FFDEAD",
+    "#ADD8E6",
+    "#F5DEB3",
+    "#B0E0E6",
+    "#DEB887",
+    "#AFEEEE",
+    "#D2B48C",
+    "#E0FFFF",
+    "#BC8F8F",
+    "#7FFFD4",
+    "#F4A460",
+    "#40E0D0",
+    "#DAA520",
+    "#48D1CC",
+    "#B8860B",
+    "#00CED1",
+    "#CD853F",
+    "#00FFFF",
+    "#D2691E",
   ];
 
   // Chart data calculation
   // const totalValue = (dashBoardData as any)?.pieChart?.total || 0;
-  const activeValue = (dashBoardData as any)?.deliveryStatusData?.delivered || 0;
+  const activeValue =
+    (dashBoardData as any)?.deliveryStatusData?.delivered || 0;
   const pendingValue = (dashBoardData as any)?.deliveryStatusData?.pending || 0;
   // Delivery Location Wise
 
@@ -418,13 +614,22 @@ export default function DealerHomeScreen() {
   ];
 
   //  Delivery Location Wise
-  const chartData_6 = [
-    { name: "Location A", value1: 5, value2: 10, color: COLORS.primaryBlue },
-    { name: "Location B", value1: 10, value2: 20, color: "#67E8F9" },
-    { name: "Location C", value1: 15, value2: 30, color: "#10B981" },
-    { name: "Location D", value1: 20, value2: 40, color: "#F59E0B" },
-    { name: "Location E", value1: 25, value2: 50, color: "#8B5CF6" },
-  ];
+  const chartData_6 =
+    (dashBoardData as any)?.locationWiseData?.map(
+      (item: any, index: number) => ({
+        name: item.name,
+        value1: item.amount,
+        value2: item.count,
+        // color: colors[index],
+      }),
+    ) || [];
+  // [
+  //   { name: "Location A", value1: 5, value2: 10, color: COLORS.primaryBlue },
+  //   { name: "Location B", value1: 10, value2: 20, color: "#67E8F9" },
+  //   { name: "Location C", value1: 15, value2: 30, color: "#10B981" },
+  //   { name: "Location D", value1: 20, value2: 40, color: "#F59E0B" },
+  //   { name: "Location E", value1: 25, value2: 50, color: "#8B5CF6" },
+  // ];
   // Delivery Model wise
   const chartData_7 =
     (dashBoardData as any)?.modelWiseData?.map((item: any, index: number) => ({
@@ -540,8 +745,8 @@ export default function DealerHomeScreen() {
             textAnchor="middle"
             alignmentBaseline="middle"
             fontSize={9}
-            fontWeight="bold"
-            fontFamily="YellixMedium"
+            // fontWeight="bold"
+            fontFamily={FONTS.YellixThin}
           >
             {percentage}%
           </SvgText>
@@ -616,8 +821,8 @@ export default function DealerHomeScreen() {
             textAnchor="middle"
             alignmentBaseline="middle"
             fontSize={9}
-            fontWeight="bold"
-            fontFamily="YellixMedium"
+            // fontWeight="bold"
+            fontFamily={FONTS.YellixThin}
           >
             {percentage}%
           </SvgText>
@@ -692,8 +897,8 @@ export default function DealerHomeScreen() {
             textAnchor="middle"
             alignmentBaseline="middle"
             fontSize={9}
-            fontWeight="bold"
-            fontFamily="YellixMedium"
+            // fontWeight="bold"
+            fontFamily={FONTS.YellixThin}
           >
             {percentage}%
           </SvgText>
@@ -767,8 +972,8 @@ export default function DealerHomeScreen() {
             textAnchor="middle"
             alignmentBaseline="middle"
             fontSize={9}
-            fontWeight="bold"
-            fontFamily="YellixMedium"
+            // fontWeight="bold"
+            fontFamily={FONTS.YellixThin}
           >
             {percentage}%
           </SvgText>
@@ -835,13 +1040,13 @@ export default function DealerHomeScreen() {
         <SvgText
           key={index}
           x={x(index) + bandwidth / 2}
-          y={y(value.value) - 10}
-          fontSize={12}
+          y={y(value.value) - 5}
+          fontSize={10}
           fill={COLORS.black}
           alignmentBaseline="middle"
           textAnchor="middle"
-          fontWeight="bold"
-          fontFamily="YellixMedium"
+          // fontWeight="bold"
+          fontFamily={FONTS.YellixThin}
         >
           {value.value}
         </SvgText>
@@ -887,9 +1092,9 @@ export default function DealerHomeScreen() {
                 style={{
                   flex: 1,
                   textAlign: "center",
-                  fontSize: 10,
+                  fontSize: 9,
                   color: COLORS.black,
-                  fontFamily: "YellixMedium",
+                  fontFamily: FONTS.YellixThin,
                 }}
               >
                 {item.label}
@@ -903,8 +1108,8 @@ export default function DealerHomeScreen() {
   const BarChart_2 = () => {
     // Handle empty data
     if (
-      chartData_6.reduce((sum, item) => sum + item.value1, 0) <= 0 &&
-      chartData_6.reduce((sum, item) => sum + item.value2, 0) <= 0
+      chartData_6.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0 &&
+      chartData_6.reduce((sum: any, item: any) => sum + item.value2, 0) <= 0
     ) {
       return (
         <View style={styles.radialChartContainer}>
@@ -918,7 +1123,7 @@ export default function DealerHomeScreen() {
 
     // Flatten data to create grouped bars
     const chartDataForKit: any[] = [];
-    chartData_6.forEach((item, index) => {
+    chartData_6.forEach((item: any, index: number) => {
       chartDataForKit.push({
         value: item.value1,
         svg: { fill: COLORS.secondaryBlue },
@@ -934,7 +1139,7 @@ export default function DealerHomeScreen() {
     });
 
     const maxValue = Math.max(
-      ...chartData_6.map((item) => Math.max(item.value1, item.value2)),
+      ...chartData_6.map((item: any) => Math.max(item.value1, item.value2)),
     );
 
     // Calculate dynamic width based on number of locations
@@ -954,8 +1159,8 @@ export default function DealerHomeScreen() {
           fill={COLORS.black}
           alignmentBaseline="middle"
           textAnchor="middle"
-          fontWeight="bold"
-          fontFamily="YellixMedium"
+          // fontWeight="bold"
+          fontFamily={FONTS.YellixThin}
         >
           {value.value}
         </SvgText>
@@ -1002,7 +1207,7 @@ export default function DealerHomeScreen() {
                   marginTop: 10,
                 }}
               >
-                {chartData_6.map((item, index) => (
+                {chartData_6.map((item: any, index: number) => (
                   <View
                     key={index}
                     style={{
@@ -1015,7 +1220,7 @@ export default function DealerHomeScreen() {
                         textAlign: "center",
                         fontSize: 9,
                         color: COLORS.black,
-                        fontFamily: "YellixMedium",
+                        fontFamily: FONTS.YellixThin,
                       }}
                     >
                       {item.name}
@@ -1069,8 +1274,8 @@ export default function DealerHomeScreen() {
             textAnchor="middle"
             alignmentBaseline="middle"
             fontSize={9}
-            fontWeight="bold"
-            fontFamily="YellixMedium"
+            // fontWeight="bold"
+            fontFamily={FONTS.YellixThin}
           >
             {percentage}%
           </SvgText>
@@ -1094,17 +1299,17 @@ export default function DealerHomeScreen() {
             innerRadius={"0%"}
             spacing={0}
           >
-            <Labels />
+            {/* <Labels /> */}
           </PieChart>
         </View>
       </View>
     );
   };
-  const LineChart_1 = () => {
+  const BarChart_4 = () => {
     // Handle empty data
     if (
-      chartData_8.reduce((sum, item) => sum + item.value1, 0) <= 0 &&
-      chartData_8.reduce((sum, item) => sum + item.value2, 0) <= 0
+      chartData_8.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0 &&
+      chartData_8.reduce((sum: any, item: any) => sum + item.value2, 0) <= 0
     ) {
       return (
         <View style={styles.radialChartContainer}>
@@ -1116,63 +1321,50 @@ export default function DealerHomeScreen() {
       );
     }
 
-    // Create two separate data arrays for the two lines
-    const lineData1 = chartData_8.map((item) => item.value1);
-    const lineData2 = chartData_8.map((item) => item.value2);
+    // Flatten data to create grouped bars
+    const chartDataForKit: any[] = [];
+    chartData_8.forEach((item: any, index: number) => {
+      chartDataForKit.push({
+        value: item.value1,
+        svg: { fill: COLORS.secondaryBlue },
+        label: item.name,
+        type: "count",
+      });
+      chartDataForKit.push({
+        value: item.value2,
+        svg: { fill: "#67E8F9" },
+        label: item.name,
+        type: "amount",
+      });
+    });
 
-    const data = [
-      {
-        data: lineData1,
-        svg: { stroke: COLORS.primaryBlue, strokeWidth: 3 },
-      },
-      {
-        data: lineData2,
-        svg: { stroke: "#67E8F9", strokeWidth: 3 },
-      },
-    ];
-
-    // Get max value for proper scaling
     const maxValue = Math.max(
-      ...chartData_8.map((item) => Math.max(item.value1, item.value2)),
+      ...chartData_8.map((item: any) => Math.max(item.value1, item.value2)),
     );
 
-    // Decorator for line 1 (value1)
-    const Decorator1 = ({ x, y }: any) => {
-      return lineData1.map((value: any, index: number) => (
-        <SvgText
-          key={`line1-${index}`}
-          x={x(index)}
-          y={y(value) + 15}
-          fontSize={10}
-          fill={COLORS.primaryBlue}
-          alignmentBaseline="middle"
-          textAnchor="middle"
-          fontWeight="bold"
-          fontFamily="YellixMedium"
-        >
-          {value}
-        </SvgText>
-      ));
-    };
+    // Calculate dynamic width based on number of locations
+    // Each location has 2 bars, so we need space for pairs
+    const minBarWidth = 40; // Minimum width per bar
+    const calculatedWidth = chartData_8.length * minBarWidth * 2 + 100; // 2 bars per location + padding
+    const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
 
-    // Decorator for line 2 (value2)
-    const Decorator2 = ({ x, y }: any) => {
-      return lineData2.map((value: any, index: number) => (
+    // Labels component to show values on top of bars
+    const ValueLabels = ({ x, y, bandwidth, data }: any) =>
+      data.map((value: any, index: number) => (
         <SvgText
-          key={`line2-${index}`}
-          x={x(index)}
-          y={y(value) - 15}
+          key={index}
+          x={x(index) + bandwidth / 2}
+          y={y(value.value) - 5}
           fontSize={10}
-          fill="#67E8F9"
+          fill={COLORS.black}
           alignmentBaseline="middle"
           textAnchor="middle"
-          fontWeight="bold"
-          fontFamily="YellixMedium"
+          // fontWeight="bold"
+          fontFamily={FONTS.YellixThin}
         >
-          {value}
+          {value.value}
         </SvgText>
       ));
-    };
 
     return (
       <View style={styles.radialChartContainer}>
@@ -1184,41 +1376,60 @@ export default function DealerHomeScreen() {
             paddingVertical: 20,
           }}
         >
-          <LineChart
-            style={{ height: 200, width: screenWidth - 80 }}
-            data={data}
-            contentInset={{ top: 30, bottom: 10, left: 20, right: 20 }}
-            gridMin={0}
-            gridMax={maxValue * 1.2}
+          {/* Horizontal ScrollView for chart */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={true}
+            style={{ width: screenWidth - 80 }}
+            contentContainerStyle={{ paddingRight: 20 }}
           >
-            <Decorator1 />
-            <Decorator2 />
-          </LineChart>
+            <View>
+              <BarChart
+                style={{ height: 200, width: chartWidth }}
+                data={chartDataForKit}
+                yAccessor={({ item }: { item: { value: number } }) =>
+                  item.value
+                }
+                contentInset={{ top: 30, bottom: 10 }}
+                spacing={0.2}
+                gridMin={0}
+                gridMax={maxValue * 1.1}
+              >
+                <ValueLabels />
+              </BarChart>
 
-          {/* Bottom labels */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
-              width: screenWidth - 80,
-              marginTop: 10,
-            }}
-          >
-            {chartData_8.map((item, index) => (
-              <Text
-                key={index}
+              {/* Bottom labels - showing only unique location names */}
+              <View
                 style={{
-                  flex: 1,
-                  textAlign: "center",
-                  fontSize: 10,
-                  color: COLORS.black,
-                  fontFamily: "YellixMedium",
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  width: chartWidth,
+                  marginTop: 10,
                 }}
               >
-                {item.name}
-              </Text>
-            ))}
-          </View>
+                {chartData_8.map((item: any, index: number) => (
+                  <View
+                    key={index}
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: 9,
+                        color: COLORS.black,
+                        fontFamily: FONTS.YellixThin,
+                      }}
+                    >
+                      {item.name}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
         </View>
       </View>
     );
@@ -1260,8 +1471,8 @@ export default function DealerHomeScreen() {
             textAnchor="middle"
             alignmentBaseline="middle"
             fontSize={9}
-            fontWeight="bold"
-            fontFamily="YellixMedium"
+            // fontWeight="bold"
+            fontFamily={FONTS.YellixThin}
           >
             {percentage}%
           </SvgText>
@@ -1346,8 +1557,8 @@ export default function DealerHomeScreen() {
           fill={COLORS.black}
           alignmentBaseline="middle"
           textAnchor="middle"
-          fontWeight="bold"
-          fontFamily="YellixMedium"
+          // fontWeight="bold"
+          fontFamily={FONTS.YellixThin}
         >
           {value.value}
         </SvgText>
@@ -1407,7 +1618,7 @@ export default function DealerHomeScreen() {
                         textAlign: "center",
                         fontSize: 9,
                         color: COLORS.black,
-                        fontFamily: "YellixMedium",
+                        fontFamily: FONTS.YellixThin,
                       }}
                     >
                       {item.name}
@@ -1640,16 +1851,26 @@ export default function DealerHomeScreen() {
           </View>
 
           {/* Legend */}
-          <View style={styles.legendContainer}>
+          <ScrollView
+            style={{ maxHeight: 120, marginBottom: responsiveWidth(3) }}
+            contentContainerStyle={{
+              flexDirection: "row",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              gap: responsiveWidth(6),
+            }}
+            showsVerticalScrollIndicator={true}
+          >
             {chartData_7.map((item: any, index: number) => (
               <View key={index} style={styles.legendItem}>
                 <View
                   style={[styles.legendDot, { backgroundColor: item.color }]}
                 />
                 <Text style={styles.legendText}>{item.name}</Text>
+                <Text style={styles.legendValue}>{item.value}</Text>
               </View>
             ))}
-          </View>
+          </ScrollView>
 
           {/* Progress Chart4 */}
           <View style={styles.chartContainer}>
@@ -1685,7 +1906,7 @@ export default function DealerHomeScreen() {
 
           {/* Progress Chart4 */}
           <View style={styles.chartContainer}>
-            <LineChart_1 />
+            <BarChart_4 />
           </View>
         </View>
         {/* Delivery Financier Overview  */}
