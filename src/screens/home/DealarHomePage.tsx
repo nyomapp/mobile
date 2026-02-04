@@ -322,8 +322,8 @@ export default function DealerHomeScreen() {
 
   // Chart data calculation
   // const totalValue = (dashBoardData as any)?.pieChart?.total || 0;
-  const activeValue = (dashBoardData as any)?.pieChart?.delivered || 0;
-  const pendingValue = (dashBoardData as any)?.pieChart?.pending || 0;
+  const activeValue = (dashBoardData as any)?.deliveryStatusData?.delivered || 0;
+  const pendingValue = (dashBoardData as any)?.deliveryStatusData?.pending || 0;
   // Delivery Location Wise
 
   //  delivery
