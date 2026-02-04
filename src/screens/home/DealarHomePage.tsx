@@ -744,9 +744,9 @@ export default function DealerHomeScreen() {
             fill="white"
             textAnchor="middle"
             alignmentBaseline="middle"
-            fontSize={9}
+            fontSize={10}
             // fontWeight="bold"
-            fontFamily={FONTS.YellixThin}
+            fontFamily={FONTS.YellixMedium}
           >
             {percentage}%
           </SvgText>
@@ -820,9 +820,9 @@ export default function DealerHomeScreen() {
             fill="white"
             textAnchor="middle"
             alignmentBaseline="middle"
-            fontSize={9}
+            fontSize={10}
             // fontWeight="bold"
-            fontFamily={FONTS.YellixThin}
+            fontFamily={FONTS.YellixMedium}
           >
             {percentage}%
           </SvgText>
@@ -896,9 +896,9 @@ export default function DealerHomeScreen() {
             fill="white"
             textAnchor="middle"
             alignmentBaseline="middle"
-            fontSize={9}
+            fontSize={10}
             // fontWeight="bold"
-            fontFamily={FONTS.YellixThin}
+            fontFamily={FONTS.YellixMedium}
           >
             {percentage}%
           </SvgText>
@@ -971,9 +971,9 @@ export default function DealerHomeScreen() {
             fill="white"
             textAnchor="middle"
             alignmentBaseline="middle"
-            fontSize={9}
+            fontSize={10}
             // fontWeight="bold"
-            fontFamily={FONTS.YellixThin}
+            fontFamily={FONTS.YellixMedium}
           >
             {percentage}%
           </SvgText>
@@ -1273,9 +1273,9 @@ export default function DealerHomeScreen() {
             fill="white"
             textAnchor="middle"
             alignmentBaseline="middle"
-            fontSize={9}
+            fontSize={10}
             // fontWeight="bold"
-            fontFamily={FONTS.YellixThin}
+            fontFamily={FONTS.YellixMedium}
           >
             {percentage}%
           </SvgText>
@@ -1470,9 +1470,9 @@ export default function DealerHomeScreen() {
             fill="white"
             textAnchor="middle"
             alignmentBaseline="middle"
-            fontSize={9}
+            fontSize={10}
             // fontWeight="bold"
-            fontFamily={FONTS.YellixThin}
+            fontFamily={FONTS.YellixMedium}
           >
             {percentage}%
           </SvgText>
