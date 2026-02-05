@@ -2008,6 +2008,7 @@ export default function DealerHomeScreen() {
             {/* Filter Form */}
             <ScrollView
               style={styles.filterForm}
+              contentContainerStyle={{ paddingBottom: 30 }}
               showsVerticalScrollIndicator={false}
             >
               {/* Start Date Picker */}
