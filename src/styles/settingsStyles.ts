@@ -132,11 +132,4 @@ export const settingsStyles = StyleSheet.create({
     fontFamily: FONTS.Yellix,
     color: COLORS.white,
   },
-  versionText: {
-    textAlign: "center",
-    marginTop: responsiveWidth(4),
-    fontSize: responsiveFontSize(1.6),
-    fontFamily: FONTS.Yellix,
-    color: "#9CA3AF",
-  },
 });

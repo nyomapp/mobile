@@ -149,7 +149,6 @@ export default function SettingsScreen() {
           <TouchableOpacity style={allStyles.btn} onPress={handleLogout}>
             <Text style={allStyles.btnText}>Logout</Text>
           </TouchableOpacity>
-          <Text style={settingsStyles.versionText}>App Version: 1.0.1</Text>
         </View>
       </KeyboardAvoidingView>
       <Toast />
