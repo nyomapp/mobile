@@ -85,11 +85,8 @@ const createPdfFromImage = async (imageUri: string) => {
 /* ------------------------------------------------------------------ */
 
 const compressToTargetPDFSize = async (imageUri: string, maxKB: number) => {
-  // Adaptive strategy
-  const widths = [1600, 1400, 1300, 1200, 1100, 1000];
-  const qualities = [0.9, 0.85, 0.8, 0.75, 0.7];
-
-  let bestResult: { uri: string; sizeKB: number } | null = null;
+  const widths = [1600, 1400, 1300, 1200, 1100, 1000, 900, 800];
+  const qualities = [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55];
 
   for (const width of widths) {
     for (const quality of qualities) {
@@ -103,9 +100,7 @@ const compressToTargetPDFSize = async (imageUri: string, maxKB: number) => {
       );
 
       const pdf = await createPdfFromImage(img.uri);
-      bestResult = pdf;
 
-      // ✅ Strict accept
       if (pdf.sizeKB <= maxKB) {
         return pdf;
       }
@@ -118,14 +113,19 @@ const compressToTargetPDFSize = async (imageUri: string, maxKB: number) => {
 
   const forcedImg = await ImageManipulator.manipulateAsync(
     imageUri,
-    [{ resize: { width: 900 } }],
+    [{ resize: { width: 600 } }],
     {
-      compress: 0.65,
+      compress: 0.5,
       format: ImageManipulator.SaveFormat.JPEG,
     },
   );
 
   const forcedPdf = await createPdfFromImage(forcedImg.uri);
+
+  // Ensure it's under limit
+  if (forcedPdf.sizeKB > maxKB) {
+    throw new Error(`Cannot compress below ${maxKB}KB limit`);
+  }
 
   return forcedPdf;
 };
