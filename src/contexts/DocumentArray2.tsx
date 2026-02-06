@@ -130,7 +130,7 @@ const initialDocumentTypes: DocumentType[] = [
     uploaded: false,
     documentName: "RENT DOCUMENT 1",
     fileUrl: "",
-    fileSize: 130,
+    fileSize: 97,
     fileType: "PDF",
   },
   {
@@ -140,7 +140,7 @@ const initialDocumentTypes: DocumentType[] = [
     uploaded: false,
     documentName: "RENT DOCUMENT 2",
     fileUrl: "",
-    fileSize: 130,
+    fileSize: 97,
     fileType: "PDF",
   },
   {
@@ -150,7 +150,17 @@ const initialDocumentTypes: DocumentType[] = [
     uploaded: false,
     documentName: "RENT DOCUMENT 3",
     fileUrl: "",
-    fileSize: 130,
+    fileSize: 97,
+    fileType: "PDF",
+  },
+    {
+    id: 13,
+    title: "RENT DOCUMENT 4",
+    icon: require("@/assets/icons/rent doc 3.png"),
+    uploaded: false,
+    documentName: "RENT DOCUMENT 4",
+    fileUrl: "",
+    fileSize: 97,
     fileType: "PDF",
   },
 ];

@@ -172,6 +172,10 @@ export default function PreviewScreen() {
         currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"
       }`,
     },
+      {
+      label: "Number of Helmets",
+      value: `${currentDelivery?.numberOfHelmet || "0"}`,
+    },
     {
       label: "Loyality Card",
       value: `₹${

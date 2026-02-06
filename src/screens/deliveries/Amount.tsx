@@ -39,6 +39,7 @@ export default function AmountScreen() {
     { id: "other1", label: "Other 1", value: "" },
     { id: "other2", label: "Other 2", value: "" },
     { id: "other3", label: "Other 3", value: "" },
+    { id: "numberOfHelmet", label: "Number of Helmets", value: "" },
   ]);
 
   useEffect(() => {
@@ -126,10 +127,15 @@ export default function AmountScreen() {
                 ...item,
                 value: currentDelivery.helmetAmount?.toString() || "",
               };
+            case "numberOfHelmet":
+              return {
+                ...item,
+                value: currentDelivery.numberOfHelmet?.toString() || "",
+              };
             default:
               return item;
           }
-        })
+        }),
       );
     }
   }, [currentDelivery]);
@@ -152,8 +158,8 @@ export default function AmountScreen() {
 
     setAmounts((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, value: numericValue } : item
-      )
+        item.id === id ? { ...item, value: numericValue } : item,
+      ),
     );
   };
 
@@ -201,6 +207,12 @@ export default function AmountScreen() {
           break;
         case "other3":
           amountData.others3 = value;
+          break;
+        case "helmet":
+          amountData.helmetAmount = value;
+          break;
+        case "numberOfHelmet":
+          amountData.numberOfHelmet = value;
           break;
       }
     });
