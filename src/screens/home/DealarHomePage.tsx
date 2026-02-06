@@ -1653,9 +1653,13 @@ export default function DealerHomeScreen() {
         {/* Header Section */}
         <View style={styles.headingContainer}>
           <View style={styles.headingTextContainer}>
-            <View style={[styles.headingText]}>
-              <Text style={styles.UserStyle}>Hello</Text>
-              <Text style={styles.UserStyle}>
+            <View style={[styles.headingText, { flex: 1, flexShrink: 1 }]}>
+              <Text
+                style={styles.UserStyle}
+                numberOfLines={3}
+                ellipsizeMode="tail"
+              >
+                Hello{" "}
                 {user?.name
                   ? user.name.charAt(0).toUpperCase() +
                     user.name.slice(1).toLowerCase()
@@ -1663,7 +1667,11 @@ export default function DealerHomeScreen() {
               </Text>
             </View>
             {user?.mainDealerRef?.name && (
-              <Text style={styles.UserDealerStyle}>
+              <Text
+                style={styles.UserDealerStyle}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {user?.mainDealerRef?.name}
               </Text>
             )}

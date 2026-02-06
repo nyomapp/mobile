@@ -47,7 +47,7 @@ export default function AddDelivery() {
     isLoading,
     setLoading,
   } = useModels();
-   const { resetDocuments } = useDocumentArray();
+  const { resetDocuments } = useDocumentArray();
   const [deliveryType, setDeliveryType] = useState<DeliveryType>("New");
   const [customerName, setCustomerName] = useState("");
   const [frameNumber, setFrameNumber] = useState("");
@@ -99,7 +99,6 @@ export default function AddDelivery() {
   // Track currentDelivery changes
   useEffect(() => {
     //console.log("AddDelivery - currentDelivery updated:", currentDelivery);
-    
   }, [currentDelivery]);
 
   // Only call getAllModels when user is available
@@ -225,7 +224,11 @@ export default function AddDelivery() {
         newErrors.registrationNumber = "Registration number is required";
       }
     }
-    if (!selectedRTOLocation || selectedRTOLocation === "null" || selectedRTOLocation === "" ) {
+    if (
+      !selectedRTOLocation ||
+      selectedRTOLocation === "null" ||
+      selectedRTOLocation === ""
+    ) {
       newErrors.selectedRTOLocation = "Please select an RTO location";
     }
 
@@ -260,9 +263,10 @@ export default function AddDelivery() {
       }),
       rtoLocation: selectedRTOLocation,
       userRef: user ? user.id : "",
+      numberOfHelmet: (currentDelivery?.numberOfHelmet || 0) as any,
     };
 
-    setCurrentDelivery(deliveryData);
+    setCurrentDelivery(deliveryData as any);
 
     //console.log("Form validated and stored in context:", deliveryData);
     router.push("/document-screen");
@@ -300,17 +304,21 @@ export default function AddDelivery() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* Header */}
-        <View
-         style={{ paddingTop: responsiveWidth(2) }}
-         >
+        <View style={{ paddingTop: responsiveWidth(2) }}>
           <HeaderIcon />
         </View>
         <View style={allStyles.pageHeader}>
           <View>
-            <Text style={[allStyles.pageTitle, { lineHeight:responsiveWidth(10) }]}>
+            <Text
+              style={[allStyles.pageTitle, { lineHeight: responsiveWidth(10) }]}
+            >
               <Text style={[allStyles.yellix_medium]}>Add</Text>
               {"\n"}
-              <Text style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}>Delivery</Text>
+              <Text
+                style={[allStyles.headerSecondaryText, allStyles.yellix_thin]}
+              >
+                Delivery
+              </Text>
             </Text>
           </View>
           <View
@@ -367,7 +375,7 @@ export default function AddDelivery() {
                   style={[
                     allStyles.toggleButtonText,
                     deliveryType === "Renew" &&
-                    allStyles.toggleButtonTextActive,
+                      allStyles.toggleButtonTextActive,
                     deliveryType === "Renew" && { color: COLORS.white },
                     allStyles.yellix_thin,
                   ]}
@@ -481,7 +489,7 @@ export default function AddDelivery() {
               >
                 {selectedModel
                   ? modelsData.find((model) => model._id === selectedModel)
-                    ?.name || selectedModel
+                      ?.name || selectedModel
                   : "Select Model *"}
               </Text>
               <Ionicons name="chevron-down" size={20} color="#6C757D" />
@@ -581,7 +589,7 @@ export default function AddDelivery() {
                         style={[
                           styles.modalOptionText,
                           selectedModel === model._id &&
-                          styles.selectedOptionText,
+                            styles.selectedOptionText,
                         ]}
                       >
                         {model.name}
