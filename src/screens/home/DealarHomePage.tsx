@@ -792,23 +792,28 @@ export default function DealerHomeScreen() {
 
     const chartDataForKit = [
       {
-        value: chartData_2[0].value1,
-        svg: { fill: COLORS.secondaryBlue },
-        key: "deliveries",
-      },
-      {
-        value: chartData_2[1].value1,
+        value: chartData_2[1].value1, // accessories
         svg: { fill: "#67E8F9" },
         key: "accessories",
       },
+      {
+        value: Math.max(0, chartData_2[0].value1 - chartData_2[1].value1), // deliveries without accessories
+        svg: { fill: COLORS.secondaryBlue },
+        key: "deliveries",
+      },
     ];
 
-    const total = chartData_2.reduce((sum, item) => sum + item.value1, 0);
+    const total = chartData_2[0].value1; // Use deliveries as 100%
 
     const Labels = ({ slices }: any) => {
       return slices.map((slice: any, index: number) => {
         const { pieCentroid, data } = slice;
-        const percentage = ((data.value / total) * 100).toFixed(1);
+        // For accessories (index 0), calculate percentage relative to deliveries
+        // For deliveries (index 1), show remaining percentage
+        const percentage =
+          index === 1
+            ? (100 - (chartData_2[1].value1 / total) * 100).toFixed(1)
+            : ((data.value / total) * 100).toFixed(1);
         // Adjust position to be closer to center to avoid overflow
         const x = pieCentroid[0] * 1;
         const y = pieCentroid[1] * 1;
@@ -868,23 +873,28 @@ export default function DealerHomeScreen() {
 
     const chartDataForKit = [
       {
-        value: chartData_3[0].value1,
-        svg: { fill: COLORS.secondaryBlue },
-        key: "deliveries",
-      },
-      {
-        value: chartData_3[1].value1,
+        value: chartData_3[1].value1, // RSA
         svg: { fill: "#67E8F9" },
         key: "accessories",
       },
+      {
+        value: Math.max(0, chartData_3[0].value1 - chartData_3[1].value1), // deliveries without RSA
+        svg: { fill: COLORS.secondaryBlue },
+        key: "deliveries",
+      },
     ];
 
-    const total = chartData_3.reduce((sum, item) => sum + item.value1, 0);
+    const total = chartData_3[0].value1; // Use deliveries as 100%
 
     const Labels = ({ slices }: any) => {
       return slices.map((slice: any, index: number) => {
         const { pieCentroid, data } = slice;
-        const percentage = ((data.value / total) * 100).toFixed(1);
+        // For RSA (index 0), calculate percentage relative to deliveries
+        // For deliveries (index 1), show remaining percentage
+        const percentage =
+          index === 1
+            ? (100 - (chartData_3[1].value1 / total) * 100).toFixed(1)
+            : ((data.value / total) * 100).toFixed(1);
         // Adjust position to be closer to center to avoid overflow
         const x = pieCentroid[0] * 1;
         const y = pieCentroid[1] * 1;
@@ -943,23 +953,28 @@ export default function DealerHomeScreen() {
 
     const chartDataForKit = [
       {
-        value: chartData_4[0].value1,
-        svg: { fill: COLORS.secondaryBlue },
-        key: "deliveries",
-      },
-      {
-        value: chartData_4[1].value1,
+        value: chartData_4[1].value1, // helmet
         svg: { fill: "#67E8F9" },
         key: "accessories",
       },
+      {
+        value: Math.max(0, chartData_4[0].value1 - chartData_4[1].value1), // deliveries without helmet
+        svg: { fill: COLORS.secondaryBlue },
+        key: "deliveries",
+      },
     ];
 
-    const total = chartData_4.reduce((sum, item) => sum + item.value1, 0);
+    const total = chartData_4[0].value1; // Use deliveries as 100%
 
     const Labels = ({ slices }: any) => {
       return slices.map((slice: any, index: number) => {
         const { pieCentroid, data } = slice;
-        const percentage = ((data.value / total) * 100).toFixed(1);
+        // For helmet (index 0), calculate percentage relative to deliveries
+        // For deliveries (index 1), show remaining percentage
+        const percentage =
+          index === 1
+            ? (100 - (chartData_4[1].value1 / total) * 100).toFixed(1)
+            : ((data.value / total) * 100).toFixed(1);
         // Adjust position to be closer to center to avoid overflow
         const x = pieCentroid[0] * 1;
         const y = pieCentroid[1] * 1;
