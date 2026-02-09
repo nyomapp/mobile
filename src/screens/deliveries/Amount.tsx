@@ -208,9 +208,6 @@ export default function AmountScreen() {
         case "other3":
           amountData.others3 = value;
           break;
-        case "helmet":
-          amountData.helmetAmount = value;
-          break;
         case "numberOfHelmet":
           amountData.numberOfHelmet = value;
           break;
@@ -298,27 +295,85 @@ export default function AmountScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Amount Fields */}
           <View style={styles.formSection}>
-            {amounts.map((item, index) => (
-              <View key={item.id} style={styles.amountRow}>
-                <Text
-                  style={[
-                    styles.amountLabel,
-                    (item.id === "discount" || item.id === "schemeDiscount") &&
-                      styles.discountLabel,
-                  ]}
-                >
-                  {item.label}
-                </Text>
-                <TextInput
-                  style={[globalStyles.input, styles.amountInput]}
-                  placeholder="Amount"
-                  placeholderTextColor="#BDB9BA"
-                  value={item.value}
-                  onChangeText={(value) => handleAmountChange(item.id, value)}
-                  keyboardType="decimal-pad"
-                />
-              </View>
-            ))}
+            {amounts.map((item, index) => {
+              // Skip numberOfHelmet as it will be rendered with helmet field
+              if (item.id === "numberOfHelmet") return null;
+
+              // Special rendering for helmet field with numberOfHelmet
+              if (item.id === "helmet") {
+                const numberOfHelmetField = amounts.find(
+                  (f) => f.id === "numberOfHelmet",
+                );
+                return (
+                  <View key={item.id} style={styles.amountRow}>
+                    <Text style={[styles.amountLabel]}>
+                      {`${item.label} & Number of Helmets`}
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: 5,
+                        flex: 1,
+                        maxWidth: responsiveWidth(35),
+                      }}
+                    >
+                      <TextInput
+                        style={[
+                          globalStyles.input,
+                          styles.amountInput,
+                          { flex: 1 },
+                        ]}
+                        placeholder="Amount"
+                        placeholderTextColor="#BDB9BA"
+                        value={item.value}
+                        onChangeText={(value) =>
+                          handleAmountChange(item.id, value)
+                        }
+                        keyboardType="decimal-pad"
+                      />
+                      <TextInput
+                        style={[
+                          globalStyles.input,
+                          styles.amountInput,
+                          { flex: 0.1, textAlign: "center" },
+                        ]}
+                        placeholder="Qty"
+                        placeholderTextColor="#BDB9BA"
+                        value={numberOfHelmetField?.value || ""}
+                        onChangeText={(value) =>
+                          handleAmountChange("numberOfHelmet", value)
+                        }
+                        keyboardType="number-pad"
+                      />
+                    </View>
+                  </View>
+                );
+              }
+
+              // Regular rendering for other fields
+              return (
+                <View key={item.id} style={styles.amountRow}>
+                  <Text
+                    style={[
+                      styles.amountLabel,
+                      (item.id === "discount" ||
+                        item.id === "schemeDiscount") &&
+                        styles.discountLabel,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                  <TextInput
+                    style={[globalStyles.input, styles.amountInput]}
+                    placeholder="Amount"
+                    placeholderTextColor="#BDB9BA"
+                    value={item.value}
+                    onChangeText={(value) => handleAmountChange(item.id, value)}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+              );
+            })}
           </View>
         </ScrollView>
 

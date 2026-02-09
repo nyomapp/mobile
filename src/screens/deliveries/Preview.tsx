@@ -172,7 +172,7 @@ export default function PreviewScreen() {
         currentDelivery?.helmetAmount?.toLocaleString("en-IN") || "0"
       }`,
     },
-      {
+    {
       label: "Number of Helmets",
       value: `${currentDelivery?.numberOfHelmet || "0"}`,
     },
@@ -455,28 +455,98 @@ export default function PreviewScreen() {
           />
         </TouchableOpacity>
       </View>
-      {data.map((item, index) => (
-        <View
-          key={index}
-          style={showAsInputs ? styles.detailRowSpaced : styles.detailRow}
-        >
-          <Text
-            style={[
-              styles.detailLabel,
-              showAsInputs ? { fontFamily: FONTS.YellixThin } : null,
-            ]}
-          >
-            {item.label}
-          </Text>
-          {showAsInputs ? (
-            <View style={styles.amountInputBox}>
-              <Text style={styles.amountPlaceholder}>{item.value}</Text>
+      {data.map((item, index) => {
+        // Skip "Number of Helmets" as it will be rendered with Helmet field
+        if (item.label === "Number of Helmets") return null;
+
+        // Special rendering for Helmet field with Number of Helmets
+        if (item.label === "Helmet") {
+          const numberOfHelmetsField = data.find(
+            (f) => f.label === "Number of Helmets",
+          );
+          return (
+            <View
+              key={index}
+              style={showAsInputs ? styles.detailRowSpaced : styles.detailRow}
+            >
+              <Text
+                style={[
+                  styles.detailLabel,
+                  showAsInputs
+                    ? {
+                        fontFamily: FONTS.YellixThin,
+                        maxWidth: responsiveWidth(50),
+                      }
+                    : null,
+                ]}
+              >
+                {showAsInputs ? "Helmet & Number of Helmets" : item.label}
+              </Text>
+              {showAsInputs ? (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 5,
+                    maxWidth: responsiveWidth(35),
+                    flex: 1,
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.amountInputBox,
+                      { flex: 1, minWidth: responsiveWidth(0) },
+                    ]}
+                  >
+                    <Text style={styles.amountPlaceholder}>{item.value}</Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.amountInputBox,
+                      {
+                        flex: 0.1,
+                        alignItems: "center",
+                        minWidth: responsiveWidth(0),
+                      },
+                    ]}
+                  >
+                    <Text style={styles.amountPlaceholder}>
+                      {numberOfHelmetsField?.value || "0"}
+                    </Text>
+                  </View>
+                </View>
+              ) : (
+                <Text style={styles.detailValue}>
+                  {item.value} (Qty: {numberOfHelmetsField?.value || "0"})
+                </Text>
+              )}
             </View>
-          ) : (
-            <Text style={styles.detailValue}>{item.value}</Text>
-          )}
-        </View>
-      ))}
+          );
+        }
+
+        // Regular rendering for other fields
+        return (
+          <View
+            key={index}
+            style={showAsInputs ? styles.detailRowSpaced : styles.detailRow}
+          >
+            <Text
+              style={[
+                styles.detailLabel,
+                showAsInputs ? { fontFamily: FONTS.YellixThin } : null,
+              ]}
+            >
+              {item.label}
+            </Text>
+            {showAsInputs ? (
+              <View style={styles.amountInputBox}>
+                <Text style={styles.amountPlaceholder}>{item.value}</Text>
+              </View>
+            ) : (
+              <Text style={styles.detailValue}>{item.value}</Text>
+            )}
+          </View>
+        );
+      })}
     </View>
   );
 

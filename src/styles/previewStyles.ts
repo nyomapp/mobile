@@ -1,5 +1,8 @@
 import { StyleSheet } from "react-native";
-import { responsiveFontSize, responsiveWidth } from "react-native-responsive-dimensions";
+import {
+  responsiveFontSize,
+  responsiveWidth,
+} from "react-native-responsive-dimensions";
 import { COLORS } from "../constants";
 import { FONTS } from "../constants/fonts";
 export const styles = StyleSheet.create({
@@ -8,7 +11,6 @@ export const styles = StyleSheet.create({
   },
   section: {
     marginBottom: responsiveWidth(10),
-
   },
   sectionHeader: {
     flexDirection: "row",
@@ -32,7 +34,7 @@ export const styles = StyleSheet.create({
   },
   detailRow: {
     flexDirection: "row",
-    gap:5,
+    gap: 5,
     alignItems: "center",
     paddingVertical: responsiveWidth(3),
   },
@@ -41,15 +43,15 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: responsiveWidth(3),
-    paddingRight:responsiveWidth(1),
+    paddingRight: responsiveWidth(1),
+    flex: 1,
   },
   detailLabel: {
     fontSize: responsiveFontSize(2),
     fontFamily: FONTS.YellixMedium,
-  
-    
-    color:"#646566",
-    // flex: 1,
+
+    color: "#646566",
+    flex: 1,
   },
   detailValue: {
     fontSize: responsiveFontSize(2),
@@ -64,10 +66,10 @@ export const styles = StyleSheet.create({
   documentTitle: {
     fontSize: responsiveFontSize(2.5),
     fontFamily: FONTS.Yellix,
-    color:"#646566",
+    color: "#646566",
     marginBottom: responsiveWidth(5),
   },
-   documentPreviewTitle: {
+  documentPreviewTitle: {
     fontSize: responsiveFontSize(1.9),
     fontFamily: FONTS.YellixThin,
     color: COLORS.black,
@@ -149,14 +151,14 @@ export const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   amountInputBox: {
-  backgroundColor: COLORS.white,
-  borderRadius: responsiveWidth(2),
-  paddingHorizontal: responsiveWidth(3),
-  paddingVertical: responsiveWidth(2.5),
-  minWidth: responsiveWidth(35),
-  borderWidth: 1,
-  borderColor: "#E2E2E2",
-  // shadowColor: COLORS.black,
+    backgroundColor: COLORS.white,
+    borderRadius: responsiveWidth(2),
+    paddingHorizontal: responsiveWidth(3),
+    paddingVertical: responsiveWidth(2.5),
+    minWidth: responsiveWidth(35),
+    borderWidth: 1,
+    borderColor: "#E2E2E2",
+    // shadowColor: COLORS.black,
     // shadowOffset: {
     //   width: 0,
     //   height: 1,
@@ -164,12 +166,12 @@ export const styles = StyleSheet.create({
     // shadowOpacity: 0.1,
     // shadowRadius: 3,
     // elevation: 2,
-},
-amountPlaceholder: {
-  fontSize: responsiveFontSize(1.6),
-  fontFamily: FONTS.Yellix,
-  color: "#958c8c",
-},
+  },
+  amountPlaceholder: {
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: FONTS.Yellix,
+    color: "#958c8c",
+  },
   documentCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -192,9 +194,9 @@ amountPlaceholder: {
     alignItems: "center",
     marginRight: responsiveWidth(3),
   },
-  documentRightButtons:{
-    flexDirection:"row",
-    alignItems:"center",
-    gap:responsiveWidth(6),
-  }
+  documentRightButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: responsiveWidth(6),
+  },
 });

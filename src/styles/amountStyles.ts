@@ -19,7 +19,6 @@ export const styles = StyleSheet.create({
     // padding: responsiveWidth(5),
     flexDirection: "column",
     // textAlign: "left",
-    
   },
   totalAmountDisplay: {
     flexDirection: "row",
@@ -47,6 +46,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: responsiveWidth(5),
     paddingRight: responsiveWidth(1),
+    flex: 1,
   },
   amountLabel: {
     fontSize: responsiveFontSize(2.1),
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     // maxWidth: responsiveWidth(35),
     // minWidth: responsiveWidth(35),
     fontFamily: FONTS.Yellix,
-    color:"#646566",
+    color: "#646566",
     marginLeft: "auto",
     paddingHorizontal: responsiveWidth(4),
     paddingVertical: responsiveWidth(2),
@@ -87,7 +87,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(2),
     backgroundColor: "transparent",
     borderColor: "#E2E2E2",
-    marginBottom:0,
+    marginBottom: 0,
   },
   bottomNavigation: {
     flexDirection: "row",

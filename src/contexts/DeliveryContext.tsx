@@ -70,7 +70,7 @@ export interface Delivery {
   //   status?: 'pending' | 'delivered';
   rtoLocation?: string | null;
   //   updatedBy: string;
-  numberOfHelmet: "",
+  numberOfHelmet: number;
 }
 
 // Context types
@@ -132,7 +132,7 @@ const initialDelivery: Partial<Delivery> = {
   financierPlan2: undefined,
   //   status: 'pending',
   rtoLocation: null,
-  numberOfHelmet: "",
+  numberOfHelmet: undefined,
 };
 
 // Create context
@@ -220,7 +220,7 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({
       schemeDiscount = 0,
       discount = 0,
       loyalityCardAmount = 0,
-      numberOfHelmet = 0,
+      // numberOfHelmet = 0,
     } = currentDelivery;
 
     const total =
