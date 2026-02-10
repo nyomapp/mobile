@@ -144,9 +144,13 @@ export default function AmountScreen() {
   const calculateTotalAmount = () => {
     return amounts.reduce((total, item) => {
       const value = parseFloat(item.value) || 0;
-      // Subtract discount, add all other amounts
+      // Subtract discount, add all other amounts except numberOfHelmet (quantity field)
       if (item.id === "discount" || item.id === "schemeDiscount") {
         return total - value;
+      }
+      // Skip numberOfHelmet as it's a quantity field, not an amount
+      if (item.id === "numberOfHelmet") {
+        return total;
       }
       return total + value;
     }, 0);
@@ -337,7 +341,7 @@ export default function AmountScreen() {
                           styles.amountInput,
                           { flex: 0.1, textAlign: "center" },
                         ]}
-                        placeholder="Qty"
+                        placeholder="Q"
                         placeholderTextColor="#BDB9BA"
                         value={numberOfHelmetField?.value || ""}
                         onChangeText={(value) =>

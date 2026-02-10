@@ -706,7 +706,6 @@ export default function DealerHomeScreen() {
     (dashBoardData as any)?.executivePerformancePercentageData?.map(
       (item: any, index: number) => ({
         name: item.name,
-        value1: item.accessoriesPercentage,
         value2: item.accessoriesPercentage,
         value3: item.rsaPercentage,
         value4: item.helmetPercentage,
@@ -886,6 +885,51 @@ export default function DealerHomeScreen() {
   //   },
   //   {
   //     name: "Financier 8",
+  //     value1: 5,
+  //     value2: 10,
+  //     value3: 10,
+  //     value4: 10,
+  //     value5: 10,
+  //     color: "#8B5CF6",
+  //   },
+  //   {
+  //     name: "Financier 9",
+  //     value1: 5,
+  //     value2: 10,
+  //     value3: 10,
+  //     value4: 10,
+  //     value5: 10,
+  //     color: "#8B5CF6",
+  //   },
+  //   {
+  //     name: "Financier 9",
+  //     value1: 5,
+  //     value2: 10,
+  //     value3: 10,
+  //     value4: 10,
+  //     value5: 10,
+  //     color: "#8B5CF6",
+  //   },
+  //   {
+  //     name: "Financier 9",
+  //     value1: 5,
+  //     value2: 10,
+  //     value3: 10,
+  //     value4: 10,
+  //     value5: 10,
+  //     color: "#8B5CF6",
+  //   },
+  //   {
+  //     name: "Financier 9",
+  //     value1: 5,
+  //     value2: 10,
+  //     value3: 10,
+  //     value4: 10,
+  //     value5: 10,
+  //     color: "#8B5CF6",
+  //   },
+  //   {
+  //     name: "Financier 9",
   //     value1: 5,
   //     value2: 10,
   //     value3: 10,
@@ -1854,7 +1898,12 @@ export default function DealerHomeScreen() {
   const HorizontalStackedBarChart_1 = () => {
     // Handle empty data
     if (
-      chartData_11.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0
+      chartData_11.length === 0 ||
+      chartData_11.reduce(
+        (sum: any, item: any) =>
+          sum + item.value2 + item.value3 + item.value4 + item.value5,
+        0,
+      ) <= 0
     ) {
       return (
         <View style={styles.radialChartContainer}>
@@ -1866,11 +1915,10 @@ export default function DealerHomeScreen() {
       );
     }
 
-    const keys = ["value1", "value2", "value3", "value4", "value5"];
+    const keys = ["value2", "value3", "value4", "value5"];
 
     // Transform data for StackedBarChart
     const data = chartData_11.map((item: any) => ({
-      value1: item.value1,
       value2: item.value2,
       value3: item.value3,
       value4: item.value4,
@@ -1907,28 +1955,29 @@ export default function DealerHomeScreen() {
 
     // show max 6 rows before scrolling
     const maxVisibleBars = 6;
-    const visibleHeight = barHeight * maxVisibleBars;
+    const maxVisibleHeight = barHeight * maxVisibleBars;
+    // Use actual chart height if less than max, to avoid extra space
+    const scrollViewHeight = Math.min(chartHeight + 20, maxVisibleHeight);
 
     return (
-      <View style={styles.radialChartContainer}>
+      <View style={{ paddingVertical: 10 }}>
         <ScrollView
           nestedScrollEnabled={true}
-          showsVerticalScrollIndicator={true}
-          style={{ maxHeight: visibleHeight }}
+          showsVerticalScrollIndicator={chartData_11.length > maxVisibleBars}
+          style={{ maxHeight: scrollViewHeight }}
         >
           <View
             style={{
               flexDirection: "row",
               alignItems: "flex-start",
               width: "100%",
-              paddingVertical: 20,
             }}
           >
             {/* Y-axis labels (names) */}
             <View
               style={{
                 width: responsiveWidth(25),
-                paddingRight: 10,
+                paddingRight: 8,
               }}
             >
               {chartData_11.map((item: any, index: number) => (
@@ -1956,13 +2005,13 @@ export default function DealerHomeScreen() {
             </View>
 
             {/* Stacked Bar Chart */}
-            <View style={{ width: responsiveWidth(70) }}>
+            <View style={{ width: responsiveWidth(65), paddingRight: 5 }}>
               <StackedBarChart
-                style={{ height: chartHeight, width: responsiveWidth(70) }}
+                style={{ height: chartHeight, width: responsiveWidth(65) }}
                 keys={keys}
                 colors={colors}
                 data={data}
-                contentInset={{ top: 0, bottom: 0, left: 5, right: 5 }}
+                contentInset={{ top: 0, bottom: 0, left: 5, right: 15 }}
                 horizontal={true}
               >
                 <ValueLabels />
@@ -1976,7 +2025,17 @@ export default function DealerHomeScreen() {
   const HorizontalStackedBarChart_2 = () => {
     // Handle empty data
     if (
-      chartData_12.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0
+      chartData_12.length === 0 ||
+      chartData_12.reduce(
+        (sum: any, item: any) =>
+          sum +
+          item.value1 +
+          item.value2 +
+          item.value3 +
+          item.value4 +
+          item.value5,
+        0,
+      ) <= 0
     ) {
       return (
         <View style={styles.radialChartContainer}>
@@ -2028,30 +2087,31 @@ export default function DealerHomeScreen() {
     const barHeight = 35;
     const chartHeight = chartData_12.length * barHeight;
 
-    // show max 6 rows before scrolling
-    const maxVisibleBars = 6;
-    const visibleHeight = barHeight * maxVisibleBars;
+    // show max 7 rows before scrolling
+    const maxVisibleBars = 7;
+    const maxVisibleHeight = barHeight * maxVisibleBars;
+    // Use actual chart height if less than max, to avoid extra space
+    const scrollViewHeight = Math.min(chartHeight + 20, maxVisibleHeight);
 
     return (
-      <View style={styles.radialChartContainer}>
+      <View style={{ paddingVertical: 10 }}>
         <ScrollView
           nestedScrollEnabled={true}
-          showsVerticalScrollIndicator={true}
-          style={{ maxHeight: visibleHeight }}
+          showsVerticalScrollIndicator={chartData_12.length > maxVisibleBars}
+          style={{ maxHeight: scrollViewHeight }}
         >
           <View
             style={{
               flexDirection: "row",
               alignItems: "flex-start",
               width: "100%",
-              paddingVertical: 20,
             }}
           >
             {/* Y-axis labels */}
             <View
               style={{
                 width: responsiveWidth(25),
-                paddingRight: 10,
+                paddingRight: 8,
               }}
             >
               {chartData_12.map((item: any, index: number) => (
@@ -2079,13 +2139,13 @@ export default function DealerHomeScreen() {
             </View>
 
             {/* Stacked Bar Chart */}
-            <View style={{ width: responsiveWidth(70) }}>
+            <View style={{ width: responsiveWidth(65), paddingRight: 5 }}>
               <StackedBarChart
-                style={{ height: chartHeight, width: responsiveWidth(70) }}
+                style={{ height: chartHeight, width: responsiveWidth(65) }}
                 keys={keys}
                 colors={colors}
                 data={data}
-                contentInset={{ top: 0, bottom: 0, left: 5, right: 5 }}
+                contentInset={{ top: 0, bottom: 0, left: 5, right: 15 }}
                 horizontal={true}
               >
                 <ValueLabels />
@@ -2099,7 +2159,11 @@ export default function DealerHomeScreen() {
 
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top"]}>
-      <ScrollView style={[allStyles.container, { paddingHorizontal: 0 }]}>
+      <ScrollView
+        style={[allStyles.container]}
+        // contentContainerStyle={{ paddingBottom: 120 }}
+        showsVerticalScrollIndicator={true}
+      >
         {/* Header Section */}
         <View style={styles.headingContainer}>
           <View style={styles.headingTextContainer}>
@@ -2460,33 +2524,33 @@ export default function DealerHomeScreen() {
 
           {/* Legend */}
           <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
+            {/* <View style={styles.legendItem}>
               <View
                 style={[styles.legendDot, { backgroundColor: colors[0] }]}
               />
               <Text style={styles.legendText}>Deliveries</Text>
-            </View>
+            </View> */}
             <View style={styles.legendItem}>
               <View
-                style={[styles.legendDot, { backgroundColor: colors[1] }]}
+                style={[styles.legendDot, { backgroundColor: colors[0] }]}
               />
               <Text style={styles.legendText}>Accessories</Text>
             </View>
             <View style={styles.legendItem}>
               <View
-                style={[styles.legendDot, { backgroundColor: colors[2] }]}
+                style={[styles.legendDot, { backgroundColor: colors[1] }]}
               />
               <Text style={styles.legendText}>RSA</Text>
             </View>
             <View style={styles.legendItem}>
               <View
-                style={[styles.legendDot, { backgroundColor: colors[3] }]}
+                style={[styles.legendDot, { backgroundColor: colors[2] }]}
               />
               <Text style={styles.legendText}>Helmet</Text>
             </View>
             <View style={styles.legendItem}>
               <View
-                style={[styles.legendDot, { backgroundColor: colors[4] }]}
+                style={[styles.legendDot, { backgroundColor: colors[3] }]}
               />
               <Text style={styles.legendText}>Loyality Card</Text>
             </View>
@@ -2540,7 +2604,7 @@ export default function DealerHomeScreen() {
           </View>
 
           {/* Horizontal Stacked Bar Chart */}
-          <View style={styles.chartContainer}>
+          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
             <HorizontalStackedBarChart_2 />
           </View>
         </View>
