@@ -61,13 +61,13 @@ export default function DealerHomeScreen() {
   );
   const [showUserModal, setShowUserModal] = useState(false);
   const [currentFilters, setCurrentFilters] = useState<{
-    executiveRef: string[];
+    userRef: string[];
     financierRef: string[];
     startDate: string;
     endDate: string;
     includingCash: boolean;
   }>({
-    executiveRef: [],
+    userRef: [],
     financierRef: [],
     startDate: "",
     endDate: "",
@@ -77,7 +77,7 @@ export default function DealerHomeScreen() {
   // Reset all filters on initial mount
   useEffect(() => {
     setCurrentFilters({
-      executiveRef: [],
+      userRef: [],
       financierRef: [],
       startDate: "",
       endDate: "",
@@ -238,7 +238,7 @@ export default function DealerHomeScreen() {
 
   const handleResetFilter = () => {
     const emptyFilters = {
-      executiveRef: [],
+      userRef: [],
       financierRef: [],
       startDate: "",
       endDate: "",
@@ -2896,7 +2896,7 @@ export default function DealerHomeScreen() {
                     setSelectedExecutives([]);
                     setCurrentFilters((prev) => ({
                       ...prev,
-                      executiveRef: [],
+                      userRef: [],
                     }));
                   } else {
                     const allIds = executives.map(
@@ -2905,7 +2905,7 @@ export default function DealerHomeScreen() {
                     setSelectedExecutives(allIds);
                     setCurrentFilters((prev) => ({
                       ...prev,
-                      executiveRef: allIds,
+                      userRef: allIds,
                     }));
                   }
                 }}
@@ -2953,7 +2953,7 @@ export default function DealerHomeScreen() {
                             : [...prev, executiveId];
                           setCurrentFilters((filters) => ({
                             ...filters,
-                            executiveRef: newSelection,
+                            userRef: newSelection,
                           }));
                           return newSelection;
                         });
