@@ -618,8 +618,7 @@ export default function DealerHomeScreen() {
     (dashBoardData as any)?.locationWiseData?.map(
       (item: any, index: number) => ({
         name: item.name,
-        value1: item.amount,
-        value2: item.count,
+        value: item.count,
         // color: colors[index],
       }),
     ) || [];
@@ -635,7 +634,7 @@ export default function DealerHomeScreen() {
     (dashBoardData as any)?.modelWiseData?.map((item: any, index: number) => ({
       name: item.name,
       value: item.count,
-      color: colors[index],
+      color: COLORS.secondaryBlue,
     })) || [];
   //   || [
   //   { name: "Modal 1", value: 5, color: COLORS.primaryBlue },
@@ -648,29 +647,26 @@ export default function DealerHomeScreen() {
   const chartData_8 = [
     {
       name: "Total",
-      value1: (dashBoardData as any)?.rtoLocationData?.total?.amount,
-      value2: (dashBoardData as any)?.rtoLocationData?.total?.count,
+      value: (dashBoardData as any)?.rtoLocationData?.total?.count || 0,
       color: COLORS.secondaryBlue,
     },
     {
       name: "Same City",
-      value1: (dashBoardData as any)?.rtoLocationData?.sameCity?.amount,
-      value2: (dashBoardData as any)?.rtoLocationData?.sameCity?.count,
+      value: (dashBoardData as any)?.rtoLocationData?.sameCity?.count || 0,
       color: "#67E8F9",
     },
     {
       name: "Other City/Same State",
-      value1: (dashBoardData as any)?.rtoLocationData?.sameState?.amount,
-      value2: (dashBoardData as any)?.rtoLocationData?.sameState?.count,
+      value: (dashBoardData as any)?.rtoLocationData?.sameState?.count || 0,
       color: "#10B981",
     },
     {
       name: "Other State",
-      value1: (dashBoardData as any)?.rtoLocationData?.otherState?.amount,
-      value2: (dashBoardData as any)?.rtoLocationData?.otherState?.count,
+      value: (dashBoardData as any)?.rtoLocationData?.otherState?.count || 0,
       color: "#F59E0B",
     },
   ];
+
   const chartData_9 = [
     {
       name: "Cash",
@@ -688,8 +684,7 @@ export default function DealerHomeScreen() {
     (dashBoardData as any)?.financierWiseData?.map(
       (item: any, index: number) => ({
         name: item.name,
-        value1: item.count,
-        value2: item.amount,
+        value: item.count,
         color: colors[index],
       }),
     ) || [];
@@ -1369,10 +1364,7 @@ export default function DealerHomeScreen() {
   };
   const BarChart_2 = () => {
     // Handle empty data
-    if (
-      chartData_6.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0 &&
-      chartData_6.reduce((sum: any, item: any) => sum + item.value2, 0) <= 0
-    ) {
+    if (chartData_6.reduce((sum: any, item: any) => sum + item.value, 0) <= 0) {
       return (
         <View style={styles.radialChartContainer}>
           <View style={styles.progressCirclesContainer}>
@@ -1383,34 +1375,18 @@ export default function DealerHomeScreen() {
       );
     }
 
-    // Flatten data to create grouped bars
-    const chartDataForKit: any[] = [];
-    chartData_6.forEach((item: any, index: number) => {
-      chartDataForKit.push({
-        value: item.value1,
-        svg: { fill: COLORS.secondaryBlue },
-        label: item.name,
-        type: "count",
-      });
-      chartDataForKit.push({
-        value: item.value2,
-        svg: { fill: "#67E8F9" },
-        label: item.name,
-        type: "amount",
-      });
-    });
+    const chartDataForKit = chartData_6.map((item: any) => ({
+      value: item.value,
+      svg: { fill: COLORS.secondaryBlue },
+      label: item.name,
+    }));
 
-    const maxValue = Math.max(
-      ...chartData_6.map((item: any) => Math.max(item.value1, item.value2)),
-    );
+    const maxValue = Math.max(...chartData_6.map((item: any) => item.value));
 
-    // Calculate dynamic width based on number of locations
-    // Each location has 2 bars, so we need space for pairs
-    const minBarWidth = 40; // Minimum width per bar
-    const calculatedWidth = chartData_6.length * minBarWidth * 2 + 100; // 2 bars per location + padding
+    const minBarWidth = 40;
+    const calculatedWidth = chartData_6.length * minBarWidth + 100;
     const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
 
-    // Labels component to show values on top of bars
     const ValueLabels = ({ x, y, bandwidth, data }: any) =>
       data.map((value: any, index: number) => (
         <SvgText
@@ -1421,7 +1397,6 @@ export default function DealerHomeScreen() {
           fill={COLORS.black}
           alignmentBaseline="middle"
           textAnchor="middle"
-          // fontWeight="bold"
           fontFamily={FONTS.YellixThin}
         >
           {value.value}
@@ -1438,7 +1413,6 @@ export default function DealerHomeScreen() {
             paddingVertical: 20,
           }}
         >
-          {/* Horizontal ScrollView for chart */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={true}
@@ -1460,7 +1434,6 @@ export default function DealerHomeScreen() {
                 <ValueLabels />
               </BarChart>
 
-              {/* Bottom labels - showing only unique location names */}
               <View
                 style={{
                   flexDirection: "row",
@@ -1496,83 +1469,9 @@ export default function DealerHomeScreen() {
       </View>
     );
   };
-  const PieChart_5 = () => {
-    // Handle empty data
-    if (chartData_7.reduce((sum: any, item: any) => sum + item.value, 0) <= 0) {
-      return (
-        <View style={styles.radialChartContainer}>
-          <View style={styles.progressCirclesContainer}>
-            <Text style={styles.centerText}>0</Text>
-            <Text style={styles.centerSubText}>No Data</Text>
-          </View>
-        </View>
-      );
-    }
-
-    const chartDataForKit = chartData_7.map((item: any, index: number) => ({
-      value: item.value,
-      svg: { fill: item.color },
-      key: item.name,
-    }));
-
-    const total = chartData_7.reduce(
-      (sum: any, item: any) => sum + item.value,
-      0,
-    );
-
-    const Labels = ({ slices }: any) => {
-      return slices.map((slice: any, index: number) => {
-        const { pieCentroid, data } = slice;
-        const percentage = ((data.value / total) * 100).toFixed(1);
-        // Adjust position to be closer to center to avoid overflow
-        const x = pieCentroid[0] * 1;
-        const y = pieCentroid[1] * 1;
-        return (
-          <SvgText
-            key={index}
-            x={x}
-            y={y}
-            fill="white"
-            textAnchor="middle"
-            alignmentBaseline="middle"
-            fontSize={10}
-            // fontWeight="bold"
-            fontFamily={FONTS.YellixMedium}
-          >
-            {percentage}%
-          </SvgText>
-        );
-      });
-    };
-
-    return (
-      <View style={styles.radialChartContainer}>
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            height: 240,
-          }}
-        >
-          <PieChart
-            style={{ height: 240, width: screenWidth - 80 }}
-            data={chartDataForKit}
-            innerRadius={"0%"}
-            spacing={0}
-          >
-            {/* <Labels /> */}
-          </PieChart>
-        </View>
-      </View>
-    );
-  };
   const BarChart_4 = () => {
     // Handle empty data
-    if (
-      chartData_8.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0 &&
-      chartData_8.reduce((sum: any, item: any) => sum + item.value2, 0) <= 0
-    ) {
+    if (chartData_8.reduce((sum: any, item: any) => sum + item.value, 0) <= 0) {
       return (
         <View style={styles.radialChartContainer}>
           <View style={styles.progressCirclesContainer}>
@@ -1583,34 +1482,18 @@ export default function DealerHomeScreen() {
       );
     }
 
-    // Flatten data to create grouped bars
-    const chartDataForKit: any[] = [];
-    chartData_8.forEach((item: any, index: number) => {
-      chartDataForKit.push({
-        value: item.value1,
-        svg: { fill: COLORS.secondaryBlue },
-        label: item.name,
-        type: "count",
-      });
-      chartDataForKit.push({
-        value: item.value2,
-        svg: { fill: "#67E8F9" },
-        label: item.name,
-        type: "amount",
-      });
-    });
+    const chartDataForKit = chartData_8.map((item: any) => ({
+      value: item.value,
+      svg: { fill: COLORS.secondaryBlue },
+      label: item.name,
+    }));
 
-    const maxValue = Math.max(
-      ...chartData_8.map((item: any) => Math.max(item.value1, item.value2)),
-    );
+    const maxValue = Math.max(...chartData_8.map((item: any) => item.value));
 
-    // Calculate dynamic width based on number of locations
-    // Each location has 2 bars, so we need space for pairs
-    const minBarWidth = 40; // Minimum width per bar
-    const calculatedWidth = chartData_8.length * minBarWidth * 2 + 100; // 2 bars per location + padding
+    const minBarWidth = 40;
+    const calculatedWidth = chartData_8.length * minBarWidth + 100;
     const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
 
-    // Labels component to show values on top of bars
     const ValueLabels = ({ x, y, bandwidth, data }: any) =>
       data.map((value: any, index: number) => (
         <SvgText
@@ -1621,7 +1504,6 @@ export default function DealerHomeScreen() {
           fill={COLORS.black}
           alignmentBaseline="middle"
           textAnchor="middle"
-          // fontWeight="bold"
           fontFamily={FONTS.YellixThin}
         >
           {value.value}
@@ -1638,7 +1520,6 @@ export default function DealerHomeScreen() {
             paddingVertical: 20,
           }}
         >
-          {/* Horizontal ScrollView for chart */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={true}
@@ -1653,14 +1534,13 @@ export default function DealerHomeScreen() {
                   item.value
                 }
                 contentInset={{ top: 30, bottom: 10 }}
-                spacing={0.2}
+                spacing={0.4}
                 gridMin={0}
                 gridMax={maxValue * 1.1}
               >
                 <ValueLabels />
               </BarChart>
 
-              {/* Bottom labels - showing only unique location names */}
               <View
                 style={{
                   flexDirection: "row",
@@ -1696,6 +1576,7 @@ export default function DealerHomeScreen() {
       </View>
     );
   };
+
   const PieChart_6 = () => {
     // Handle empty data
     if (chartData_9.reduce((sum, item) => sum + item.value, 0) <= 0) {
@@ -1768,8 +1649,7 @@ export default function DealerHomeScreen() {
   const BarChart_3 = () => {
     // Handle empty data
     if (
-      chartData_10.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0 &&
-      chartData_10.reduce((sum: any, item: any) => sum + item.value2, 0) <= 0
+      chartData_10.reduce((sum: any, item: any) => sum + item.value, 0) <= 0
     ) {
       return (
         <View style={styles.radialChartContainer}>
@@ -1781,34 +1661,18 @@ export default function DealerHomeScreen() {
       );
     }
 
-    // Flatten data to create grouped bars
-    const chartDataForKit: any[] = [];
-    chartData_10.forEach((item: any, index: number) => {
-      chartDataForKit.push({
-        value: item.value1,
-        svg: { fill: COLORS.secondaryBlue },
-        label: item.name,
-        type: "total Deliveries",
-      });
-      chartDataForKit.push({
-        value: item.value2,
-        svg: { fill: "#67E8F9" },
-        label: item.name,
-        type: "amount",
-      });
-    });
+    const chartDataForKit = chartData_10.map((item: any) => ({
+      value: item.value,
+      svg: { fill: COLORS.secondaryBlue },
+      label: item.name,
+    }));
 
-    const maxValue = Math.max(
-      ...chartData_10.map((item: any) => Math.max(item.value1, item.value2)),
-    );
+    const maxValue = Math.max(...chartData_10.map((item: any) => item.value));
 
-    // Calculate dynamic width based on number of locations
-    // Each location has 2 bars, so we need space for pairs
-    const minBarWidth = 40; // Minimum width per bar
-    const calculatedWidth = chartData_10.length * minBarWidth * 2 + 100; // 2 bars per location + padding
+    const minBarWidth = 40;
+    const calculatedWidth = chartData_10.length * minBarWidth + 100;
     const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
 
-    // Labels component to show values on top of bars
     const ValueLabels = ({ x, y, bandwidth, data }: any) =>
       data.map((value: any, index: number) => (
         <SvgText
@@ -1819,7 +1683,6 @@ export default function DealerHomeScreen() {
           fill={COLORS.black}
           alignmentBaseline="middle"
           textAnchor="middle"
-          // fontWeight="bold"
           fontFamily={FONTS.YellixThin}
         >
           {value.value}
@@ -1836,7 +1699,6 @@ export default function DealerHomeScreen() {
             paddingVertical: 20,
           }}
         >
-          {/* Horizontal ScrollView for chart */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={true}
@@ -1858,7 +1720,6 @@ export default function DealerHomeScreen() {
                 <ValueLabels />
               </BarChart>
 
-              {/* Bottom labels - showing only unique location names */}
               <View
                 style={{
                   flexDirection: "row",
@@ -2156,6 +2017,115 @@ export default function DealerHomeScreen() {
       </View>
     );
   };
+  const HorizontalStackedBarChart_3 = () => {
+    // Handle empty data
+    if (chartData_7.reduce((sum: any, item: any) => sum + item.value, 0) <= 0) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const barHeight = 25;
+    const chartHeight = chartData_7.length * barHeight;
+
+    const maxVisibleBars = 6;
+    const maxVisibleHeight = barHeight * maxVisibleBars;
+    const scrollViewHeight = Math.min(chartHeight + 20, maxVisibleHeight);
+
+    const maxValue = Math.max(...chartData_7.map((item: any) => item.value));
+
+    return (
+      <View style={{ paddingVertical: 10 }}>
+        <ScrollView
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={chartData_7.length > maxVisibleBars}
+          style={{ maxHeight: scrollViewHeight }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            {/* Y-axis labels (names) */}
+            <View
+              style={{
+                width: responsiveWidth(25),
+                paddingRight: 8,
+              }}
+            >
+              {chartData_7.map((item: any, index: number) => (
+                <View
+                  key={index}
+                  style={{
+                    height: barHeight,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: COLORS.black,
+                      fontFamily: FONTS.YellixThin,
+                      textAlign: "right",
+                    }}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Horizontal Bars */}
+            <View style={{ width: responsiveWidth(65), paddingRight: 5 }}>
+              {chartData_7.map((item: any, index: number) => {
+                const barWidth = (item.value / maxValue) * 100;
+                return (
+                  <View
+                    key={index}
+                    style={{
+                      height: barHeight,
+                      justifyContent: "center",
+                      // marginBottom: 0,
+                    }}
+                  >
+                    <View
+                      style={{
+                        height: 25,
+                        width: `${barWidth}%`,
+                        backgroundColor: item.color,
+                        borderRadius: 4,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: COLORS.white,
+                          fontFamily: FONTS.YellixMedium,
+                        }}
+                      >
+                        {item.value}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top"]}>
@@ -2363,22 +2333,10 @@ export default function DealerHomeScreen() {
               <View
                 style={[
                   styles.legendDot,
-                  { backgroundColor: COLORS.lightBlue },
+                  { backgroundColor: COLORS.secondaryBlue },
                 ]}
               />
-              <Text style={styles.legendText}>Amount</Text>
-              {/* <Text style={styles.legendValue}>
-                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
-                </Text> */}
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: "#67E8F9" }]}
-              />
-              <Text style={styles.legendText}>Cash</Text>
-              {/* <Text style={styles.legendValue}>
-                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
-                </Text> */}
+              <Text style={styles.legendText}>Count</Text>
             </View>
           </View>
 
@@ -2394,30 +2352,21 @@ export default function DealerHomeScreen() {
           </View>
 
           {/* Legend */}
-          <ScrollView
-            style={{ maxHeight: 120, marginBottom: responsiveWidth(3) }}
-            contentContainerStyle={{
-              flexDirection: "row",
-              justifyContent: "center",
-              flexWrap: "wrap",
-              gap: responsiveWidth(6),
-            }}
-            showsVerticalScrollIndicator={true}
-          >
-            {chartData_7.map((item: any, index: number) => (
-              <View key={index} style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: item.color }]}
-                />
-                <Text style={styles.legendText}>{item.name}</Text>
-                <Text style={styles.legendValue}>{item.value}</Text>
-              </View>
-            ))}
-          </ScrollView>
+          <View style={styles.legendContainer}>
+            <View style={styles.legendItem}>
+              <View
+                style={[
+                  styles.legendDot,
+                  { backgroundColor: COLORS.secondaryBlue },
+                ]}
+              />
+              <Text style={styles.legendText}>Count</Text>
+            </View>
+          </View>
 
           {/* Progress Chart4 */}
           <View style={styles.chartContainer}>
-            <PieChart_5 />
+            <HorizontalStackedBarChart_3 />
           </View>
         </View>
         {/* Delivery RTO Location (Same City, Other City/Same State, Other State)  */}
@@ -2428,23 +2377,15 @@ export default function DealerHomeScreen() {
 
           {/* Legend */}
           <View style={styles.legendContainer}>
-            {/* {chartData_8.map((item, index) => ( */}
             <View style={styles.legendItem}>
               <View
                 style={[
                   styles.legendDot,
-                  { backgroundColor: COLORS.primaryBlue },
+                  { backgroundColor: COLORS.secondaryBlue },
                 ]}
-              />
-              <Text style={styles.legendText}>Amount</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: "#67E8F9" }]}
               />
               <Text style={styles.legendText}>Count</Text>
             </View>
-            {/* ))} */}
           </View>
 
           {/* Progress Chart4 */}
@@ -2490,25 +2431,12 @@ export default function DealerHomeScreen() {
               <View
                 style={[
                   styles.legendDot,
-                  { backgroundColor: COLORS.lightBlue },
+                  { backgroundColor: COLORS.secondaryBlue },
                 ]}
               />
-              <Text style={styles.legendText}>Total Deliveries</Text>
-              {/* <Text style={styles.legendValue}>
-                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
-                </Text> */}
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: "#67E8F9" }]}
-              />
-              <Text style={styles.legendText}>Amount</Text>
-              {/* <Text style={styles.legendValue}>
-                  {item.name == "Deliveries" ? item.value : `₹${item.value}`}
-                </Text> */}
+              <Text style={styles.legendText}>Count</Text>
             </View>
           </View>
-
           {/* Progress Chart4 */}
           <View style={styles.chartContainer}>
             <BarChart_3 />
