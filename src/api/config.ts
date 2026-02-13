@@ -30,7 +30,7 @@ export const API_ENDPOINTS = {
     GET_ALL_USERS: "users?userType=user&limit=10000&page=1",
   },
   DEALAR_DASHBOARD: {
-    GET_EXECUTIVES: "/executive",
+    GET_EXECUTIVES: "/users?userType=user&limit=1000&page=1",
     GET_FINANCIERS: "/financer",
     GET_DEALER_GRAPH_DATA: "deliveries/dashboard/graphs",
   },

@@ -98,7 +98,7 @@ export default function DealerHomeScreen() {
 
   const fetchExecutives = async () => {
     const response = await getExecutives();
-    setExecutives((response as any) || []);
+    setExecutives((response as any).results || []);
   };
 
   const fetchDashBoardData = async (filters?: typeof currentFilters) => {
@@ -379,11 +379,14 @@ export default function DealerHomeScreen() {
   // ];
   // Delivery Model wise
   const chartData_7 =
-    (dashBoardData as any)?.modelWiseData?.map((item: any, index: number) => ({
-      name: item.name,
-      value: item.count,
-      color: COLORS.secondaryBlue,
-    })) || [];
+    (dashBoardData as any)?.modelWiseData
+      ?.sort((a: any, b: any) => a.name.localeCompare(b.name))
+      .map((item: any, index: number) => ({
+        name: item.name,
+        value: item.count,
+        color: COLORS.secondaryBlue,
+      })) || [];
+
   //   || [
   //   { name: "Modal 1", value: 5, color: COLORS.primaryBlue },
   //   { name: "Modal 2", value: 10, color: "#67E8F9" },
