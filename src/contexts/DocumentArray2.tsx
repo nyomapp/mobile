@@ -63,8 +63,18 @@ const initialDocumentTypes: DocumentType[] = [
     fileSize: 390,
     fileType: "PDF",
   },
-  {
+   {
     id: 4,
+    title: "Helmet Invoice 1",
+    icon: require("@/assets/icons/helmetinvoiceicon.png"),
+    uploaded: false,
+    documentName: "HELMET INVOICE 1",
+    fileUrl: "",
+    fileSize: 195,
+    fileType: "PDF",
+  },
+  {
+    id: 5,
     title: "Form 20 - 1",
     icon: require("@/assets/icons/form20-1icon.png"),
     uploaded: false,
@@ -74,7 +84,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
   {
-    id: 5,
+    id: 6,
     title: "Form 20 - 2",
     icon: require("@/assets/icons/form20-2icon.png"),
     uploaded: false,
@@ -84,7 +94,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
   {
-    id: 6,
+    id: 7,
     title: "Form 20 - 3",
     icon: require("@/assets/icons/form20-3icon.png"),
     uploaded: false,
@@ -94,7 +104,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
   {
-    id: 7,
+    id: 8,
     title: "Form 21",
     icon: require("@/assets/icons/form21icon.png"),
     uploaded: false,
@@ -104,7 +114,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
   {
-    id: 8,
+    id: 9,
     title: "Form 22",
     icon: require("@/assets/icons/form22icon.png"),
     uploaded: false,
@@ -114,17 +124,27 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
   {
-    id: 9,
+    id: 10,
     title: "AFFIDAVIT",
     icon: require("@/assets/icons/affidaviticon.png"),
     uploaded: false,
     documentName: "AFFIDAVIT",
     fileUrl: "",
-    fileSize: 390,
+    fileSize: 195,
     fileType: "PDF",
   },
   {
-    id: 10,
+    id: 11,
+    title: "AFFIDAVIT 1",
+    icon: require("@/assets/icons/affidaviticon.png"),
+    uploaded: false,
+    documentName: "AFFIDAVIT 1",
+    fileUrl: "",
+    fileSize: 195,
+    fileType: "PDF",
+  },
+  {
+    id: 12,
     title: "RENT DOCUMENT 1",
     icon: require("@/assets/icons/rent doc 1.png"),
     uploaded: false,
@@ -134,7 +154,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
   {
-    id: 11,
+    id: 13,
     title: "RENT DOCUMENT 2",
     icon: require("@/assets/icons/rent doc 2.png"),
     uploaded: false,
@@ -144,7 +164,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
   {
-    id: 12,
+    id: 14,
     title: "RENT DOCUMENT 3",
     icon: require("@/assets/icons/rent doc 3.png"),
     uploaded: false,
@@ -154,7 +174,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
     {
-    id: 13,
+    id: 15,
     title: "RENT DOCUMENT 4",
     icon: require("@/assets/icons/rent doc 3.png"),
     uploaded: false,
@@ -164,7 +184,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
     {
-    id: 14,
+    id: 16,
     title: "Document 1",
     icon: require("@/assets/icons/rent doc 3.png"),
     uploaded: false,
@@ -174,7 +194,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileType: "PDF",
   },
   {
-    id: 15,
+    id: 17,
     title: "Document 2",
     icon: require("@/assets/icons/rent doc 3.png"),
     uploaded: false,

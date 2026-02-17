@@ -565,6 +565,31 @@ export default function DealerHomeScreen() {
         color: colors[index],
       }),
     ) || [];
+
+  //  Sales Executive Wise Discount
+  const chartData_13 =
+    (dashBoardData as any)?.executiveDiscountData?.map(
+      (item: any, index: number) => ({
+        name: item.name,
+        value1: item.deliveries,
+        value2: item.avgDiscount,
+        value3: item.totalDiscount,
+        color: colors[index],
+      }),
+    ) || [];
+
+  //  Sales Executive Wise Scheme Discount
+  const chartData_14 =
+    (dashBoardData as any)?.executiveSchemeDiscountData?.map(
+      (item: any, index: number) => ({
+        name: item.name,
+        value1: item.deliveries,
+        value2: item.avgSchemeDiscount,
+        value3: item.totalSchemeDiscount,
+        color: colors[index],
+      }),
+    ) || [];
+
   // [
   //   {
   //     name: "Financier 1",
@@ -1877,6 +1902,262 @@ export default function DealerHomeScreen() {
       </View>
     );
   };
+  const HorizontalStackedBarChart_4 = () => {
+    if (
+      chartData_13.length === 0 ||
+      chartData_13.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0
+    ) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const keys = ["value1", "value2", "value3"];
+
+    // Normalize data to make all values visible
+
+    const data = chartData_13.map((item: any) => ({
+      value1: item.value1 * 10, // Scale up deliveries
+      value2: item.value2, // avgDiscount as is
+      value3: item.value3 / 100, // Scale down totalDiscount
+    }));
+
+    const ValueLabels = ({ x, y, bandwidth, data }: any) => {
+      return data.map((values: any, dataIndex: number) => {
+        let cumulativeValue = 0;
+        return keys.map((key, keyIndex) => {
+          const value = values[key];
+          const xPos = x(cumulativeValue + value / 2);
+          cumulativeValue += value;
+
+          // Show original values in labels
+          const originalValue =
+            keyIndex === 0
+              ? chartData_13[dataIndex].value1
+              : keyIndex === 1
+                ? chartData_13[dataIndex].value2
+                : chartData_13[dataIndex].value3;
+
+          return (
+            <SvgText
+              key={`${dataIndex}-${keyIndex}`}
+              x={xPos}
+              y={y(dataIndex) + bandwidth / 2}
+              fontSize={10}
+              fill="white"
+              alignmentBaseline="middle"
+              textAnchor="middle"
+              fontFamily={FONTS.YellixMedium}
+            >
+              {originalValue > 0 ? Math.round(originalValue) : ""}
+            </SvgText>
+          );
+        });
+      });
+    };
+
+    const barHeight = 35;
+    const chartHeight = chartData_13.length * barHeight;
+    const maxVisibleBars = 6;
+    const maxVisibleHeight = barHeight * maxVisibleBars;
+    const scrollViewHeight = Math.min(chartHeight + 20, maxVisibleHeight);
+
+    return (
+      <View style={{ paddingVertical: 10 }}>
+        <ScrollView
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={chartData_13.length > maxVisibleBars}
+          style={{ maxHeight: scrollViewHeight }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <View
+              style={{
+                width: responsiveWidth(25),
+                paddingRight: 8,
+              }}
+            >
+              {chartData_13.map((item: any, index: number) => (
+                <View
+                  key={index}
+                  style={{
+                    height: barHeight,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: COLORS.black,
+                      fontFamily: FONTS.YellixThin,
+                      textAlign: "right",
+                    }}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={{ width: responsiveWidth(65), paddingRight: 5 }}>
+              <StackedBarChart
+                style={{ height: chartHeight, width: responsiveWidth(65) }}
+                keys={keys}
+                colors={colors}
+                data={data}
+                contentInset={{ top: 0, bottom: 0, left: 5, right: 15 }}
+                horizontal={true}
+              >
+                <ValueLabels />
+              </StackedBarChart>
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const HorizontalStackedBarChart_5 = () => {
+    if (
+      chartData_14.length === 0 ||
+      chartData_14.reduce((sum: any, item: any) => sum + item.value1, 0) <= 0
+    ) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
+        </View>
+      );
+    }
+
+    const keys = ["value1", "value2", "value3"];
+
+    // Normalize data to make all values visible
+    const data = chartData_14.map((item: any) => ({
+      value1: item.value1 * 15, // More aggressive scale up for deliveries
+      value2: item.value2 * 3, // Scale up avgSchemeDiscount
+      value3: item.value3 / 10, // Scale down totalSchemeDiscount
+    }));
+
+    const ValueLabels = ({ x, y, bandwidth, data }: any) => {
+      return data.map((values: any, dataIndex: number) => {
+        let cumulativeValue = 0;
+        return keys.map((key, keyIndex) => {
+          const value = values[key];
+          const xPos = x(cumulativeValue + value / 2);
+          cumulativeValue += value;
+
+          const originalValue =
+            keyIndex === 0
+              ? chartData_14[dataIndex].value1
+              : keyIndex === 1
+                ? chartData_14[dataIndex].value2
+                : chartData_14[dataIndex].value3;
+
+          // Skip only if original value is 0
+          if (originalValue === 0) {
+            return null;
+          }
+
+          return (
+            <SvgText
+              key={`${dataIndex}-${keyIndex}`}
+              x={xPos}
+              y={y(dataIndex) + bandwidth / 2}
+              fontSize={8}
+              fill="white"
+              alignmentBaseline="middle"
+              textAnchor="middle"
+              fontFamily={FONTS.YellixMedium}
+            >
+              {Math.round(originalValue)}
+            </SvgText>
+          );
+        });
+      });
+    };
+
+    const barHeight = 35;
+    const chartHeight = chartData_14.length * barHeight;
+    const maxVisibleBars = 6;
+    const maxVisibleHeight = barHeight * maxVisibleBars;
+    const scrollViewHeight = Math.min(chartHeight + 20, maxVisibleHeight);
+
+    return (
+      <View style={{ paddingVertical: 10 }}>
+        <ScrollView
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={chartData_14.length > maxVisibleBars}
+          style={{ maxHeight: scrollViewHeight }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <View
+              style={{
+                width: responsiveWidth(25),
+                paddingRight: 8,
+              }}
+            >
+              {chartData_14.map((item: any, index: number) => (
+                <View
+                  key={index}
+                  style={{
+                    height: barHeight,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: COLORS.black,
+                      fontFamily: FONTS.YellixThin,
+                      textAlign: "right",
+                    }}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={{ width: responsiveWidth(65), paddingRight: 5 }}>
+              <StackedBarChart
+                style={{ height: chartHeight, width: responsiveWidth(65) }}
+                keys={keys}
+                colors={colors}
+                data={data}
+                contentInset={{ top: 0, bottom: 0, left: 5, right: 15 }}
+                horizontal={true}
+              >
+                <ValueLabels />
+              </StackedBarChart>
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top"]}>
@@ -2285,6 +2566,73 @@ export default function DealerHomeScreen() {
           {/* Horizontal Stacked Bar Chart */}
           <View style={[styles.chartContainer, { marginBottom: 20 }]}>
             <HorizontalStackedBarChart_2 />
+          </View>
+        </View>
+        {/* Sales Executive Wise Discount */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>
+              Sales Executive Wise Discount
+            </Text>
+          </View>
+
+          <View style={styles.legendContainer}>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: colors[0] }]}
+              />
+              <Text style={styles.legendText}>Deliveries</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: colors[1] }]}
+              />
+              <Text style={styles.legendText}>Avg Discount</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: colors[2] }]}
+              />
+              <Text style={styles.legendText}>Total Discount</Text>
+            </View>
+          </View>
+
+          <View style={styles.chartContainer}>
+            <HorizontalStackedBarChart_4 />
+          </View>
+        </View>
+
+        {/* Sales Executive Wise Scheme Discount */}
+        <View style={[allStyles.card, styles.deliveryCard]}>
+          <View style={styles.deliveryHeader}>
+            <Text style={styles.deliveryTitle}>
+              Sales Executive Wise Scheme Discount
+            </Text>
+          </View>
+
+          <View style={styles.legendContainer}>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: colors[0] }]}
+              />
+              <Text style={styles.legendText}>Deliveries</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: colors[1] }]}
+              />
+              <Text style={styles.legendText}>Avg Scheme Discount</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View
+                style={[styles.legendDot, { backgroundColor: colors[2] }]}
+              />
+              <Text style={styles.legendText}>Total Scheme Discount</Text>
+            </View>
+          </View>
+
+          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
+            <HorizontalStackedBarChart_5 />
           </View>
         </View>
       </ScrollView>

@@ -20,6 +20,8 @@ import {
   deleteDeliveryById,
   downloadCombineAadhaar,
   downloadCombineForm20,
+  downloadCombineHelmetInvoice,
+  downloadCombineAffidavit,
   downloadCombineRentDocuments,
   downloadCombineZip,
   generatePdfUrl,
@@ -760,6 +762,56 @@ export default function DeliveriesHome() {
     }
   };
 
+  const handleDownloadCombinedHelmetInvoice = async (document: any) => {
+    try {
+      const response = await downloadCombineHelmetInvoice(
+        document?.certificateRef?.chassisNumber,
+      );
+      if (response instanceof Blob) {
+        await saveAndShareBlob(
+          response,
+          "Combined_Helmet_Invoice.pdf",
+          "application/pdf",
+        );
+      } else {
+        Toast.show({ type: "error", text1: "No file to download" });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while downloading the combined Helmet Invoice.",
+      });
+    }
+  };
+
+  const handleDownloadCombinedAffidavit = async (document: any) => {
+    try {
+      const response = await downloadCombineAffidavit(
+        document?.certificateRef?.chassisNumber,
+      );
+      if (response instanceof Blob) {
+        await saveAndShareBlob(
+          response,
+          "Combined_Affidavit.pdf",
+          "application/pdf",
+        );
+      } else {
+        Toast.show({ type: "error", text1: "No file to download" });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2:
+          (error as any).message ||
+          "An error occurred while downloading the combined Affidavit.",
+      });
+    }
+  };
+
   const renderCustomerCard = (item: any) => (
     <View style={allStyles.customerCard}>
       <View style={allStyles.cardHeader}>
@@ -1432,7 +1484,7 @@ export default function DeliveriesHome() {
                   return null;
                 })()}
 
-                {/* Show Combined Form 20 button only if all three FORM 20 pages are present */}
+                {/* Show Combined RENT Document button only if all three Rent pages are present */}
                 {(() => {
                   const docs = selectedDelivery?.downloadDocuments || [];
                   const hasRentDocument1 = docs.some(
@@ -1444,10 +1496,14 @@ export default function DeliveriesHome() {
                   const hasRentDocument3 = docs.some(
                     (d: any) => d.documentName === "RENT DOCUMENT 3",
                   );
+                  const hasRentDocument4 = docs.some(
+                    (d: any) => d.documentName === "RENT DOCUMENT 4",
+                  );
                   if (
                     hasRentDocument1 ||
                     hasRentDocument2 ||
-                    hasRentDocument3
+                    hasRentDocument3 ||
+                    hasRentDocument4
                   ) {
                     return (
                       <TouchableOpacity
@@ -1459,6 +1515,60 @@ export default function DeliveriesHome() {
                       >
                         <Text style={[allStyles.modalOptionText]}>
                           Combined Rent Documents
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Combined Helmet Invoice */}
+                {(() => {
+                  const docs = selectedDelivery?.downloadDocuments || [];
+                  const hasHelmetInvoice = docs.some(
+                    (d: any) => d.documentName === "HELMET INVOICE",
+                  );
+                  const hasHelmetInvoice1 = docs.some(
+                    (d: any) => d.documentName === "HELMET INVOICE 1",
+                  );
+                  if (hasHelmetInvoice && hasHelmetInvoice1) {
+                    return (
+                      <TouchableOpacity
+                        style={[allStyles.modalOption]}
+                        onPress={() => {
+                          handleDownloadCombinedHelmetInvoice(selectedDelivery);
+                          setShowDocsModal(false);
+                        }}
+                      >
+                        <Text style={[allStyles.modalOptionText]}>
+                          Combined Helmet Invoice
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Combined Affidavit */}
+                {(() => {
+                  const docs = selectedDelivery?.downloadDocuments || [];
+                  const hasAffidavit = docs.some(
+                    (d: any) => d.documentName === "AFFIDAVIT",
+                  );
+                  const hasAffidavit1 = docs.some(
+                    (d: any) => d.documentName === "AFFIDAVIT 1",
+                  );
+                  if (hasAffidavit && hasAffidavit1) {
+                    return (
+                      <TouchableOpacity
+                        style={[allStyles.modalOption]}
+                        onPress={() => {
+                          handleDownloadCombinedAffidavit(selectedDelivery);
+                          setShowDocsModal(false);
+                        }}
+                      >
+                        <Text style={[allStyles.modalOptionText]}>
+                          Combined Affidavit
                         </Text>
                       </TouchableOpacity>
                     );
@@ -1503,24 +1613,48 @@ export default function DeliveriesHome() {
                                                 "HELMET INVOICE"
                                               ? "Helmet Invoice Image"
                                               : document.documentName ===
-                                                  "FORM 20 1ST PAGE"
-                                                ? "Form 20 1st Page Image"
+                                                  "HELMET INVOICE 1"
+                                                ? "Helmet Invoice 1 Image"
                                                 : document.documentName ===
-                                                    "FORM 20 2ND PAGE"
-                                                  ? "Form 20 2nd Page Image"
+                                                    "FORM 20 1ST PAGE"
+                                                  ? "Form 20 1st Page Image"
                                                   : document.documentName ===
-                                                      "FORM 20 3RD PAGE"
-                                                    ? "Form 20 3rd Page Image"
+                                                      "FORM 20 2ND PAGE"
+                                                    ? "Form 20 2nd Page Image"
                                                     : document.documentName ===
-                                                        "FORM 21"
-                                                      ? "Form 21 Image"
+                                                        "FORM 20 3RD PAGE"
+                                                      ? "Form 20 3rd Page Image"
                                                       : document.documentName ===
-                                                          "FORM 22"
-                                                        ? "Form 22 Image"
+                                                          "FORM 21"
+                                                        ? "Form 21 Image"
                                                         : document.documentName ===
-                                                            "AFFIDAVIT"
-                                                          ? "Affidavit Image"
-                                                          : document.documentName}
+                                                            "FORM 22"
+                                                          ? "Form 22 Image"
+                                                          : document.documentName ===
+                                                              "AFFIDAVIT"
+                                                            ? "Affidavit Image"
+                                                            : document.documentName ===
+                                                                "AFFIDAVIT 1"
+                                                              ? "Affidavit 1 Image"
+                                                              : document.documentName ===
+                                                                  "RENT DOCUMENT 1"
+                                                                ? "Rent Document 1"
+                                                                : document.documentName ===
+                                                                    "RENT DOCUMENT 2"
+                                                                  ? "Rent Document 2"
+                                                                  : document.documentName ===
+                                                                      "RENT DOCUMENT 3"
+                                                                    ? "Rent Document 3"
+                                                                    : document.documentName ===
+                                                                        "RENT DOCUMENT 4"
+                                                                      ? "Rent Document 4"
+                                                                      : document.documentName ===
+                                                                          "OTHER 1"
+                                                                        ? "Document 1"
+                                                                        : document.documentName ===
+                                                                            "OTHER 2"
+                                                                          ? "Document 2"
+                                                                          : document.documentName}
                       </Text>
                     </TouchableOpacity>
                   ),

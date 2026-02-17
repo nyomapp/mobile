@@ -136,6 +136,44 @@ export const downloadCombineRentDocuments = async (frameNumber: any) => {
   }
 };
 
+export const downloadCombineHelmetInvoice = async (frameNumber: any) => {
+  try {
+    const url =
+      API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_HELMET_INVOICE_DOCUMENTS.replace(
+        "{frameNumber}",
+        frameNumber,
+      );
+    const fullUrl = apiClient.baseURL + url;
+    const res = await fetch(fullUrl, { method: "GET" });
+    if (!res.ok) {
+      throw new Error("Failed to download Combined Helmet Invoice PDF");
+    }
+    const blob = await res.blob();
+    return blob;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const downloadCombineAffidavit = async (frameNumber: any) => {
+  try {
+    const url =
+      API_ENDPOINTS.DELIVERIES_HOME.DOWNLOAD_COMBINED_AFFIDAVIT_DOCUMENTS.replace(
+        "{frameNumber}",
+        frameNumber,
+      );
+    const fullUrl = apiClient.baseURL + url;
+    const res = await fetch(fullUrl, { method: "GET" });
+    if (!res.ok) {
+      throw new Error("Failed to download Combined Affidavit PDF");
+    }
+    const blob = await res.blob();
+    return blob;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const downloadCombineZip = async (
   frameNumber: any,
   customerName: any,

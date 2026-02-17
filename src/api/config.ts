@@ -28,6 +28,10 @@ export const API_ENDPOINTS = {
       "upload/download-folder-zip?frameNumber={frameNumber}&customerName={customerName}&date={date}&isTemp=false",
     GENERATE_PDF_URL: "upload/generate-download-url/{url}",
     GET_ALL_USERS: "users?userType=user&limit=10000&page=1",
+    DOWNLOAD_COMBINED_HELMET_INVOICE_DOCUMENTS:
+      "/upload/download-combine-helmet-pdf?frameNumber=${frameNumber}&isTemp=false",
+      DOWNLOAD_COMBINED_AFFIDAVIT_DOCUMENTS:
+      "/upload/download-combine-affidavit-pdf?frameNumber=${frameNumber}&isTemp=false",
   },
   DEALAR_DASHBOARD: {
     GET_EXECUTIVES: "/users?userType=user&limit=1000&page=1",
