@@ -384,7 +384,26 @@ export default function PreviewScreen() {
           ? (({ createdAt, ...rest }: any) => rest)(currentDelivery)
           : {};
 
+        // Deduplicate downloadDocuments before submitting
+        if (deliveryDataWithoutCreatedAt.downloadDocuments) {
+          const uniqueDocs =
+            deliveryDataWithoutCreatedAt.downloadDocuments.reduce(
+              (acc: any[], doc: any) => {
+                const exists = acc.find(
+                  (d: any) => d.documentName === doc.documentName,
+                );
+                if (!exists) {
+                  acc.push(doc);
+                }
+                return acc;
+              },
+              [],
+            );
+          deliveryDataWithoutCreatedAt.downloadDocuments = uniqueDocs;
+        }
+
         await updateDeliveryById(deliveryId, deliveryDataWithoutCreatedAt);
+
         resetIsEdit();
         resetDeliveryId();
         Toast.show({

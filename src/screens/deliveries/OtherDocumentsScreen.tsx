@@ -30,8 +30,12 @@ export default function OtherDocumentsScreen() {
     deliveryId,
     resetDeliveryId,
   } = useDeliveryContext();
-  const { documentTypes, setIsOtherDocumentsUpload, resetDocuments, updateBulkDocuments,  } =
-    useDocumentArray2();
+  const {
+    documentTypes,
+    setIsOtherDocumentsUpload,
+    resetDocuments,
+    updateBulkDocuments,
+  } = useDocumentArray2();
   const { setUploadingDocument, setIsTemp } = useDocumentUploadContext();
   const [finalUploadDocumentsArray, setFinalUploadDocumentsArray] = useState<
     any[]
@@ -47,18 +51,17 @@ export default function OtherDocumentsScreen() {
     if (currentDelivery) {
       updateBulkDocuments(currentDelivery.downloadDocuments as any);
     }
-    
   }, [currentDelivery?.downloadDocuments]);
- 
+
   const handleNext = async () => {
     // Validate that all documents have been uploaded
     // const missingDocuments = documentTypes.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === '');
-    
+
     // if (missingDocuments.length > 0) {
     //   const missingDocNames = missingDocuments.map(doc => doc.documentName).join(', ');
     //   Toast.show({
     //     type: "error",
-    //     text1: "Upload Required", 
+    //     text1: "Upload Required",
     //     text2: `Please upload all documents. Missing: ${missingDocNames}`,
     //   });
     //   return;
@@ -91,10 +94,15 @@ export default function OtherDocumentsScreen() {
     console.log("newDownloadDocuments", newDownloadDocuments);
 
     // Merge previous documents with new ones
-    const mergedDocuments = [
-      ...(finalUploadDocumentsArray || []),
-      ...newDownloadDocuments,
-    ];
+    // Remove duplicates: keep only documents NOT in newDownloadDocuments
+    const existingDocs = finalUploadDocumentsArray || [];
+    const filteredExisting = existingDocs.filter(
+      (doc: any) =>
+        !newDownloadDocuments.some(
+          (newDoc: any) => newDoc.documentName === doc.documentName,
+        ),
+    );
+    const mergedDocuments = [...filteredExisting, ...newDownloadDocuments];
 
     console.log("mergedDocuments", JSON.stringify(mergedDocuments, null, 2));
     // console.log("deliveryId", deliveryId);

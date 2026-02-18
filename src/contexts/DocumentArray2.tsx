@@ -55,7 +55,7 @@ const initialDocumentTypes: DocumentType[] = [
   },
   {
     id: 3,
-    title: "Helmet Invoice",
+    title: "Helmet Invoice 1",
     icon: require("@/assets/icons/helmetinvoiceicon.png"),
     uploaded: false,
     documentName: "HELMET INVOICE",
@@ -65,7 +65,7 @@ const initialDocumentTypes: DocumentType[] = [
   },
    {
     id: 4,
-    title: "Helmet Invoice 1",
+    title: "Helmet Invoice 2",
     icon: require("@/assets/icons/helmetinvoiceicon.png"),
     uploaded: false,
     documentName: "HELMET INVOICE 1",
@@ -125,7 +125,7 @@ const initialDocumentTypes: DocumentType[] = [
   },
   {
     id: 10,
-    title: "AFFIDAVIT",
+    title: "AFFIDAVIT 1",
     icon: require("@/assets/icons/affidaviticon.png"),
     uploaded: false,
     documentName: "AFFIDAVIT",
@@ -135,7 +135,7 @@ const initialDocumentTypes: DocumentType[] = [
   },
   {
     id: 11,
-    title: "AFFIDAVIT 1",
+    title: "AFFIDAVIT 2",
     icon: require("@/assets/icons/affidaviticon.png"),
     uploaded: false,
     documentName: "AFFIDAVIT 1",
