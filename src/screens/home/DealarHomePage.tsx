@@ -36,8 +36,7 @@ export default function DealerHomeScreen() {
   const getDefaultDates = () => {
     const endDate = new Date();
     const startDate = new Date();
-    startDate.setDate(1); // Set to 1st of current month
-    startDate.setFullYear(startDate.getFullYear() - 1); // Go back 1 year
+    startDate.setDate(1);
 
     return {
       startDate: startDate.toISOString().split("T")[0],
