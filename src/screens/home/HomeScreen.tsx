@@ -1,6 +1,7 @@
 import {
   Dimensions,
   Image,
+  Modal,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -13,13 +14,15 @@ import { allStyles } from "../../styles/global";
 
 import { getDashBoardData } from "@/src/api/dashBoard";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
-import { COLORS } from "@/src/constants";
+import { COLORS, FONTS } from "@/src/constants";
 import { useDashBoard } from "@/src/contexts/DashBoardContext";
 import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
+import { globalStyles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Calendar } from "react-native-calendars";
 import { PieChart } from "react-native-svg-charts";
 import Toast from "react-native-toast-message";
 import { styles } from "../../styles/homeStyles";
@@ -27,6 +30,17 @@ import { styles } from "../../styles/homeStyles";
 const screenWidth = Dimensions.get("window").width;
 
 export default function HomeScreen() {
+  const getDefaultDates = () => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(1);
+
+    return {
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
+    };
+  };
+
   const { user, updateUser } = useAuth();
   const {
     dashBoardData,
@@ -46,6 +60,30 @@ export default function HomeScreen() {
     resetIsEdit,
   } = useDeliveryContext();
 
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [dateValidationError, setDateValidationError] = useState<string>("");
+  const [currentFilters, setCurrentFilters] = useState<{
+    startDate: string;
+    endDate: string;
+  }>(() => {
+    const defaultDates = getDefaultDates();
+    return {
+      startDate: defaultDates.startDate,
+      endDate: defaultDates.endDate,
+    };
+  });
+
+  // Reset all filters on initial mount
+  useEffect(() => {
+    const defaultDates = getDefaultDates();
+    setCurrentFilters({
+      startDate: defaultDates.startDate,
+      endDate: defaultDates.endDate,
+    });
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       console.log("Home screen focused - fetching dashboard data");
@@ -53,10 +91,11 @@ export default function HomeScreen() {
     }, []),
   );
 
-  const fetchDashBoardData = async () => {
+  const fetchDashBoardData = async (filters?: typeof currentFilters) => {
     try {
       console.log("Fetching dashboard data...");
-      const response = await getDashBoardData();
+      const filtersToUse = filters || currentFilters;
+      const response = await getDashBoardData(filtersToUse);
       console.log("Dashboard data fetched successfully:", response);
       setDashBoardData(response as any);
     } catch (error) {
@@ -69,6 +108,129 @@ export default function HomeScreen() {
           "An error occurred while fetching dashboard data.",
       });
     }
+  };
+
+  // Helper functions for date formatting:
+  const formatDateForDisplay = (dateString: string): string => {
+    if (!dateString) return "";
+    // Convert YYYY-MM-DD to DD/MM/YYYY for display
+    const parts = dateString.split("-");
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateString;
+  };
+
+  const formatDateForAPI = (dateString: string): string => {
+    if (!dateString) return "";
+    // If already in YYYY-MM-DD format, return as is
+    if (dateString.includes("-") && dateString.split("-").length === 3) {
+      return dateString;
+    }
+    // Convert DD/MM/YYYY to YYYY-MM-DD for API
+    const parts = dateString.split("/");
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateString;
+  };
+
+  // Update date validation function:
+  const validateDateRange = (start: string, end: string): string => {
+    if (!start && !end) {
+      return "";
+    }
+
+    if ((start && !end) || (!start && end)) {
+      return "Please select both start and end dates";
+    }
+
+    if (start && end) {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      if (startDate > endDate) {
+        return "Start date cannot be after end date";
+      }
+    }
+
+    return "";
+  };
+
+  // Calendar handlers:
+  const handleStartDateSelect = (day: any) => {
+    setCurrentFilters((prev) => ({ ...prev, startDate: day.dateString }));
+    setShowStartDatePicker(false);
+
+    // Clear validation error when user selects a date
+    if (dateValidationError) {
+      setDateValidationError("");
+    }
+  };
+
+  const handleEndDateSelect = (day: any) => {
+    setCurrentFilters((prev) => ({ ...prev, endDate: day.dateString }));
+    setShowEndDatePicker(false);
+
+    // Clear validation error when user selects a date
+    if (dateValidationError) {
+      setDateValidationError("");
+    }
+  };
+
+  const handleFilterPress = () => {
+    setShowFilterModal(true);
+  };
+
+  const handleApplyFilter = () => {
+    // Validate date range
+    const dateError = validateDateRange(
+      currentFilters.startDate,
+      currentFilters.endDate,
+    );
+    if (dateError) {
+      setDateValidationError(dateError);
+      Toast.show({
+        type: "error",
+        text1: "Validation Error",
+        text2: dateError,
+      });
+      return;
+    }
+
+    setDateValidationError("");
+
+    console.log("Applying filter:", currentFilters);
+    fetchDashBoardData();
+    // Close modal
+    setShowFilterModal(false);
+
+    Toast.show({
+      type: "success",
+      text1: "Filter Applied",
+      text2: "Dashboard filtered successfully",
+    });
+  };
+
+  const handleResetFilter = () => {
+    const defaultDates = getDefaultDates();
+    const emptyFilters = {
+      startDate: defaultDates.startDate,
+      endDate: defaultDates.endDate,
+    };
+
+    setCurrentFilters(emptyFilters);
+
+    // Fetch data with empty filters
+    fetchDashBoardData(emptyFilters);
+
+    // Close modal
+    setShowFilterModal(false);
+
+    Toast.show({
+      type: "success",
+      text1: "Filter Reset",
+      text2: "All filters cleared",
+    });
   };
 
   // Chart data calculation
@@ -171,6 +333,38 @@ export default function HomeScreen() {
             )}
           </View>
           <HeaderIcon />
+        </View>
+
+        {/* Filter button with date range */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            marginBottom: 16,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 10,
+              color: COLORS.black,
+              fontFamily: FONTS.YellixThin,
+              marginRight: 8,
+            }}
+          >
+            From: {formatDateForDisplay(currentFilters.startDate)} To:{" "}
+            {formatDateForDisplay(currentFilters.endDate)}
+          </Text>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={handleFilterPress}
+          >
+            <Image
+              source={require("@/assets/icons/filtericon.png")}
+              style={styles.filterIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Delivery Card */}
@@ -307,6 +501,194 @@ export default function HomeScreen() {
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
+
+      {/* Filter Modal - Slides up from bottom */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showFilterModal}
+        onRequestClose={() => setShowFilterModal(false)}
+      >
+        <View style={styles.filterModalOverlay}>
+          <View style={styles.filterModalContent}>
+            {/* Modal Header */}
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity onPress={() => setShowFilterModal(false)}>
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Filter</Text>
+              <TouchableOpacity onPress={handleResetFilter}>
+                <Text style={styles.resetText}>Reset</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Filter Form */}
+            <ScrollView
+              style={styles.filterForm}
+              contentContainerStyle={{ paddingBottom: 30 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Start Date Picker */}
+              <TouchableOpacity
+                style={[globalStyles.input, styles.dropdownButton]}
+                onPress={() => setShowStartDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    allStyles.dropdownText,
+                    currentFilters.startDate ? { color: COLORS.black } : null,
+                  ]}
+                >
+                  {currentFilters.startDate
+                    ? formatDateForDisplay(currentFilters.startDate)
+                    : "Start Date"}
+                </Text>
+                <Ionicons name="calendar" size={20} color="#6C757D" />
+              </TouchableOpacity>
+
+              {/* End Date Picker */}
+              <TouchableOpacity
+                style={[globalStyles.input, styles.dropdownButton]}
+                onPress={() => setShowEndDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    allStyles.dropdownText,
+                    currentFilters.endDate ? { color: COLORS.black } : null,
+                  ]}
+                >
+                  {currentFilters.endDate
+                    ? formatDateForDisplay(currentFilters.endDate)
+                    : "End Date"}
+                </Text>
+                <Ionicons name="calendar" size={20} color="#6C757D" />
+              </TouchableOpacity>
+
+              {/* Date Validation Error */}
+              {dateValidationError ? (
+                <Text
+                  style={{
+                    color: "red",
+                    fontSize: 12,
+                    marginTop: 5,
+                    marginBottom: 10,
+                  }}
+                >
+                  {dateValidationError}
+                </Text>
+              ) : null}
+            </ScrollView>
+
+            {/* Apply Button */}
+            <View style={styles.filterButtonContainer}>
+              <TouchableOpacity
+                style={allStyles.btn}
+                onPress={handleApplyFilter}
+              >
+                <Text style={allStyles.btnText}>Apply</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Start Date Calendar Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showStartDatePicker}
+        onRequestClose={() => setShowStartDatePicker(false)}
+      >
+        <View style={styles.filterModalOverlay}>
+          <View style={[styles.filterModalContent, { height: "60%" }]}>
+            {/* Modal Header */}
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Select Start Date</Text>
+              <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
+                <Text style={styles.resetText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Calendar */}
+            <View style={{ flex: 1, padding: 20 }}>
+              <Calendar
+                onDayPress={handleStartDateSelect}
+                markedDates={{
+                  [currentFilters.startDate]: {
+                    selected: true,
+                    selectedColor: COLORS.primaryBlue || "#007AFF",
+                  },
+                }}
+                maxDate={new Date().toISOString().split("T")[0]}
+                theme={{
+                  selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+                  selectedDayTextColor: "#ffffff",
+                  todayTextColor: COLORS.primaryBlue || "#007AFF",
+                  dayTextColor: "#2d4150",
+                  textDisabledColor: "#d9e1e8",
+                  arrowColor: COLORS.primaryBlue || "#007AFF",
+                  monthTextColor: COLORS.primaryBlue || "#007AFF",
+                  indicatorColor: COLORS.primaryBlue || "#007AFF",
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* End Date Calendar Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showEndDatePicker}
+        onRequestClose={() => setShowEndDatePicker(false)}
+      >
+        <View style={styles.filterModalOverlay}>
+          <View style={[styles.filterModalContent, { height: "60%" }]}>
+            {/* Modal Header */}
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Select End Date</Text>
+              <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
+                <Text style={styles.resetText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Calendar */}
+            <View style={{ flex: 1, padding: 20 }}>
+              <Calendar
+                onDayPress={handleEndDateSelect}
+                markedDates={{
+                  [currentFilters.endDate]: {
+                    selected: true,
+                    selectedColor: COLORS.primaryBlue || "#007AFF",
+                  },
+                }}
+                maxDate={new Date().toISOString().split("T")[0]}
+                minDate={currentFilters.startDate || undefined}
+                theme={{
+                  selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+                  selectedDayTextColor: "#ffffff",
+                  todayTextColor: COLORS.primaryBlue || "#007AFF",
+                  dayTextColor: "#2d4150",
+                  textDisabledColor: "#d9e1e8",
+                  arrowColor: COLORS.primaryBlue || "#007AFF",
+                  monthTextColor: COLORS.primaryBlue || "#007AFF",
+                  indicatorColor: COLORS.primaryBlue || "#007AFF",
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <Toast />
     </SafeAreaView>
   );
