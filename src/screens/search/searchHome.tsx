@@ -107,7 +107,7 @@ const handleSearchChange = (text: string) => {
                   //  style={styles.uploadIcon}
                   >
                     <Image
-                      source={require("@/assets/icons/EditIcon.png")}
+                      source={require("@/assets/icons/editicon.png")}
                       style={{
                         width: 22,
                         height: 22,
@@ -122,7 +122,7 @@ const handleSearchChange = (text: string) => {
                   onPress={() => handleDelete(item)}
                 >
                   <Image
-                    source={require("@/assets/icons/deleteIcon.png")}
+                    source={require("@/assets/icons/deleteicon.png")}
                     style={{ width: 16, height: 16 }}
                     // width={20}
   
