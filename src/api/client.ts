@@ -25,7 +25,9 @@ class APIClient {
 
     const headers: Record<string, string> = {
       ...this.defaultHeaders,
-      ...options.headers,
+      ...(options.headers && typeof options.headers === 'object' && !Array.isArray(options.headers) && !(options.headers instanceof Headers)
+        ? (options.headers as Record<string, string>)
+        : {}),
     };
 
     if (this.authToken) {
@@ -65,7 +67,7 @@ class APIClient {
         success: true,
         data,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('[API] Request Error:', error);
 
       if (error instanceof APIError) {
@@ -75,7 +77,7 @@ class APIClient {
         };
       }
 
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         return {
           success: false,
           error: 'Request timeout. Please check your internet connection.',
@@ -84,7 +86,7 @@ class APIClient {
 
       return {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: (error instanceof Error ? error.message : null) || 'An unexpected error occurred',
       };
     }
   }
@@ -160,7 +162,7 @@ class APIClient {
           success: true,
           data: responseData,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('API Request Error:', error);
 
         if (error instanceof APIError) {
@@ -170,7 +172,7 @@ class APIClient {
           };
         }
 
-        if (error.name === 'AbortError') {
+        if (error instanceof Error && error.name === 'AbortError') {
           return {
             success: false,
             error: 'Request timeout. Please check your internet connection.',
@@ -179,7 +181,7 @@ class APIClient {
 
         return {
           success: false,
-          error: error.message || 'An unexpected error occurred',
+          error: (error instanceof Error ? error.message : null) || 'An unexpected error occurred',
         };
       }
     }
@@ -266,7 +268,7 @@ class APIClient {
         success: true,
         data,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('API Request Error:', error);
 
       if (error instanceof APIError) {
@@ -276,7 +278,7 @@ class APIClient {
         };
       }
 
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         return {
           success: false,
           error: 'Request timeout. Please check your internet connection.',
@@ -285,7 +287,7 @@ class APIClient {
 
       return {
         success: false,
-        error: error.message || 'An unexpected error occurred',
+        error: (error instanceof Error ? error.message : null) || 'An unexpected error occurred',
       };
     }
   }

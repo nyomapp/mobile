@@ -63,4 +63,11 @@ export const API_ENDPOINTS = {
     UPDATE: "/users/:userId",
     CHANGE_PASSWORD: "auth/change-password",
   },
+  NOTIFICATIONS: {
+    GET_ALL: "notifications",
+    MARK_READ: "notifications/:id/read",
+    DELETE: "notifications/:id",
+    REGISTER_DEVICE: "notifications/device/register",
+    UNREGISTER_DEVICE: "notifications/device/unregister",
+  },
 } as const;

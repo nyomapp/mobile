@@ -35,6 +35,15 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+## iOS push notifications (P8 key)
+
+When setting up push notifications with `eas credentials`, you will be prompted for **Path to P8 file**. Use the `certs/` folder:
+
+1. Put your Apple APNs `.p8` key in the project under `certs/` (e.g. `certs/AuthKey_XXXXXXXXXX.p8`).
+2. When prompted, enter: `./certs/AuthKey_XXXXXXXXXX.p8` (replace with your key filename).
+
+See `certs/README.md` for details.
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:

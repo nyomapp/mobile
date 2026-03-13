@@ -27,7 +27,8 @@ export default function DynamicScreen() {
   const screenName = Array.isArray(slug) ? slug[0] : slug;
 
   const Screen = useMemo(() => {
-    const screenLoader = screenMap[screenName];
+    const key = (screenName ?? "login") as keyof typeof screenMap;
+    const screenLoader = screenMap[key];
     return screenLoader ? screenLoader() : screenMap["login"]();
   }, [screenName]);
 

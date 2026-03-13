@@ -17,6 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sivesh.nyom",
+      "appleTeamId": "HHU7655R36",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }

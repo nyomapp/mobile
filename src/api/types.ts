@@ -53,6 +53,9 @@ export interface User {
   };
   adhaar: string;
   id: string;
+  preferences?: {
+    audio?: boolean;
+  };
 }
 
 export interface UpdateUserRequest {

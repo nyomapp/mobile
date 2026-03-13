@@ -26,7 +26,14 @@ export class NotificationAPI {
    */
   static async getNotifications(params?: NotificationParams): Promise<APIResponse<any>> {
     try {
-      const response = await apiClient.get(API_ENDPOINTS.NOTIFICATIONS.GET_ALL, { params });
+      const query = params
+        ? '?' +
+          (Object.entries(params)
+            .filter(([, v]) => v != null)
+            .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
+            .join('&') || '')
+        : '';
+      const response = await apiClient.get(API_ENDPOINTS.NOTIFICATIONS.GET_ALL + query);
 
       if (response.success) {
         return {
@@ -54,7 +61,7 @@ export class NotificationAPI {
    */
   static async markAsRead(id: string): Promise<APIResponse<any>> {
     try {
-      const endpoint = API_ENDPOINTS.NOTIFICATIONS.MARK_READ.replace(':id', id);
+      const endpoint = API_ENDPOINTS.NOTIFICATIONS.MARK_READ.replace(':id', id ?? '');
       const response = await apiClient.post(endpoint);
 
       if (response.success) {
@@ -111,7 +118,7 @@ export class NotificationAPI {
    */
   static async deleteNotification(id: string): Promise<APIResponse<any>> {
     try {
-      const endpoint = API_ENDPOINTS.NOTIFICATIONS.DELETE.replace(':id', id);
+      const endpoint = API_ENDPOINTS.NOTIFICATIONS.DELETE.replace(':id', id ?? '');
       const response = await apiClient.delete(endpoint);
 
       if (response.success) {

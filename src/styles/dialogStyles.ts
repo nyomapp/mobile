@@ -30,23 +30,23 @@ export const dialogStyles = StyleSheet.create({
   dialogTitle: {
     fontFamily: FONTS.MontserratSemiBold,
     fontSize: 18,
-    color: COLORS.primary,
+    color: COLORS.primaryBlue,
     textAlign: "center",
     paddingVertical: 20,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primaryBlue,
     borderBottomWidth: 1,
   },
   dialogText: {
     fontFamily: FONTS.body,
     fontSize: 18,
-    color: COLORS.primary,
+    color: COLORS.primaryBlue,
     textAlign: "center",
     marginBottom: 20,
   },
   dialogSmallText: {
     fontFamily: FONTS.body,
     fontSize: 13,
-    color: COLORS.primary,
+    color: COLORS.primaryBlue,
     textAlign: "center",
   },
 
@@ -61,7 +61,7 @@ export const dialogStyles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     marginBottom: 10,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primaryBlue,
     borderTopWidth: 1,
     paddingTop: 10,
   },
@@ -69,7 +69,7 @@ export const dialogStyles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     alignItems: "center",
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primaryBlue,
     borderRightWidth: 1,
   },
   okButton: {
@@ -84,7 +84,7 @@ export const dialogStyles = StyleSheet.create({
   },
   okButtonText: {
     fontSize: 16,
-    color: COLORS.primary,
+    color: COLORS.primaryBlue,
     fontFamily: FONTS.MontserratSemiBold,
   },
 

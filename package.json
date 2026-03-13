@@ -2,6 +2,11 @@
   "name": "nyom-mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "overrides": {
+    "react-native-svg-charts": {
+      "react-native-svg": "^15.8.0"
+    }
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
