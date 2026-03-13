@@ -13,8 +13,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "postinstall": "patch-package",
-    "prepare": "patch-package"
+    "postinstall": "node scripts/patch-react-native-svg.js",
+    "prepare": "node scripts/patch-react-native-svg.js"
   },
   "jest": {
     "preset": "jest-expo"
@@ -75,7 +75,6 @@
     "@types/react": "~18.3.0",
     "jest": "^29.4.0",
     "jest-expo": "~52.0.0",
-    "patch-package": "^8.0.0",
     "react-test-renderer": "18.3.1",
     "typescript": "~5.6.0"
   },
