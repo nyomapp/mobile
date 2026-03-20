@@ -1,5 +1,8 @@
 import { StyleSheet } from "react-native";
-import { responsiveFontSize, responsiveWidth } from "react-native-responsive-dimensions";
+import {
+  responsiveFontSize,
+  responsiveWidth,
+} from "react-native-responsive-dimensions";
 import { COLORS } from "../constants";
 import { FONTS } from "../constants/fonts";
 export const styles = StyleSheet.create({
@@ -75,6 +78,20 @@ export const styles = StyleSheet.create({
     height: "100%",
     borderRadius: responsiveWidth(4),
   },
+  tapToEditBadge: {
+    position: "absolute",
+    right: responsiveWidth(3),
+    bottom: responsiveWidth(3),
+    backgroundColor: "rgba(0, 0, 0, 0.55)",
+    paddingHorizontal: responsiveWidth(3),
+    paddingVertical: responsiveWidth(1.6),
+    borderRadius: responsiveWidth(5),
+  },
+  tapToEditText: {
+    color: COLORS.white,
+    fontSize: responsiveFontSize(1.6),
+    fontFamily: FONTS.Yellix,
+  },
   sampleContainer: {
     justifyContent: "center",
     alignItems: "center",
@@ -109,7 +126,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: responsiveWidth(4),
     paddingVertical: responsiveWidth(3),
-    backgroundColor:COLORS.white,
+    backgroundColor: COLORS.white,
     borderRadius: responsiveWidth(2),
     marginBottom: responsiveWidth(4),
     marginHorizontal: responsiveWidth(1),

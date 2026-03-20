@@ -28,96 +28,114 @@ export default function ImageCropper({
   onCancel,
 }: ImageCropperProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [workingImageUri, setWorkingImageUri] = useState(imageUri);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
 
   const translateX = React.useRef(new Animated.Value(0)).current;
   const translateY = React.useRef(new Animated.Value(0)).current;
-  const [imageLayout, setImageLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [imageLayout, setImageLayout] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
   const imageRef = React.useRef<View>(null);
 
   React.useEffect(() => {
-    Image.getSize(imageUri, (width, height) => {
+    Image.getSize(workingImageUri, (width, height) => {
       setImageSize({ width, height });
-      
+
       // Calculate initial scale to fit image
       const scaleX = CROP_SIZE / width;
       const scaleY = CROP_SIZE / height;
       const initialScale = Math.max(scaleX, scaleY);
-      
+
       setScale(initialScale);
+      setPosition({ x: 0, y: 0 });
+      translateX.setValue(0);
+      translateY.setValue(0);
     });
-  }, [imageUri]);
+  }, [workingImageUri]);
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
-    
+
     onPanResponderGrant: () => {
       translateX.setOffset(position.x);
       translateY.setOffset(position.y);
       translateX.setValue(0);
       translateY.setValue(0);
     },
-    
+
     onPanResponderMove: Animated.event(
       [null, { dx: translateX, dy: translateY }],
-      { useNativeDriver: false }
+      { useNativeDriver: false },
     ),
-    
+
     onPanResponderRelease: (_, gesture) => {
       const newX = position.x + gesture.dx;
       const newY = position.y + gesture.dy;
-      
+
       setPosition({ x: newX, y: newY });
-      
+
       translateX.flattenOffset();
       translateY.flattenOffset();
     },
   });
 
   const handleZoom = (direction: "in" | "out") => {
-    const newScale = direction === "in" 
-      ? Math.min(scale * 1.1, 4) 
-      : Math.max(scale / 1.1, 0.3);
-    
+    const newScale =
+      direction === "in"
+        ? Math.min(scale * 1.1, 4)
+        : Math.max(scale / 1.1, 0.3);
+
     setScale(newScale);
   };
 
   const handleCrop = async () => {
     if (!imageSize.width || !imageLayout.width) return;
-    
+
     setIsProcessing(true);
-    
+
     try {
       // Get crop frame bounds (centered on screen)
       const cropFrameX = (screenWidth - CROP_SIZE) / 2;
       const cropFrameY = (screenHeight - CROP_SIZE) / 2;
-      
+
       // Calculate displayed image dimensions
       const displayedWidth = imageLayout.width * scale;
       const displayedHeight = imageLayout.height * scale;
-      
+
       // Calculate image position on screen (including transforms)
-      const imageScreenX = imageLayout.x + position.x + (imageLayout.width - displayedWidth) / 2;
-      const imageScreenY = imageLayout.y + position.y + (imageLayout.height - displayedHeight) / 2;
-      
+      const imageScreenX =
+        imageLayout.x + position.x + (imageLayout.width - displayedWidth) / 2;
+      const imageScreenY =
+        imageLayout.y + position.y + (imageLayout.height - displayedHeight) / 2;
+
       // Calculate crop area relative to original image
       const scaleRatio = imageSize.width / displayedWidth;
-      
+
       const cropX = Math.max(0, (cropFrameX - imageScreenX) * scaleRatio);
       const cropY = Math.max(0, (cropFrameY - imageScreenY) * scaleRatio);
-      const cropWidth = Math.min(CROP_SIZE * scaleRatio, imageSize.width - cropX);
-      const cropHeight = Math.min(CROP_SIZE * scaleRatio, imageSize.height - cropY);
-      
+      const cropWidth = Math.min(
+        CROP_SIZE * scaleRatio,
+        imageSize.width - cropX,
+      );
+      const cropHeight = Math.min(
+        CROP_SIZE * scaleRatio,
+        imageSize.height - cropY,
+      );
+
       // Validate crop dimensions
       if (cropWidth <= 0 || cropHeight <= 0) {
-        throw new Error('Invalid crop area');
+        throw new Error("Invalid crop area");
       }
 
       const result = await ImageManipulator.manipulateAsync(
-        imageUri,
+        workingImageUri,
         [
           {
             crop: {
@@ -131,7 +149,7 @@ export default function ImageCropper({
         {
           compress: 0.8,
           format: ImageManipulator.SaveFormat.JPEG,
-        }
+        },
       );
 
       Toast.show({
@@ -154,6 +172,41 @@ export default function ImageCropper({
     }
   };
 
+  const applyQuickEdit = async (actions: ImageManipulator.Action[]) => {
+    if (isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      const result = await ImageManipulator.manipulateAsync(
+        workingImageUri,
+        actions,
+        {
+          compress: 1,
+          format: ImageManipulator.SaveFormat.JPEG,
+        },
+      );
+
+      setWorkingImageUri(result.uri);
+    } catch (error) {
+      console.error("Edit error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Edit Failed",
+        text2: "Could not apply image edit",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRotate = async () => {
+    await applyQuickEdit([{ rotate: 90 }]);
+  };
+
+  const handleClip = async () => {
+    await applyQuickEdit([{ flip: ImageManipulator.FlipType.Horizontal }]);
+  };
+
   return (
     <View style={styles.container}>
       {/* Image Container */}
@@ -163,11 +216,7 @@ export default function ImageCropper({
           style={[
             styles.imageWrapper,
             {
-              transform: [
-                { translateX },
-                { translateY },
-                { scale },
-              ],
+              transform: [{ translateX }, { translateY }, { scale }],
             },
           ]}
           {...panResponder.panHandlers}
@@ -176,39 +225,59 @@ export default function ImageCropper({
             setImageLayout({ x, y, width, height });
           }}
         >
-          <Image 
-            source={{ uri: imageUri }} 
+          <Image
+            source={{ uri: imageUri }}
             style={[
               styles.image,
               {
                 width: imageSize.width,
                 height: imageSize.height,
-              }
+              },
             ]}
             resizeMode="contain"
           />
         </Animated.View>
-        
+
         {/* Crop Frame */}
         <View style={styles.cropFrame} pointerEvents="none" />
       </View>
 
       {/* Controls */}
       <View style={styles.controls}>
-        <Text style={styles.instruction}>Drag image to position • Use zoom controls</Text>
-        
+        <Text style={styles.instruction}>
+          Drag image to position • Use edit and zoom controls
+        </Text>
+
+        <View style={styles.editRow}>
+          <TouchableOpacity
+            style={styles.secondaryBtn}
+            onPress={handleRotate}
+            disabled={isProcessing}
+          >
+            <Text style={styles.secondaryBtnText}>Rotate</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryBtn}
+            onPress={handleClip}
+            disabled={isProcessing}
+          >
+            <Text style={styles.secondaryBtnText}>Clip</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.zoomRow}>
-          <TouchableOpacity 
-            style={styles.zoomBtn} 
+          <TouchableOpacity
+            style={styles.zoomBtn}
             onPress={() => handleZoom("out")}
           >
             <Text style={styles.zoomText}>−</Text>
           </TouchableOpacity>
-          
+
           <Text style={styles.scaleText}>{Math.round(scale * 100)}%</Text>
-          
-          <TouchableOpacity 
-            style={styles.zoomBtn} 
+
+          <TouchableOpacity
+            style={styles.zoomBtn}
             onPress={() => handleZoom("in")}
           >
             <Text style={styles.zoomText}>+</Text>
@@ -219,9 +288,9 @@ export default function ImageCropper({
           <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
             <Text style={styles.cancelText}>Cancel</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.cropBtn, isProcessing && styles.disabled]} 
+
+          <TouchableOpacity
+            style={[styles.cropBtn, isProcessing && styles.disabled]}
             onPress={handleCrop}
             disabled={isProcessing}
           >
@@ -280,6 +349,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
+  },
+  editRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 12,
+    marginBottom: 14,
+  },
+  secondaryBtn: {
+    minWidth: 110,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  secondaryBtnText: {
+    color: "#4CAF50",
+    fontSize: 14,
+    fontWeight: "600",
   },
   zoomBtn: {
     width: 44,

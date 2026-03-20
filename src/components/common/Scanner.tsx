@@ -6,6 +6,7 @@ import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
 import { convertImageToPdfAndCompress } from "@/src/utils/documentConversionUtils";
 import { CameraView } from "expo-camera";
+import Constants from "expo-constants";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -25,10 +26,24 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/ScannerStyles";
+import ImageCropper from "./ImageCropper";
 
 interface DocumentScannerProps {
   documentType?: string;
 }
+
+type NativeCropPickerModule = {
+  openCropper: (options: Record<string, any>) => Promise<{ path?: string }>;
+};
+
+const getNativeCropPicker = (): NativeCropPickerModule | null => {
+  try {
+    const cropPickerModule = require("react-native-image-crop-picker");
+    return cropPickerModule?.default ?? cropPickerModule ?? null;
+  } catch {
+    return null;
+  }
+};
 
 export default function DocumentScanner({}: DocumentScannerProps) {
   const {
@@ -41,6 +56,8 @@ export default function DocumentScanner({}: DocumentScannerProps) {
   } = useDocumentUploadContext();
   const { currentDelivery, setCurrentDelivery } = useDeliveryContext();
   const [capturedImage, setCapturedImage] = useState<any | null>(null);
+  const [isOpeningImageEditor, setIsOpeningImageEditor] = useState(false);
+  const [isFallbackEditorVisible, setIsFallbackEditorVisible] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // Add loading state
@@ -123,6 +140,71 @@ export default function DocumentScanner({}: DocumentScannerProps) {
       const imageUri = result.assets[0].uri;
       console.log(`Gallery image selected - URI: ${imageUri}`);
       setCapturedImage(imageUri);
+    }
+  };
+
+  const openImageEditor = async () => {
+    if (!capturedImage || isOpeningImageEditor || isUploading) return;
+
+    const isExpoGo =
+      Constants.appOwnership === "expo" ||
+      Constants.executionEnvironment === "storeClient";
+    if (isExpoGo) {
+      Toast.show({
+        type: "info",
+        text1: "Using In-App Editor",
+        text2: "Native editor is unavailable in Expo Go.",
+      });
+      setIsFallbackEditorVisible(true);
+      return;
+    }
+
+    const cropPicker = getNativeCropPicker();
+    if (!cropPicker) {
+      Toast.show({
+        type: "info",
+        text1: "Using In-App Editor",
+        text2: "Native editor module not available in this build.",
+      });
+      setIsFallbackEditorVisible(true);
+      return;
+    }
+
+    try {
+      setIsOpeningImageEditor(true);
+
+      const editedImage = await cropPicker.openCropper({
+        path: capturedImage,
+        mediaType: "photo",
+        freeStyleCropEnabled: true,
+        enableRotationGesture: true,
+        showCropGuidelines: true,
+        showCropFrame: true,
+        hideBottomControls: false,
+        compressImageQuality: 1,
+        cropperToolbarTitle: "Edit Document",
+      });
+
+      if (editedImage?.path) {
+        setCapturedImage(editedImage.path);
+      }
+    } catch (error) {
+      const message = (error as Error)?.message?.toLowerCase() || "";
+      const isCancelAction =
+        message.includes("cancel") ||
+        message.includes("cancelled") ||
+        message.includes("canceled");
+
+      if (!isCancelAction) {
+        console.error("Image editor error:", error);
+        Toast.show({
+          type: "error",
+          text1: "Editor Failed",
+          text2: "Could not open image editor.",
+        });
+      }
+    } finally {
+      setIsOpeningImageEditor(false);
     }
   };
 
@@ -361,7 +443,29 @@ export default function DocumentScanner({}: DocumentScannerProps) {
 
   const retakePhoto = () => {
     setCapturedImage(null);
+    setIsFallbackEditorVisible(false);
   };
+
+  const handleFallbackEditorCancel = () => {
+    setIsFallbackEditorVisible(false);
+  };
+
+  const handleFallbackEditorComplete = (croppedUri: string) => {
+    setCapturedImage(croppedUri);
+    setIsFallbackEditorVisible(false);
+  };
+
+  if (isFallbackEditorVisible && capturedImage) {
+    return (
+      <SafeAreaView style={[allStyles.safeArea]} edges={["top"]}>
+        <ImageCropper
+          imageUri={capturedImage}
+          onCancel={handleFallbackEditorCancel}
+          onCropComplete={handleFallbackEditorComplete}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[allStyles.safeArea]} edges={["top"]}>
@@ -396,11 +500,21 @@ export default function DocumentScanner({}: DocumentScannerProps) {
               >
                 {capturedImage ? (
                   /* Captured Image Preview */
-                  <Image
-                    source={{ uri: capturedImage }}
-                    style={styles.previewImage}
-                    resizeMode="contain"
-                  />
+                  <TouchableOpacity
+                    activeOpacity={0.9}
+                    onPress={openImageEditor}
+                    disabled={isOpeningImageEditor || isUploading}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    <Image
+                      source={{ uri: capturedImage }}
+                      style={styles.previewImage}
+                      resizeMode="contain"
+                    />
+                    <View style={styles.tapToEditBadge}>
+                      <Text style={styles.tapToEditText}>Tap to edit</Text>
+                    </View>
+                  </TouchableOpacity>
                 ) : (
                   /* Camera Feed */
                   <>
@@ -452,6 +566,20 @@ export default function DocumentScanner({}: DocumentScannerProps) {
                 >
                   <Text style={styles.retakeButtonMainText}>Retake</Text>
                 </TouchableOpacity>
+              </View>
+            )}
+
+            {capturedImage && isOpeningImageEditor && (
+              <View
+                style={{
+                  alignItems: "center",
+                  marginBottom: responsiveWidth(3),
+                }}
+              >
+                <ActivityIndicator size="small" color="#111827" />
+                <Text style={{ marginTop: 6, color: "#111827" }}>
+                  Opening editor...
+                </Text>
               </View>
             )}
 
