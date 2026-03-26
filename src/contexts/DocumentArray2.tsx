@@ -13,11 +13,13 @@ export interface DocumentType {
 
 interface DocumentArrayContextType {
   documentTypes: DocumentType[];
+  uploadingDocuments: Record<string, boolean>;
   updateDocumentStatus: (
     documentName: string,
     uploaded: boolean,
     fileUrl: string,
   ) => void;
+  setDocumentUploading: (documentName: string, uploading: boolean) => void;
   updateBulkDocuments: (
     downloadDocuments: Array<{
       documentName: string;
@@ -63,7 +65,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileSize: 390,
     fileType: "PDF",
   },
-   {
+  {
     id: 4,
     title: "Helmet Invoice 2",
     icon: require("@/assets/icons/helmetinvoiceicon.png"),
@@ -173,7 +175,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileSize: 97,
     fileType: "PDF",
   },
-    {
+  {
     id: 15,
     title: "RENT DOCUMENT 4",
     icon: require("@/assets/icons/rent doc 3.png"),
@@ -183,7 +185,7 @@ const initialDocumentTypes: DocumentType[] = [
     fileSize: 97,
     fileType: "PDF",
   },
-    {
+  {
     id: 16,
     title: "Document 1",
     icon: require("@/assets/icons/rent doc 3.png"),
@@ -203,7 +205,6 @@ const initialDocumentTypes: DocumentType[] = [
     fileSize: 390,
     fileType: "PDF",
   },
-
 ];
 
 // Create context
@@ -221,6 +222,9 @@ export const DocumentArray2Provider: React.FC<DocumentArrayProviderProps> = ({
 }) => {
   const [documentTypes, setDocumentTypes] =
     useState<DocumentType[]>(initialDocumentTypes);
+  const [uploadingDocuments, setUploadingDocuments] = useState<
+    Record<string, boolean>
+  >({});
   const [isOtherDocumentsUpload, setIsOtherDocumentsUpload] =
     useState<boolean>(false);
 
@@ -234,6 +238,13 @@ export const DocumentArray2Provider: React.FC<DocumentArrayProviderProps> = ({
         doc.documentName === documentName ? { ...doc, uploaded, fileUrl } : doc,
       ),
     );
+  };
+
+  const setDocumentUploading = (documentName: string, uploading: boolean) => {
+    setUploadingDocuments((prev) => ({
+      ...prev,
+      [documentName]: uploading,
+    }));
   };
 
   const updateBulkDocuments = (
@@ -284,6 +295,7 @@ export const DocumentArray2Provider: React.FC<DocumentArrayProviderProps> = ({
   const resetDocuments = () => {
     console.log("Resetting documents to initial state");
     setDocumentTypes(initialDocumentTypes);
+    setUploadingDocuments({});
   };
 
   const resetIsOtherDocumentsUpload = () => {
@@ -293,7 +305,9 @@ export const DocumentArray2Provider: React.FC<DocumentArrayProviderProps> = ({
 
   const contextValue: DocumentArrayContextType = {
     documentTypes,
+    uploadingDocuments,
     updateDocumentStatus,
+    setDocumentUploading,
     updateBulkDocuments,
     resetDocuments,
     isOtherDocumentsUpload,

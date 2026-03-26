@@ -7,6 +7,7 @@ import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -32,6 +33,7 @@ export default function OtherDocumentsScreen() {
   } = useDeliveryContext();
   const {
     documentTypes,
+    uploadingDocuments,
     setIsOtherDocumentsUpload,
     resetDocuments,
     updateBulkDocuments,
@@ -198,15 +200,19 @@ export default function OtherDocumentsScreen() {
                 //   style={styles.uploadButton}
                 onPress={() => handleDocumentUpload(doc)}
               >
-                <Image
-                  source={
-                    doc.uploaded
-                      ? require("@/assets/icons/documentspagetickicon.png")
-                      : require("@/assets/icons/documentpageuplaodicon.png")
-                  }
-                  style={{ width: 25, height: 25 }}
-                  resizeMode="contain"
-                />
+                {uploadingDocuments[doc.documentName] ? (
+                  <ActivityIndicator size="small" color="#111827" />
+                ) : (
+                  <Image
+                    source={
+                      doc.uploaded
+                        ? require("@/assets/icons/documentspagetickicon.png")
+                        : require("@/assets/icons/documentpageuplaodicon.png")
+                    }
+                    style={{ width: 25, height: 25 }}
+                    resizeMode="contain"
+                  />
+                )}
               </TouchableOpacity>
             </TouchableOpacity>
           ))}

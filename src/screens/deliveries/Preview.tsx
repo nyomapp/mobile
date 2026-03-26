@@ -615,7 +615,12 @@ export default function PreviewScreen() {
               </TouchableOpacity>
             </View>
             {documentTypes
-              .filter((doc) => doc.documentName !== "Customer Photo")
+              .filter(
+                (doc) =>
+                  doc.documentName !== "Customer Photo" &&
+                  doc.documentName !== "AADHAAR FRONT Photo" &&
+                  doc.documentName !== "AADHAAR BACK Photo",
+              )
               .map((doc) => (
                 <TouchableOpacity
                   key={doc.id}

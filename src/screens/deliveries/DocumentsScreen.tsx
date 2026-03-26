@@ -8,6 +8,7 @@ import { globalStyles } from "@/src/styles";
 import { router } from "expo-router";
 import { useEffect, useMemo, useRef } from "react";
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -26,7 +27,8 @@ export default function DocumentsScreen() {
     useDeliveryContext();
 
   const { setUploadingDocument, setIsTemp } = useDocumentUploadContext();
-  const { documentTypes, updateBulkDocuments } = useDocumentArray();
+  const { documentTypes, updateBulkDocuments, uploadingDocuments } =
+    useDocumentArray();
   const { setIsOtherDocumentsUpload } = useDocumentArray2();
   const syncInProgress = useRef(false);
 
@@ -148,7 +150,10 @@ export default function DocumentsScreen() {
           | "ODOMETER"
           | "CHASSIS"
           | "AADHAAR FRONT"
+          | "AADHAAR FRONT Photo"
           | "AADHAAR BACK"
+          | "AADHAAR BACK Photo"
+          | "PAN"
           | "Customer"
           | "Customer Photo"
           | "TAX INVOICE"
@@ -245,7 +250,12 @@ export default function DocumentsScreen() {
 
           {/* Document Upload Cards */}
           {documentTypes
-            .filter((doc) => doc.documentName !== "Customer Photo")
+            .filter(
+              (doc) =>
+                doc.documentName !== "Customer Photo" &&
+                doc.documentName !== "AADHAAR FRONT Photo" &&
+                doc.documentName !== "AADHAAR BACK Photo",
+            )
             .map((doc) => (
               <TouchableOpacity
                 key={doc.id}
@@ -268,15 +278,19 @@ export default function DocumentsScreen() {
                   <Text style={styles.documentTitle}>{doc.title}</Text>
                 </View>
                 <TouchableOpacity onPress={() => handleDocumentUpload(doc)}>
-                  <Image
-                    source={
-                      doc.uploaded
-                        ? require("@/assets/icons/documentspagetickicon.png")
-                        : require("@/assets/icons/documentpageuplaodicon.png")
-                    }
-                    style={{ width: 25, height: 25 }}
-                    resizeMode="contain"
-                  />
+                  {uploadingDocuments[doc.documentName] ? (
+                    <ActivityIndicator size="small" color="#111827" />
+                  ) : (
+                    <Image
+                      source={
+                        doc.uploaded
+                          ? require("@/assets/icons/documentspagetickicon.png")
+                          : require("@/assets/icons/documentpageuplaodicon.png")
+                      }
+                      style={{ width: 25, height: 25 }}
+                      resizeMode="contain"
+                    />
+                  )}
                 </TouchableOpacity>
               </TouchableOpacity>
             ))}

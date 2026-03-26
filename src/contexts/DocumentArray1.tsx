@@ -13,11 +13,13 @@ export interface DocumentType {
 
 interface DocumentArrayContextType {
   documentTypes: DocumentType[];
+  uploadingDocuments: Record<string, boolean>;
   updateDocumentStatus: (
     documentName: string,
     uploaded: boolean,
     fileUrl: string,
   ) => void;
+  setDocumentUploading: (documentName: string, uploading: boolean) => void;
   updateBulkDocuments: (
     downloadDocuments: Array<{
       documentName: string;
@@ -110,6 +112,26 @@ const initialDocumentTypes: DocumentType[] = [
     fileSize: 10000,
     fileType: "PNG",
   },
+  {
+    id: 9,
+    title: "Aadhaar Front Photo",
+    icon: require("@/assets/icons/rent doc 3.png"),
+    uploaded: false,
+    documentName: "AADHAAR FRONT Photo",
+    fileUrl: "",
+    fileSize: 10000,
+    fileType: "PNG",
+  },
+  {
+    id: 10,
+    title: "Aadhaar Back Photo",
+    icon: require("@/assets/icons/rent doc 3.png"),
+    uploaded: false,
+    documentName: "AADHAAR BACK Photo",
+    fileUrl: "",
+    fileSize: 10000,
+    fileType: "PNG",
+  },
 ];
 
 // Create context
@@ -127,6 +149,9 @@ export const DocumentArrayProvider: React.FC<DocumentArrayProviderProps> = ({
 }) => {
   const [documentTypes, setDocumentTypes] =
     useState<DocumentType[]>(initialDocumentTypes);
+  const [uploadingDocuments, setUploadingDocuments] = useState<
+    Record<string, boolean>
+  >({});
 
   const updateDocumentStatus = (
     documentName: string,
@@ -139,6 +164,13 @@ export const DocumentArrayProvider: React.FC<DocumentArrayProviderProps> = ({
         doc.documentName === documentName ? { ...doc, uploaded, fileUrl } : doc,
       ),
     );
+  };
+
+  const setDocumentUploading = (documentName: string, uploading: boolean) => {
+    setUploadingDocuments((prev) => ({
+      ...prev,
+      [documentName]: uploading,
+    }));
   };
 
   const updateBulkDocuments = (
@@ -190,11 +222,14 @@ export const DocumentArrayProvider: React.FC<DocumentArrayProviderProps> = ({
   const resetDocuments = () => {
     console.log("Resetting documents to initial state");
     setDocumentTypes(initialDocumentTypes);
+    setUploadingDocuments({});
   };
 
   const contextValue: DocumentArrayContextType = {
     documentTypes,
+    uploadingDocuments,
     updateDocumentStatus,
+    setDocumentUploading,
     updateBulkDocuments,
     resetDocuments,
   };

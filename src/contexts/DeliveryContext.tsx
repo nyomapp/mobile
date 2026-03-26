@@ -24,6 +24,8 @@ export const documentSizeConfig = {
   "OTHER 1": { maxSize: 390, fileType: "PDF" },
   "OTHER 2": { maxSize: 390, fileType: "PDF" },
   "Customer Photo": { maxSize: 10000, fileType: "png" },
+  "AADHAAR FRONT Photo": { maxSize: 10000, fileType: "png" },
+  "AADHAAR BACK Photo": { maxSize: 10000, fileType: "png" },
 };
 
 // Types
