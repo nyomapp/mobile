@@ -109,7 +109,7 @@ const initialDocumentTypes: DocumentType[] = [
     uploaded: false,
     documentName: "Customer Photo",
     fileUrl: "",
-    fileSize: 10000,
+    fileSize: 500,
     fileType: "PNG",
   },
   {
@@ -119,7 +119,7 @@ const initialDocumentTypes: DocumentType[] = [
     uploaded: false,
     documentName: "AADHAAR FRONT Photo",
     fileUrl: "",
-    fileSize: 10000,
+    fileSize: 500,
     fileType: "PNG",
   },
   {
@@ -129,7 +129,7 @@ const initialDocumentTypes: DocumentType[] = [
     uploaded: false,
     documentName: "AADHAAR BACK Photo",
     fileUrl: "",
-    fileSize: 10000,
+    fileSize: 500,
     fileType: "PNG",
   },
 ];
