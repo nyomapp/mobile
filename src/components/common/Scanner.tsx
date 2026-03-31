@@ -340,7 +340,7 @@ export default function DocumentScanner({}: DocumentScannerProps) {
             const imageBlob = await imageResponse.blob();
 
             const uploadResponse = await uploadDocument({
-              fileName: `${companionPhotoDocumentType
+              fileName: `PHOTO_${companionPhotoDocumentType
                 .toLowerCase()
                 .replace(/\s+/g, "_")}_${frameNumber}.png`,
               contentType: "image/png",
