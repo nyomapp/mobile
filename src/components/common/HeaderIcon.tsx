@@ -34,7 +34,7 @@ export const HeaderIcon: React.FC<HeaderProps> = ({
             color: "#9CA3AF",
           }}
         >
-          App Version: 1.0.10
+          App Version: 1.0.11
         </Text>
       </View>
     </View>

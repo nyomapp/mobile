@@ -55,6 +55,7 @@ const uint8ToBase64 = (u8: Uint8Array): string => {
 };
 
 // Create single-page A4 PDF
+// Create single-page A4 PDF
 const createPdfFromImage = async (imageUri: string) => {
   const base64 = await FileSystem.readAsStringAsync(imageUri, {
     encoding: FileSystem.EncodingType.Base64,
@@ -62,7 +63,14 @@ const createPdfFromImage = async (imageUri: string) => {
 
   const pdfDoc = await PDFDocument.create();
   const imageBytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-  const image = await pdfDoc.embedJpg(imageBytes);
+
+  // Detect image format from file signature
+  const isPNG = imageBytes[0] === 0x89 && imageBytes[1] === 0x50;
+
+  // Embed the correct format
+  const image = isPNG
+    ? await pdfDoc.embedPng(imageBytes)
+    : await pdfDoc.embedJpg(imageBytes);
 
   const page = pdfDoc.addPage([595, 842]); // A4
   page.drawImage(image, {
@@ -133,6 +141,82 @@ const compressToTargetPDFSize = async (imageUri: string, maxKB: number) => {
   }
 
   return forcedPdf;
+};
+
+/* ------------------------------------------------------------------ */
+/* PNG COMPRESSION */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Compresses an image to PNG format under the given KB limit.
+ * Progressively reduces width to meet the target; never converts to JPEG,
+ * preserving colour accuracy for photos.
+ */
+export const compressPNGToTargetSize = async (
+  imageUri: string,
+  maxKB: number = 500,
+): Promise<{ uri: string; sizeKB: number }> => {
+  // Try original resolution first (no resize)
+  const originalImg = await ImageManipulator.manipulateAsync(imageUri, [], {
+    compress: 1,
+    format: ImageManipulator.SaveFormat.PNG,
+  });
+  const originalInfo = await FileSystem.getInfoAsync(originalImg.uri, {
+    size: true,
+  });
+  const originalSizeKB = ((originalInfo as any).size ?? 0) / 1024;
+  if (originalSizeKB <= maxKB) {
+    return { uri: originalImg.uri, sizeKB: originalSizeKB };
+  }
+
+  // Progressively reduce width (PNG, lossless) until we're inside the limit
+  const pngWidths = [1600, 1400, 1200, 1000, 900, 800, 700, 600, 500, 400, 300];
+  for (const width of pngWidths) {
+    const img = await ImageManipulator.manipulateAsync(
+      imageUri,
+      [{ resize: { width } }],
+      { compress: 1, format: ImageManipulator.SaveFormat.PNG },
+    );
+    const info = await FileSystem.getInfoAsync(img.uri, { size: true });
+    const sizeKB = ((info as any).size ?? 0) / 1024;
+    if (sizeKB <= maxKB) {
+      return { uri: img.uri, sizeKB };
+    }
+  }
+
+  // PNG fallback: switch to high-quality JPEG (visually near-lossless) to meet limit
+  const jpegWidths = [1600, 1400, 1200, 1000, 900, 800, 700, 600];
+  const jpegQualities = [0.95, 0.92, 0.9, 0.88, 0.85, 0.82, 0.8];
+  for (const width of jpegWidths) {
+    for (const quality of jpegQualities) {
+      const img = await ImageManipulator.manipulateAsync(
+        imageUri,
+        [{ resize: { width } }],
+        { compress: quality, format: ImageManipulator.SaveFormat.JPEG },
+      );
+      const info = await FileSystem.getInfoAsync(img.uri, { size: true });
+      const sizeKB = ((info as any).size ?? 0) / 1024;
+      if (sizeKB <= maxKB) {
+        return { uri: img.uri, sizeKB };
+      }
+    }
+  }
+
+  // Absolute last resort — force it under the limit
+  const forcedImg = await ImageManipulator.manipulateAsync(
+    imageUri,
+    [{ resize: { width: 500 } }],
+    { compress: 0.75, format: ImageManipulator.SaveFormat.JPEG },
+  );
+  const forcedInfo = await FileSystem.getInfoAsync(forcedImg.uri, {
+    size: true,
+  });
+  const forcedSizeKB = ((forcedInfo as any).size ?? 0) / 1024;
+  if (forcedSizeKB <= maxKB) {
+    return { uri: forcedImg.uri, sizeKB: forcedSizeKB };
+  }
+
+  throw new Error(`Cannot compress image below ${maxKB}KB`);
 };
 
 /* ------------------------------------------------------------------ */

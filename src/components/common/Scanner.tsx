@@ -4,10 +4,13 @@ import { useDeliveryContext } from "@/src/contexts/DeliveryContext";
 import { useDocumentArray } from "@/src/contexts/DocumentArray1";
 import { useDocumentArray2 } from "@/src/contexts/DocumentArray2";
 import { useDocumentUploadContext } from "@/src/contexts/DocumentUploadContext";
-import { convertImageToPdfAndCompress } from "@/src/utils/documentConversionUtils";
+import {
+  compressPNGToTargetSize,
+  convertImageToPdfAndCompress,
+} from "@/src/utils/documentConversionUtils";
+import { uploadQueue } from "@/src/utils/uploadQueue";
 import { CameraView } from "expo-camera";
 import Constants from "expo-constants";
-import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -75,6 +78,53 @@ export default function DocumentScanner({}: DocumentScannerProps) {
     Customer: "Customer Photo",
     "AADHAAR FRONT": "AADHAAR FRONT Photo",
     "AADHAAR BACK": "AADHAAR BACK Photo",
+  };
+  const sequentialDocumentGroups: Record<string, string[]> = {
+    "HELMET INVOICE": ["HELMET INVOICE", "HELMET INVOICE 1"],
+    "HELMET INVOICE 1": ["HELMET INVOICE", "HELMET INVOICE 1"],
+    "FORM 20 1ST PAGE": [
+      "FORM 20 1ST PAGE",
+      "FORM 20 2ND PAGE",
+      "FORM 20 3RD PAGE",
+    ],
+    "FORM 20 2ND PAGE": [
+      "FORM 20 1ST PAGE",
+      "FORM 20 2ND PAGE",
+      "FORM 20 3RD PAGE",
+    ],
+    "FORM 20 3RD PAGE": [
+      "FORM 20 1ST PAGE",
+      "FORM 20 2ND PAGE",
+      "FORM 20 3RD PAGE",
+    ],
+    "RENT DOCUMENT 1": [
+      "RENT DOCUMENT 1",
+      "RENT DOCUMENT 2",
+      "RENT DOCUMENT 3",
+      "RENT DOCUMENT 4",
+    ],
+    "RENT DOCUMENT 2": [
+      "RENT DOCUMENT 1",
+      "RENT DOCUMENT 2",
+      "RENT DOCUMENT 3",
+      "RENT DOCUMENT 4",
+    ],
+    "RENT DOCUMENT 3": [
+      "RENT DOCUMENT 1",
+      "RENT DOCUMENT 2",
+      "RENT DOCUMENT 3",
+      "RENT DOCUMENT 4",
+    ],
+    "RENT DOCUMENT 4": [
+      "RENT DOCUMENT 1",
+      "RENT DOCUMENT 2",
+      "RENT DOCUMENT 3",
+      "RENT DOCUMENT 4",
+    ],
+  };
+
+  const needsSequentialUpload = (documentType: string): boolean => {
+    return documentType in sequentialDocumentGroups;
   };
 
   useEffect(() => {
@@ -270,7 +320,7 @@ export default function DocumentScanner({}: DocumentScannerProps) {
         : "/document-screen";
 
       // Fire-and-forget upload so the user can continue with other documents.
-      void (async () => {
+      const uploadTask = async () => {
         try {
           console.log(
             `Starting document processing for: ${resolvedDocumentType}`,
@@ -282,11 +332,10 @@ export default function DocumentScanner({}: DocumentScannerProps) {
               `Processing ${companionPhotoDocumentType} - converting to PNG...`,
             );
 
-            const processedCompanionImage =
-              await ImageManipulator.manipulateAsync(capturedImage, [], {
-                compress: 1,
-                format: ImageManipulator.SaveFormat.PNG,
-              });
+            const processedCompanionImage = await compressPNGToTargetSize(
+              capturedImage,
+              500,
+            );
             const imageResponse = await fetch(processedCompanionImage.uri);
             const imageBlob = await imageResponse.blob();
 
@@ -403,7 +452,13 @@ export default function DocumentScanner({}: DocumentScannerProps) {
             setActiveDocumentUploading(companionPhotoDocumentType, false);
           }
         }
-      })();
+      };
+
+      if (needsSequentialUpload(resolvedDocumentType)) {
+        uploadQueue.add(uploadTask, resolvedDocumentType);
+      } else {
+        void uploadTask();
+      }
 
       Toast.show({
         type: "info",
