@@ -57,3 +57,35 @@ export const getDealerGraphData = async (filters: any) => {
     throw error;
   }
 };
+export const getDealerCertificateData = async (filters?: {
+  startMonthDate?: string;
+  startDate?: string;
+  endDate?: string;
+}) => {
+  try {
+    let endPoint: string =
+      API_ENDPOINTS.DEALAR_DASHBOARD.GET_DEALER_CERTIFICATE_DATA;
+
+    // Build query parameters from filters object
+    if (filters && Object.keys(filters).length > 0) {
+      const queryParams = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          queryParams.append(key, String(value));
+        }
+      });
+      const queryString = queryParams.toString();
+      if (queryString) {
+        endPoint = `${endPoint}?${queryString}`;
+      }
+    }
+
+    const response = await apiClient.get(endPoint);
+    if (!response.success || response.error) {
+      throw new Error(response.error || "API request failed");
+    }
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

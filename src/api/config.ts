@@ -30,13 +30,14 @@ export const API_ENDPOINTS = {
     GET_ALL_USERS: "users?userType=user&limit=10000&page=1",
     DOWNLOAD_COMBINED_HELMET_INVOICE_DOCUMENTS:
       "/upload/download-combine-helmet-pdf?frameNumber=${frameNumber}&isTemp=false",
-      DOWNLOAD_COMBINED_AFFIDAVIT_DOCUMENTS:
+    DOWNLOAD_COMBINED_AFFIDAVIT_DOCUMENTS:
       "/upload/download-combine-affidavit-pdf?frameNumber=${frameNumber}&isTemp=false",
   },
   DEALAR_DASHBOARD: {
     GET_EXECUTIVES: "/users?userType=user&limit=1000&page=1",
     GET_FINANCIERS: "/financer",
     GET_DEALER_GRAPH_DATA: "deliveries/dashboard/graphs",
+    GET_DEALER_CERTIFICATE_DATA: "/dashboard/dealer",
   },
   MasterData: {
     GET: "master",

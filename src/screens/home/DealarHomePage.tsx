@@ -1,7 +1,9 @@
+import React from "react";
 import {
   getDealerGraphData,
   getExecutives,
   getFinanciers,
+  getDealerCertificateData,
 } from "@/src/api/dealerHome";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS, FONTS, chartColors } from "@/src/constants";
@@ -24,8 +26,8 @@ import {
 import { Calendar } from "react-native-calendars";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text as SvgText } from "react-native-svg";
-import { BarChart, PieChart, StackedBarChart } from "react-native-svg-charts";
+import { Text as SvgText, Circle } from "react-native-svg";
+import { BarChart, PieChart, StackedBarChart, LineChart } from "react-native-svg-charts";
 import Toast from "react-native-toast-message";
 import { useAuth } from "../../contexts/AuthContext";
 import { allStyles } from "../../styles/global";
@@ -41,6 +43,26 @@ export default function DealerHomeScreen() {
     return {
       startDate: startDate.toISOString().split("T")[0],
       endDate: endDate.toISOString().split("T")[0],
+    };
+  };
+  const getCurrentMonthDates = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const startDate = new Date(year, month, 1);
+    const endDate = new Date(year, month + 1, 0);
+
+    const formatDate = (date: Date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    };
+
+    return {
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
     };
   };
   const { user, updateUser } = useAuth();
@@ -86,6 +108,23 @@ export default function DealerHomeScreen() {
       includingCash: false,
     };
   });
+  const [mainTabValue, setMainTabValue] = useState(1); // 0 for Certificate, 1 for Delivery
+  const [certificateData, setCertificateData] = useState<any>(null);
+  const [certificateFilters, setCertificateFilters] = useState<{
+  startDate: string;
+  endDate: string;
+}>(() => {
+  const defaultDates = getCurrentMonthDates();
+  return {
+    startDate: defaultDates.startDate,
+    endDate: defaultDates.endDate,
+  };
+});
+const [showCertificateFilterModal, setShowCertificateFilterModal] = useState(false);
+const [showCertStartDatePicker, setShowCertStartDatePicker] = useState(false);
+const [showCertEndDatePicker, setShowCertEndDatePicker] = useState(false);
+const [certDateValidationError, setCertDateValidationError] = useState<string>("");
+
 
   // Reset all filters on initial mount
   useEffect(() => {
@@ -105,6 +144,12 @@ export default function DealerHomeScreen() {
       fetchDashBoardData();
     }, []),
   );
+
+  useEffect(() => {
+    if (mainTabValue === 0) {
+      fetchCertificateData();
+    }
+  }, [mainTabValue]);
 
   const fetchFinanciers = async () => {
     const response = await getFinanciers();
@@ -134,6 +179,28 @@ export default function DealerHomeScreen() {
       });
     }
   };
+
+  const fetchCertificateData = async (filters?: typeof certificateFilters) => {
+  try {
+    const filtersToUse = filters !== undefined ? filters : certificateFilters;
+    const monthDates = getCurrentMonthDates();
+    const payload = {
+      startMonthDate: monthDates.startDate,
+      startDate: filtersToUse.startDate,
+      endDate: filtersToUse.endDate,
+    };
+
+    const response = await getDealerCertificateData(payload);
+    setCertificateData(response);
+  } catch (error) {
+    console.error("Certificate fetch error:", error);
+    Toast.show({
+      type: "error",
+      text1: "Certificate Error",
+      text2: (error as any).message || "Failed to fetch certificate data.",
+    });
+  }
+};
 
   // Add helper functions for date formatting:
   const formatDateForDisplay = (dateString: string): string => {
@@ -277,6 +344,70 @@ export default function DealerHomeScreen() {
       text2: "All filters cleared",
     });
   };
+
+  const handleCertificateFilterPress = () => {
+  setShowCertificateFilterModal(true);
+};
+
+const handleCertStartDateSelect = (day: any) => {
+  setCertificateFilters((prev) => ({ ...prev, startDate: day.dateString }));
+  setShowCertStartDatePicker(false);
+  if (certDateValidationError) {
+    setCertDateValidationError("");
+  }
+};
+
+const handleCertEndDateSelect = (day: any) => {
+  setCertificateFilters((prev) => ({ ...prev, endDate: day.dateString }));
+  setShowCertEndDatePicker(false);
+  if (certDateValidationError) {
+    setCertDateValidationError("");
+  }
+};
+
+const handleApplyCertificateFilter = () => {
+  const dateError = validateDateRange(
+    certificateFilters.startDate,
+    certificateFilters.endDate,
+  );
+  if (dateError) {
+    setCertDateValidationError(dateError);
+    Toast.show({
+      type: "error",
+      text1: "Date Validation Error",
+      text2: dateError,
+    });
+    return;
+  }
+
+  setCertDateValidationError("");
+  fetchCertificateData();
+  setShowCertificateFilterModal(false);
+
+  Toast.show({
+    type: "success",
+    text1: "Filter Applied",
+    text2: "Certificate data filtered successfully",
+  });
+};
+
+const handleResetCertificateFilter = () => {
+  const defaultDates = getCurrentMonthDates();
+  const emptyFilters = {
+    startDate: defaultDates.startDate,
+    endDate: defaultDates.endDate,
+  };
+
+  setCertificateFilters(emptyFilters);
+  fetchCertificateData(emptyFilters);
+  setShowCertificateFilterModal(false);
+
+  Toast.show({
+    type: "success",
+    text1: "Filter Reset",
+    text2: "Certificate filter cleared",
+  });
+};
 
   const colors = chartColors;
 
@@ -2206,6 +2337,99 @@ export default function DealerHomeScreen() {
       </View>
     );
   };
+  const BarChart_11 = () => {
+  if (!certificateData?.dealerWiseData?.monthlyData?.length) {
+    return (
+      <View style={styles.radialChartContainer}>
+        <View style={styles.progressCirclesContainer}>
+          <Text style={styles.centerText}>0</Text>
+          <Text style={styles.centerSubText}>No Data</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const chartDataForKit = certificateData.dealerWiseData.monthlyData.map(
+    (item: any) => ({
+      value: item.count,
+      svg: { fill: COLORS.secondaryBlue },
+      label: item.monthYear,
+    })
+  );
+
+  const ValueLabels = ({ x, y, bandwidth, data }: any) =>
+    data.map((value: any, index: number) => (
+      <SvgText
+        key={index}
+        x={x(index) + bandwidth / 2}
+        y={y(value.value) - 5}
+        fontSize={10}
+        fill={COLORS.black}
+        alignmentBaseline="middle"
+        textAnchor="middle"
+        fontFamily={FONTS.YellixThin}
+      >
+        {value.value}
+      </SvgText>
+    ));
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={true}
+      style={{ width: screenWidth - 80 }}
+      contentContainerStyle={{ paddingRight: 20 }}
+    >
+      <View>
+        <BarChart
+          style={{
+            height: 200,
+            width: Math.max(
+              screenWidth - 80,
+              certificateData.dealerWiseData.monthlyData.length * 60
+            ),
+          }}
+          data={chartDataForKit}
+          yAccessor={({ item }: { item: { value: number } }) => item.value}
+          contentInset={{ top: 30, bottom: 10 }}
+          spacing={0.4}
+          gridMin={0}
+        >
+          <ValueLabels />
+        </BarChart>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+            width: Math.max(
+              screenWidth - 80,
+              certificateData.dealerWiseData.monthlyData.length * 60
+            ),
+            marginTop: 10,
+          }}
+        >
+          {certificateData.dealerWiseData.monthlyData.map(
+            (item: any, index: number) => (
+              <View key={index} style={{ flex: 1, alignItems: "center" }}>
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontSize: 9,
+                    color: COLORS.black,
+                    fontFamily: FONTS.YellixThin,
+                  }}
+                >
+                  {item.monthYear}
+                </Text>
+              </View>
+            )
+          )}
+        </View>
+      </View>
+    </ScrollView>
+  );
+ };
 
   const HorizontalStackedBarChart_1 = () => {
     // Handle empty data
@@ -2842,6 +3066,122 @@ export default function DealerHomeScreen() {
       </View>
     );
   };
+  const LineChart_1 = () => {
+  if (!certificateData?.certificateTrend?.trendData?.length) {
+    return (
+      <View style={styles.radialChartContainer}>
+        <View style={styles.progressCirclesContainer}>
+          <Text style={styles.centerText}>0</Text>
+          <Text style={styles.centerSubText}>No Data</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const trendData = certificateData.certificateTrend.trendData;
+  const chartDataForKit = trendData.map((item: any) => item.count);
+  
+  const maxValue = Math.max(...chartDataForKit, 1);
+  const minBarWidth = 50;
+  const calculatedWidth = trendData.length * minBarWidth;
+  const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
+
+  const Decorator = ({ x, y, data }: any) => {
+    return data.map((value: number, index: number) => (
+      <React.Fragment key={index}>
+        <Circle
+          cx={x(index)}
+          cy={y(value)}
+          r={4}
+          fill={COLORS.secondaryBlue}
+        />
+        <SvgText
+          x={x(index)}
+          y={y(value) - 10}
+          fontSize={10}
+          fill={COLORS.black}
+          alignmentBaseline="middle"
+          textAnchor="middle"
+          fontFamily={FONTS.YellixThin}
+        >
+          {value}
+        </SvgText>
+      </React.Fragment>
+    ));
+  };
+
+  return (
+    <View style={{ paddingVertical: 20 }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={true}
+        style={{ width: screenWidth - 80 }}
+        contentContainerStyle={{ paddingRight: 20 }}
+      >
+        <View>
+          <LineChart
+            style={{ height: 200, width: chartWidth }}
+            data={chartDataForKit}
+            svg={{ stroke: COLORS.secondaryBlue, strokeWidth: 2 }}
+            contentInset={{ top: 30, bottom: 10, left: 20, right: 20 }}
+            gridMin={0}
+            gridMax={maxValue * 1.1}
+          >
+            <Decorator />
+          </LineChart>
+
+          {/* X-axis labels - Full Date */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-around",
+              width: chartWidth,
+              marginTop: 10,
+              paddingHorizontal: 20,
+            }}
+          >
+            {trendData.map((item: any, index: number) => (
+              <View
+                key={index}
+                style={{ flex: 1, alignItems: "center" }}
+              >
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontSize: 9,
+                    color: COLORS.black,
+                    fontFamily: FONTS.YellixThin,
+                  }}
+                >
+                  {item.date}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+  const renderTabButton = (label: string, value: number) => (
+    <TouchableOpacity
+      style={[
+        styles.tabButton,
+        mainTabValue === value && styles.activeTabButton,
+      ]}
+      onPress={() => setMainTabValue(value)}
+    >
+      <Text
+        style={[
+          styles.tabButtonText,
+          mainTabValue === value && styles.activeTabButtonText,
+        ]}
+      >
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={allStyles.safeArea} edges={["top"]}>
@@ -2884,624 +3224,738 @@ export default function DealerHomeScreen() {
           </View>
           <HeaderIcon />
         </View>
-        {/* filter button */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            marginBottom: responsiveWidth(6),
-          }}
-        >
-          <Text
+        {/* filter button - Only show on Delivery tab */}
+        {mainTabValue === 1 && (
+          <View
             style={{
-              fontSize: 10,
-              color: COLORS.black,
-              fontFamily: FONTS.YellixThin,
-              marginRight: 8,
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              marginBottom: responsiveWidth(6),
             }}
           >
-            From: {formatDateForDisplay(currentFilters.startDate)} To:{" "}
-            {formatDateForDisplay(currentFilters.endDate)}
-          </Text>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={handleFilterPress}
-          >
-            <Image
-              source={require("@/assets/icons/filtericon.png")}
-              style={styles.filterIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+            <Text
+              style={{
+                fontSize: 10,
+                color: COLORS.black,
+                fontFamily: FONTS.YellixThin,
+                marginRight: 8,
+              }}
+            >
+              From: {formatDateForDisplay(currentFilters.startDate)} To:{" "}
+              {formatDateForDisplay(currentFilters.endDate)}
+            </Text>
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={handleFilterPress}
+            >
+              <Image
+                source={require("@/assets/icons/filtericon.png")}
+                style={styles.filterIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Main Tabs */}
+        <View style={styles.tabContainer}>
+          {renderTabButton("Certificate", 0)}
+          {renderTabButton("Delivery", 1)}
         </View>
 
-        {/* Delivery Card */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery</Text>
-          </View>
+        {/* Certificate Tab Content */}
+        {mainTabValue === 0 && (
+  <View style={styles.tabContent}>
+    {/* Certificate Monthly Bar Chart */}
+    <View style={[allStyles.card, styles.deliveryCard]}>
+      <View style={styles.deliveryHeader}>
+        <Text style={styles.deliveryTitle}>Certificates</Text>
+      </View>
 
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            {chartData_1.map((item, index) => (
-              <View key={index} style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: item.color }]}
-                />
-                <Text style={styles.legendText}>{item.name}</Text>
-                <Text style={styles.legendValue}>{item.value}</Text>
+      <View style={styles.legendContainer}>
+        <View style={styles.legendItem}>
+          <View
+            style={[
+              styles.legendDot,
+              { backgroundColor: COLORS.secondaryBlue },
+            ]}
+          />
+          <Text style={styles.legendText}>Count</Text>
+        </View>
+      </View>
+
+      <View style={styles.chartContainer}>
+        <BarChart_11 />
+      </View>
+    </View>
+
+   {/* Certificate Trend Line Chart */}
+<View style={[allStyles.card, styles.deliveryCard]}>
+  <View style={[styles.deliveryHeader, {flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 16,}]}>
+    <Text style={styles.deliveryTitle}>Certificate Trend</Text>
+     <TouchableOpacity
+      style={styles.filterButton}
+      onPress={handleCertificateFilterPress}
+    >
+      <Image
+        source={require("@/assets/icons/filtericon.png")}
+        style={[styles.filterIcon, { width: 16, height: 16 }]}
+        resizeMode="contain"
+      />
+    </TouchableOpacity>
+  </View>
+
+  {/* Filter button for Certificate Trend */}
+  <View
+    style={{
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      marginBottom: responsiveWidth(2),
+      paddingHorizontal: responsiveWidth(4),
+    }}
+  >
+  </View>
+
+  <View style={styles.legendContainer}>
+    <View style={styles.legendItem}>
+      <View
+        style={[
+          styles.legendDot,
+          { backgroundColor: COLORS.secondaryBlue },
+        ]}
+      />
+      <Text style={styles.legendText}>Daily Count</Text>
+    </View>
+  </View>
+
+  <View style={styles.chartContainer}>
+    <LineChart_1 />
+  </View>
+</View>
+
+  </View>
+        )}
+
+        {/* Delivery Tab Content - Wrap all existing cards */}
+        {mainTabValue === 1 && (
+          <View style={styles.tabContent}>
+            {/* Delivery Card */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>Delivery</Text>
               </View>
-            ))}
-          </View>
 
-          {/* Progress Chart */}
-          <View style={styles.chartContainer}>
-            <PieChart_1 />
-          </View>
-        </View>
-        {/* Delivery VS Accessories Card */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery VS Accessories </Text>
-          </View>
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                {chartData_1.map((item, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendDot,
+                        { backgroundColor: item.color },
+                      ]}
+                    />
+                    <Text style={styles.legendText}>{item.name}</Text>
+                    <Text style={styles.legendValue}>{item.value}</Text>
+                  </View>
+                ))}
+              </View>
 
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            {chartData_2.map((item, index) => (
-              <View key={index} style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: item.color }]}
-                />
-                <Text style={styles.legendText}>{item.name}</Text>
-                <Text style={styles.legendValue}>
-                  {item.value1}
-                  {` / ₹${item.value2}`}
+              {/* Progress Chart */}
+              <View style={styles.chartContainer}>
+                <PieChart_1 />
+              </View>
+            </View>
+            {/* Delivery VS Accessories Card */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Delivery VS Accessories{" "}
                 </Text>
               </View>
-            ))}
-          </View>
 
-          {/* Progress Chart2 */}
-          <View style={styles.chartContainer}>
-            <PieChart_2 />
-          </View>
-        </View>
-        {/* Delivery VS RSA Card */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery VS RSA</Text>
-          </View>
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                {chartData_2.map((item, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendDot,
+                        { backgroundColor: item.color },
+                      ]}
+                    />
+                    <Text style={styles.legendText}>{item.name}</Text>
+                    <Text style={styles.legendValue}>
+                      {item.value1}
+                      {` / ₹${item.value2}`}
+                    </Text>
+                  </View>
+                ))}
+              </View>
 
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            {chartData_3.map((item, index) => (
-              <View key={index} style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: item.color }]}
-                />
-                <Text style={styles.legendText}>{item.name}</Text>
-                <Text style={styles.legendValue}>
-                  {item.value1}
-                  {` / ₹${item.value2}`}
+              {/* Progress Chart2 */}
+              <View style={styles.chartContainer}>
+                <PieChart_2 />
+              </View>
+            </View>
+            {/* Delivery VS RSA Card */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>Delivery VS RSA</Text>
+              </View>
+
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                {chartData_3.map((item, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendDot,
+                        { backgroundColor: item.color },
+                      ]}
+                    />
+                    <Text style={styles.legendText}>{item.name}</Text>
+                    <Text style={styles.legendValue}>
+                      {item.value1}
+                      {` / ₹${item.value2}`}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Progress Chart2 */}
+              <View style={styles.chartContainer}>
+                <PieChart_3 />
+              </View>
+            </View>
+            {/* Delivery VS Helmet Card */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>Delivery VS Helmet</Text>
+              </View>
+
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                {chartData_4.map((item, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendDot,
+                        { backgroundColor: item.color },
+                      ]}
+                    />
+                    <Text style={styles.legendText}>{item.name}</Text>
+                    <Text style={styles.legendValue}>
+                      {item.value1}
+                      {` / ₹${item.value2}`}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Progress Chart4 */}
+              <View style={styles.chartContainer}>
+                <PieChart_4 />
+              </View>
+            </View>
+            {/* Delivery VS Discount & Scheme Discount Card */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Delivery VS Discount & Scheme Discount
                 </Text>
               </View>
-            ))}
-          </View>
 
-          {/* Progress Chart2 */}
-          <View style={styles.chartContainer}>
-            <PieChart_3 />
-          </View>
-        </View>
-        {/* Delivery VS Helmet Card */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery VS Helmet</Text>
-          </View>
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                {chartData_5.map((item, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendDot,
+                        { backgroundColor: item.color },
+                      ]}
+                    />
+                    <Text style={styles.legendText}>{item.name}</Text>
+                    <Text style={styles.legendValue}>
+                      {item.name == "Deliveries" ? item.value : `${item.value}`}
+                    </Text>
+                  </View>
+                ))}
+              </View>
 
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            {chartData_4.map((item, index) => (
-              <View key={index} style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: item.color }]}
-                />
-                <Text style={styles.legendText}>{item.name}</Text>
-                <Text style={styles.legendValue}>
-                  {item.value1}
-                  {` / ₹${item.value2}`}
+              {/* Progress Chart4 */}
+              <View style={styles.chartContainer}>
+                <BarChart_1 />
+              </View>
+            </View>
+            {/* Delivery Location Wise Card */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>Delivery Location Wise</Text>
+              </View>
+
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Count</Text>
+                </View>
+              </View>
+
+              {/* Progress Chart4 */}
+              <View style={styles.chartContainer}>
+                <BarChart_2 />
+              </View>
+            </View>
+            {/* Delivery Model wise  Card */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>Delivery Model wise</Text>
+              </View>
+
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Count</Text>
+                </View>
+              </View>
+
+              {/* Progress Chart4 */}
+              <View style={styles.chartContainer}>
+                <HorizontalStackedBarChart_3 />
+              </View>
+            </View>
+            {/* Model Wise Average Discount */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Model Wise Average Discount
                 </Text>
               </View>
-            ))}
-          </View>
 
-          {/* Progress Chart4 */}
-          <View style={styles.chartContainer}>
-            <PieChart_4 />
-          </View>
-        </View>
-        {/* Delivery VS Discount & Scheme Discount Card */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Delivery VS Discount & Scheme Discount
-            </Text>
-          </View>
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Avg Discount</Text>
+                </View>
+              </View>
 
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            {chartData_5.map((item, index) => (
-              <View key={index} style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: item.color }]}
-                />
-                <Text style={styles.legendText}>{item.name}</Text>
-                <Text style={styles.legendValue}>
-                  {item.name == "Deliveries" ? item.value : `${item.value}`}
+              <View style={[styles.chartContainer, { marginBottom: 20 }]}>
+                <BarChart_7 />
+              </View>
+            </View>
+
+            {/* Delivery RTO Location (Same City, Other City/Same State, Other State)  */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>Delivery RTO Location</Text>
+              </View>
+
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Count</Text>
+                </View>
+              </View>
+
+              {/* Progress Chart4 */}
+              <View style={styles.chartContainer}>
+                <BarChart_4 />
+              </View>
+            </View>
+            {/* Delivery Financier Overview  */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Delivery Financier Overview{" "}
                 </Text>
               </View>
-            ))}
-          </View>
 
-          {/* Progress Chart4 */}
-          <View style={styles.chartContainer}>
-            <BarChart_1 />
-          </View>
-        </View>
-        {/* Delivery Location Wise Card */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery Location Wise</Text>
-          </View>
-
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Count</Text>
-            </View>
-          </View>
-
-          {/* Progress Chart4 */}
-          <View style={styles.chartContainer}>
-            <BarChart_2 />
-          </View>
-        </View>
-        {/* Delivery Model wise  Card */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery Model wise</Text>
-          </View>
-
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Count</Text>
-            </View>
-          </View>
-
-          {/* Progress Chart4 */}
-          <View style={styles.chartContainer}>
-            <HorizontalStackedBarChart_3 />
-          </View>
-        </View>
-        {/* Model Wise Average Discount */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Model Wise Average Discount
-            </Text>
-          </View>
-
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Avg Discount</Text>
-            </View>
-          </View>
-
-          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
-            <BarChart_7 />
-          </View>
-        </View>
-
-        {/* Delivery RTO Location (Same City, Other City/Same State, Other State)  */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery RTO Location</Text>
-          </View>
-
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Count</Text>
-            </View>
-          </View>
-
-          {/* Progress Chart4 */}
-          <View style={styles.chartContainer}>
-            <BarChart_4 />
-          </View>
-        </View>
-        {/* Delivery Financier Overview  */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Delivery Financier Overview{" "}
-            </Text>
-          </View>
-
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            {chartData_9.map((item, index) => (
-              <View key={index} style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: item.color }]}
-                />
-                <Text style={styles.legendText}>{item.name}</Text>
-                <Text style={styles.legendValue}>{item.value}</Text>
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                {chartData_9.map((item, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendDot,
+                        { backgroundColor: item.color },
+                      ]}
+                    />
+                    <Text style={styles.legendText}>{item.name}</Text>
+                    <Text style={styles.legendValue}>{item.value}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
 
-          {/* Progress Chart */}
-          <View style={styles.chartContainer}>
-            <PieChart_6 />
-          </View>
-        </View>
-        {/* Delivery Financier Wise  */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Delivery Financier Wise </Text>
-          </View>
-
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Count</Text>
+              {/* Progress Chart */}
+              <View style={styles.chartContainer}>
+                <PieChart_6 />
+              </View>
             </View>
-          </View>
-          {/* Progress Chart4 */}
-          <View style={styles.chartContainer}>
-            <BarChart_3 />
-          </View>
-        </View>
-        {/* Sales Executive Performance - Horizontal Stacked Bar Chart */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Sales Executive Performance (%)
-            </Text>
-          </View>
+            {/* Delivery Financier Wise  */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Delivery Financier Wise{" "}
+                </Text>
+              </View>
 
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            {/* <View style={styles.legendItem}>
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Count</Text>
+                </View>
+              </View>
+              {/* Progress Chart4 */}
+              <View style={styles.chartContainer}>
+                <BarChart_3 />
+              </View>
+            </View>
+            {/* Sales Executive Performance - Horizontal Stacked Bar Chart */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Sales Executive Performance (%)
+                </Text>
+              </View>
+
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                {/* <View style={styles.legendItem}>
               <View
                 style={[styles.legendDot, { backgroundColor: colors[0] }]}
               />
               <Text style={styles.legendText}>Deliveries</Text>
             </View> */}
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[0] }]}
-              />
-              <Text style={styles.legendText}>Accessories</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[1] }]}
-              />
-              <Text style={styles.legendText}>RSA</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[2] }]}
-              />
-              <Text style={styles.legendText}>Helmet</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[3] }]}
-              />
-              <Text style={styles.legendText}>Loyality Card</Text>
-            </View>
-          </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[0] }]}
+                  />
+                  <Text style={styles.legendText}>Accessories</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[1] }]}
+                  />
+                  <Text style={styles.legendText}>RSA</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[2] }]}
+                  />
+                  <Text style={styles.legendText}>Helmet</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[3] }]}
+                  />
+                  <Text style={styles.legendText}>Loyality Card</Text>
+                </View>
+              </View>
 
-          {/* Horizontal Stacked Bar Chart */}
-          <View style={styles.chartContainer}>
-            <HorizontalStackedBarChart_1 />
-          </View>
-        </View>
-        {/* Sales Executive Performance - Horizontal Stacked Bar Chart */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Sales Executive Performance (Total)
-            </Text>
-          </View>
-
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[0] }]}
-              />
-              <Text style={styles.legendText}>Deliveries</Text>
+              {/* Horizontal Stacked Bar Chart */}
+              <View style={styles.chartContainer}>
+                <HorizontalStackedBarChart_1 />
+              </View>
             </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[1] }]}
-              />
-              <Text style={styles.legendText}>Accessories</Text>
+            {/* Sales Executive Performance - Horizontal Stacked Bar Chart */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Sales Executive Performance (Total)
+                </Text>
+              </View>
+
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[0] }]}
+                  />
+                  <Text style={styles.legendText}>Deliveries</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[1] }]}
+                  />
+                  <Text style={styles.legendText}>Accessories</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[2] }]}
+                  />
+                  <Text style={styles.legendText}>RSA</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[3] }]}
+                  />
+                  <Text style={styles.legendText}>Helmet</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[4] }]}
+                  />
+                  <Text style={styles.legendText}>Loyality Card</Text>
+                </View>
+              </View>
+
+              {/* Horizontal Stacked Bar Chart */}
+              <View style={[styles.chartContainer, { marginBottom: 20 }]}>
+                <HorizontalStackedBarChart_2 />
+              </View>
             </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[2] }]}
-              />
-              <Text style={styles.legendText}>RSA</Text>
+            {/* Sales Executive Wise Discount */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Sales Executive Wise Avg Discount
+                </Text>
+              </View>
+
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Avg Discount</Text>
+                </View>
+              </View>
+
+              <View style={styles.chartContainer}>
+                <BarChart_5 />
+              </View>
             </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[3] }]}
-              />
-              <Text style={styles.legendText}>Helmet</Text>
+            {/* Sales Executive Wise Scheme Discount */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Sales Executive Wise Avg Scheme Discount
+                </Text>
+              </View>
+
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Avg Scheme Discount</Text>
+                </View>
+              </View>
+
+              <View style={[styles.chartContainer, { marginBottom: 20 }]}>
+                <BarChart_6 />
+              </View>
             </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[4] }]}
-              />
-              <Text style={styles.legendText}>Loyality Card</Text>
+            {/* Sales Executive Wise Delivery */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Sales Executive Wise Delivery
+                </Text>
+              </View>
+
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Deliveries</Text>
+                </View>
+              </View>
+
+              <View style={[styles.chartContainer, { marginBottom: 20 }]}>
+                <BarChart_8 />
+              </View>
             </View>
-          </View>
+            {/* Financier Performance (%) */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Financier Performance (%)
+                </Text>
+              </View>
 
-          {/* Horizontal Stacked Bar Chart */}
-          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
-            <HorizontalStackedBarChart_2 />
-          </View>
-        </View>
-        {/* Sales Executive Wise Discount */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Sales Executive Wise Avg Discount
-            </Text>
-          </View>
-
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Avg Discount</Text>
-            </View>
-          </View>
-
-          <View style={styles.chartContainer}>
-            <BarChart_5 />
-          </View>
-        </View>
-        {/* Sales Executive Wise Scheme Discount */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Sales Executive Wise Avg Scheme Discount
-            </Text>
-          </View>
-
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Avg Scheme Discount</Text>
-            </View>
-          </View>
-
-          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
-            <BarChart_6 />
-          </View>
-        </View>
-        {/* Sales Executive Wise Delivery */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Sales Executive Wise Delivery
-            </Text>
-          </View>
-
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Deliveries</Text>
-            </View>
-          </View>
-
-          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
-            <BarChart_8 />
-          </View>
-        </View>
-        {/* Financier Performance (%) */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>Financier Performance (%)</Text>
-          </View>
-
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            {/* <View style={styles.legendItem}>
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                {/* <View style={styles.legendItem}>
               <View
                 style={[styles.legendDot, { backgroundColor: colors[0] }]}
               />
               <Text style={styles.legendText}>Deliveries</Text>
             </View> */}
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[0] }]}
-              />
-              <Text style={styles.legendText}>Accessories</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[1] }]}
-              />
-              <Text style={styles.legendText}>RSA</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[2] }]}
-              />
-              <Text style={styles.legendText}>Helmet</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[3] }]}
-              />
-              <Text style={styles.legendText}>Loyality Card</Text>
-            </View>
-          </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[0] }]}
+                  />
+                  <Text style={styles.legendText}>Accessories</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[1] }]}
+                  />
+                  <Text style={styles.legendText}>RSA</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[2] }]}
+                  />
+                  <Text style={styles.legendText}>Helmet</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[3] }]}
+                  />
+                  <Text style={styles.legendText}>Loyality Card</Text>
+                </View>
+              </View>
 
-          {/* Horizontal Stacked Bar Chart */}
-          <View style={styles.chartContainer}>
-            <HorizontalStackedBarChart_4 graphData={chartData_17} />
-          </View>
-        </View>
-        {/* Financier Performance (Total) */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Financier Performance (Total)
-            </Text>
-          </View>
-
-          {/* Legend */}
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[0] }]}
-              />
-              <Text style={styles.legendText}>Deliveries</Text>
+              {/* Horizontal Stacked Bar Chart */}
+              <View style={styles.chartContainer}>
+                <HorizontalStackedBarChart_4 graphData={chartData_17} />
+              </View>
             </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[1] }]}
-              />
-              <Text style={styles.legendText}>Accessories</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[2] }]}
-              />
-              <Text style={styles.legendText}>RSA</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[3] }]}
-              />
-              <Text style={styles.legendText}>Helmet</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View
-                style={[styles.legendDot, { backgroundColor: colors[4] }]}
-              />
-              <Text style={styles.legendText}>Loyality Card</Text>
-            </View>
-          </View>
+            {/* Financier Performance (Total) */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Financier Performance (Total)
+                </Text>
+              </View>
 
-          {/* Horizontal Stacked Bar Chart */}
-          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
-            <HorizontalStackedBarChart_5 />
-          </View>
-        </View>
+              {/* Legend */}
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[0] }]}
+                  />
+                  <Text style={styles.legendText}>Deliveries</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[1] }]}
+                  />
+                  <Text style={styles.legendText}>Accessories</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[2] }]}
+                  />
+                  <Text style={styles.legendText}>RSA</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[3] }]}
+                  />
+                  <Text style={styles.legendText}>Helmet</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: colors[4] }]}
+                  />
+                  <Text style={styles.legendText}>Loyality Card</Text>
+                </View>
+              </View>
 
-        {/* Financier Wise Avg Discount */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Financier Wise Avg Discount
-            </Text>
-          </View>
+              {/* Horizontal Stacked Bar Chart */}
+              <View style={[styles.chartContainer, { marginBottom: 20 }]}>
+                <HorizontalStackedBarChart_5 />
+              </View>
+            </View>
 
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Avg Discount</Text>
+            {/* Financier Wise Avg Discount */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Financier Wise Avg Discount
+                </Text>
+              </View>
+
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Avg Discount</Text>
+                </View>
+              </View>
+
+              <View style={[styles.chartContainer, { marginBottom: 20 }]}>
+                <BarChart_9 />
+              </View>
+            </View>
+            {/* Financier Wise Avg Scheme Discount */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>
+                  Financier Wise Avg Scheme Discount
+                </Text>
+              </View>
+
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Avg Scheme Discount</Text>
+                </View>
+              </View>
+
+              <View style={[styles.chartContainer, { marginBottom: 20 }]}>
+                <BarChart_10 />
+              </View>
             </View>
           </View>
-
-          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
-            <BarChart_9 />
-          </View>
-        </View>
-        {/* Financier Wise Avg Scheme Discount */}
-        <View style={[allStyles.card, styles.deliveryCard]}>
-          <View style={styles.deliveryHeader}>
-            <Text style={styles.deliveryTitle}>
-              Financier Wise Avg Scheme Discount
-            </Text>
-          </View>
-
-          <View style={styles.legendContainer}>
-            <View style={styles.legendItem}>
-              <View
-                style={[
-                  styles.legendDot,
-                  { backgroundColor: COLORS.secondaryBlue },
-                ]}
-              />
-              <Text style={styles.legendText}>Avg Scheme Discount</Text>
-            </View>
-          </View>
-
-          <View style={[styles.chartContainer, { marginBottom: 20 }]}>
-            <BarChart_10 />
-          </View>
-        </View>
+        )}
       </ScrollView>
 
       {/* Floating Action Button */}
@@ -4073,6 +4527,190 @@ export default function DealerHomeScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Certificate Filter Modal */}
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={showCertificateFilterModal}
+  onRequestClose={() => setShowCertificateFilterModal(false)}
+>
+  <View style={styles.filterModalOverlay}>
+    <View style={styles.filterModalContent}>
+      {/* Modal Header */}
+      <View style={styles.filterModalHeader}>
+        <TouchableOpacity onPress={() => setShowCertificateFilterModal(false)}>
+          <Ionicons name="arrow-back" size={24} color="#6B7280" />
+        </TouchableOpacity>
+        <Text style={styles.filterModalTitle}>Certificate Filter</Text>
+        <TouchableOpacity onPress={handleResetCertificateFilter}>
+          <Text style={styles.resetText}>Reset</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Filter Form */}
+      <ScrollView
+        style={styles.filterForm}
+        contentContainerStyle={{ paddingBottom: 30 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Start Date Picker */}
+        <TouchableOpacity
+          style={[globalStyles.input, styles.dropdownButton]}
+          onPress={() => setShowCertStartDatePicker(true)}
+          activeOpacity={0.7}
+        >
+          <Text
+            style={[
+              allStyles.dropdownText,
+              certificateFilters.startDate ? { color: COLORS.black } : null,
+            ]}
+          >
+            {certificateFilters.startDate
+              ? formatDateForDisplay(certificateFilters.startDate)
+              : "Start Date"}
+          </Text>
+          <Ionicons name="calendar" size={20} color="#6C757D" />
+        </TouchableOpacity>
+
+        {/* End Date Picker */}
+        <TouchableOpacity
+          style={[globalStyles.input, styles.dropdownButton]}
+          onPress={() => setShowCertEndDatePicker(true)}
+          activeOpacity={0.7}
+        >
+          <Text
+            style={[
+              allStyles.dropdownText,
+              certificateFilters.endDate ? { color: COLORS.black } : null,
+            ]}
+          >
+            {certificateFilters.endDate
+              ? formatDateForDisplay(certificateFilters.endDate)
+              : "End Date"}
+          </Text>
+          <Ionicons name="calendar" size={20} color="#6C757D" />
+        </TouchableOpacity>
+
+        {/* Date Validation Error */}
+        {certDateValidationError ? (
+          <Text
+            style={{
+              color: "red",
+              fontSize: 12,
+              marginTop: 5,
+              marginBottom: 10,
+            }}
+          >
+            {certDateValidationError}
+          </Text>
+        ) : null}
+      </ScrollView>
+
+      {/* Apply Button */}
+      <View style={styles.filterButtonContainer}>
+        <TouchableOpacity
+          style={allStyles.btn}
+          onPress={handleApplyCertificateFilter}
+        >
+          <Text style={allStyles.btnText}>Apply</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
+
+{/* Certificate Start Date Calendar Modal */}
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={showCertStartDatePicker}
+  onRequestClose={() => setShowCertStartDatePicker(false)}
+>
+  <View style={styles.filterModalOverlay}>
+    <View style={[styles.filterModalContent, { height: "60%" }]}>
+      <View style={styles.filterModalHeader}>
+        <TouchableOpacity onPress={() => setShowCertStartDatePicker(false)}>
+          <Ionicons name="arrow-back" size={24} color="#6B7280" />
+        </TouchableOpacity>
+        <Text style={styles.filterModalTitle}>Select Start Date</Text>
+        <TouchableOpacity onPress={() => setShowCertStartDatePicker(false)}>
+          <Text style={styles.resetText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={{ flex: 1, padding: 20 }}>
+        <Calendar
+          onDayPress={handleCertStartDateSelect}
+          markedDates={{
+            [certificateFilters.startDate]: {
+              selected: true,
+              selectedColor: COLORS.primaryBlue || "#007AFF",
+            },
+          }}
+          maxDate={new Date().toISOString().split("T")[0]}
+          theme={{
+            selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+            selectedDayTextColor: "#ffffff",
+            todayTextColor: COLORS.primaryBlue || "#007AFF",
+            dayTextColor: "#2d4150",
+            textDisabledColor: "#d9e1e8",
+            arrowColor: COLORS.primaryBlue || "#007AFF",
+            monthTextColor: COLORS.primaryBlue || "#007AFF",
+            indicatorColor: COLORS.primaryBlue || "#007AFF",
+          }}
+        />
+      </View>
+    </View>
+  </View>
+</Modal>
+
+{/* Certificate End Date Calendar Modal */}
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={showCertEndDatePicker}
+  onRequestClose={() => setShowCertEndDatePicker(false)}
+>
+  <View style={styles.filterModalOverlay}>
+    <View style={[styles.filterModalContent, { height: "60%" }]}>
+      <View style={styles.filterModalHeader}>
+        <TouchableOpacity onPress={() => setShowCertEndDatePicker(false)}>
+          <Ionicons name="arrow-back" size={24} color="#6B7280" />
+        </TouchableOpacity>
+        <Text style={styles.filterModalTitle}>Select End Date</Text>
+        <TouchableOpacity onPress={() => setShowCertEndDatePicker(false)}>
+          <Text style={styles.resetText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={{ flex: 1, padding: 20 }}>
+        <Calendar
+          onDayPress={handleCertEndDateSelect}
+          markedDates={{
+            [certificateFilters.endDate]: {
+              selected: true,
+              selectedColor: COLORS.primaryBlue || "#007AFF",
+            },
+          }}
+          maxDate={new Date().toISOString().split("T")[0]}
+          minDate={certificateFilters.startDate || undefined}
+          theme={{
+            selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+            selectedDayTextColor: "#ffffff",
+            todayTextColor: COLORS.primaryBlue || "#007AFF",
+            dayTextColor: "#2d4150",
+            textDisabledColor: "#d9e1e8",
+            arrowColor: COLORS.primaryBlue || "#007AFF",
+            monthTextColor: COLORS.primaryBlue || "#007AFF",
+            indicatorColor: COLORS.primaryBlue || "#007AFF",
+          }}
+        />
+      </View>
+    </View>
+  </View>
+</Modal>
+
     </SafeAreaView>
   );
 }

@@ -293,4 +293,39 @@ export const styles = StyleSheet.create({
     color: COLORS.primaryBlue,
     fontWeight: "600",
   },
+  tabContainer: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+    marginBottom: responsiveWidth(4),
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: responsiveWidth(3),
+    alignItems: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+  },
+  activeTabButton: {
+    borderBottomColor: COLORS.primaryBlue,
+  },
+  tabButtonText: {
+    fontSize: responsiveFontSize(2),
+    color: "#6B7280",
+    fontFamily: FONTS.YellixMedium,
+  },
+  activeTabButtonText: {
+    color: COLORS.primaryBlue,
+    fontFamily: FONTS.Yellix,
+  },
+  tabContent: {
+    flex: 1,
+  },
+  sectionTitle: {
+    fontSize: responsiveFontSize(2.2),
+    fontFamily: FONTS.Yellix,
+    color: COLORS.black,
+    marginBottom: responsiveWidth(4),
+    textAlign: "center",
+  },
 });
