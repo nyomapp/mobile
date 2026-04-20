@@ -27,7 +27,12 @@ import { Calendar } from "react-native-calendars";
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text as SvgText, Circle } from "react-native-svg";
-import { BarChart, PieChart, StackedBarChart, LineChart } from "react-native-svg-charts";
+import {
+  BarChart,
+  PieChart,
+  StackedBarChart,
+  LineChart,
+} from "react-native-svg-charts";
 import Toast from "react-native-toast-message";
 import { useAuth } from "../../contexts/AuthContext";
 import { allStyles } from "../../styles/global";
@@ -108,23 +113,24 @@ export default function DealerHomeScreen() {
       includingCash: false,
     };
   });
-  const [mainTabValue, setMainTabValue] = useState(1); // 0 for Certificate, 1 for Delivery
+  const [mainTabValue, setMainTabValue] = useState(0); // 0 for Certificate, 1 for Delivery
   const [certificateData, setCertificateData] = useState<any>(null);
   const [certificateFilters, setCertificateFilters] = useState<{
-  startDate: string;
-  endDate: string;
-}>(() => {
-  const defaultDates = getCurrentMonthDates();
-  return {
-    startDate: defaultDates.startDate,
-    endDate: defaultDates.endDate,
-  };
-});
-const [showCertificateFilterModal, setShowCertificateFilterModal] = useState(false);
-const [showCertStartDatePicker, setShowCertStartDatePicker] = useState(false);
-const [showCertEndDatePicker, setShowCertEndDatePicker] = useState(false);
-const [certDateValidationError, setCertDateValidationError] = useState<string>("");
-
+    startDate: string;
+    endDate: string;
+  }>(() => {
+    const defaultDates = getCurrentMonthDates();
+    return {
+      startDate: defaultDates.startDate,
+      endDate: defaultDates.endDate,
+    };
+  });
+  const [showCertificateFilterModal, setShowCertificateFilterModal] =
+    useState(false);
+  const [showCertStartDatePicker, setShowCertStartDatePicker] = useState(false);
+  const [showCertEndDatePicker, setShowCertEndDatePicker] = useState(false);
+  const [certDateValidationError, setCertDateValidationError] =
+    useState<string>("");
 
   // Reset all filters on initial mount
   useEffect(() => {
@@ -181,26 +187,26 @@ const [certDateValidationError, setCertDateValidationError] = useState<string>("
   };
 
   const fetchCertificateData = async (filters?: typeof certificateFilters) => {
-  try {
-    const filtersToUse = filters !== undefined ? filters : certificateFilters;
-    const monthDates = getCurrentMonthDates();
-    const payload = {
-      startMonthDate: monthDates.startDate,
-      startDate: filtersToUse.startDate,
-      endDate: filtersToUse.endDate,
-    };
+    try {
+      const filtersToUse = filters !== undefined ? filters : certificateFilters;
+      const monthDates = getCurrentMonthDates();
+      const payload = {
+        startMonthDate: monthDates.startDate,
+        startDate: filtersToUse.startDate,
+        endDate: filtersToUse.endDate,
+      };
 
-    const response = await getDealerCertificateData(payload);
-    setCertificateData(response);
-  } catch (error) {
-    console.error("Certificate fetch error:", error);
-    Toast.show({
-      type: "error",
-      text1: "Certificate Error",
-      text2: (error as any).message || "Failed to fetch certificate data.",
-    });
-  }
-};
+      const response = await getDealerCertificateData(payload);
+      setCertificateData(response);
+    } catch (error) {
+      console.error("Certificate fetch error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Certificate Error",
+        text2: (error as any).message || "Failed to fetch certificate data.",
+      });
+    }
+  };
 
   // Add helper functions for date formatting:
   const formatDateForDisplay = (dateString: string): string => {
@@ -346,68 +352,68 @@ const [certDateValidationError, setCertDateValidationError] = useState<string>("
   };
 
   const handleCertificateFilterPress = () => {
-  setShowCertificateFilterModal(true);
-};
-
-const handleCertStartDateSelect = (day: any) => {
-  setCertificateFilters((prev) => ({ ...prev, startDate: day.dateString }));
-  setShowCertStartDatePicker(false);
-  if (certDateValidationError) {
-    setCertDateValidationError("");
-  }
-};
-
-const handleCertEndDateSelect = (day: any) => {
-  setCertificateFilters((prev) => ({ ...prev, endDate: day.dateString }));
-  setShowCertEndDatePicker(false);
-  if (certDateValidationError) {
-    setCertDateValidationError("");
-  }
-};
-
-const handleApplyCertificateFilter = () => {
-  const dateError = validateDateRange(
-    certificateFilters.startDate,
-    certificateFilters.endDate,
-  );
-  if (dateError) {
-    setCertDateValidationError(dateError);
-    Toast.show({
-      type: "error",
-      text1: "Date Validation Error",
-      text2: dateError,
-    });
-    return;
-  }
-
-  setCertDateValidationError("");
-  fetchCertificateData();
-  setShowCertificateFilterModal(false);
-
-  Toast.show({
-    type: "success",
-    text1: "Filter Applied",
-    text2: "Certificate data filtered successfully",
-  });
-};
-
-const handleResetCertificateFilter = () => {
-  const defaultDates = getCurrentMonthDates();
-  const emptyFilters = {
-    startDate: defaultDates.startDate,
-    endDate: defaultDates.endDate,
+    setShowCertificateFilterModal(true);
   };
 
-  setCertificateFilters(emptyFilters);
-  fetchCertificateData(emptyFilters);
-  setShowCertificateFilterModal(false);
+  const handleCertStartDateSelect = (day: any) => {
+    setCertificateFilters((prev) => ({ ...prev, startDate: day.dateString }));
+    setShowCertStartDatePicker(false);
+    if (certDateValidationError) {
+      setCertDateValidationError("");
+    }
+  };
 
-  Toast.show({
-    type: "success",
-    text1: "Filter Reset",
-    text2: "Certificate filter cleared",
-  });
-};
+  const handleCertEndDateSelect = (day: any) => {
+    setCertificateFilters((prev) => ({ ...prev, endDate: day.dateString }));
+    setShowCertEndDatePicker(false);
+    if (certDateValidationError) {
+      setCertDateValidationError("");
+    }
+  };
+
+  const handleApplyCertificateFilter = () => {
+    const dateError = validateDateRange(
+      certificateFilters.startDate,
+      certificateFilters.endDate,
+    );
+    if (dateError) {
+      setCertDateValidationError(dateError);
+      Toast.show({
+        type: "error",
+        text1: "Date Validation Error",
+        text2: dateError,
+      });
+      return;
+    }
+
+    setCertDateValidationError("");
+    fetchCertificateData();
+    setShowCertificateFilterModal(false);
+
+    Toast.show({
+      type: "success",
+      text1: "Filter Applied",
+      text2: "Certificate data filtered successfully",
+    });
+  };
+
+  const handleResetCertificateFilter = () => {
+    const defaultDates = getCurrentMonthDates();
+    const emptyFilters = {
+      startDate: defaultDates.startDate,
+      endDate: defaultDates.endDate,
+    };
+
+    setCertificateFilters(emptyFilters);
+    fetchCertificateData(emptyFilters);
+    setShowCertificateFilterModal(false);
+
+    Toast.show({
+      type: "success",
+      text1: "Filter Reset",
+      text2: "Certificate filter cleared",
+    });
+  };
 
   const colors = chartColors;
 
@@ -447,6 +453,56 @@ const handleResetCertificateFilter = () => {
       color: "#67E8F9",
     },
   ];
+
+  //  delivery vs accessories 2
+  const chartData_accessories2 = [
+    {
+      name: "Deliveries",
+      value1: (dashBoardData as any)?.accessoriesData2?.deliveries || 0,
+      value2: (dashBoardData as any)?.accessoriesData2?.deliveriesAmount || 0,
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "Accessories 2",
+      value1: (dashBoardData as any)?.accessoriesData2?.accessories || 0,
+      value2: (dashBoardData as any)?.accessoriesData2?.accessoriesAmount || 0,
+      color: "#67E8F9",
+    },
+  ];
+  //  delivery vs handling charges
+  const chartData_handlingCharges = [
+    {
+      name: "Deliveries",
+      value1: (dashBoardData as any)?.handlingChargesData?.deliveries || 0,
+      value2:
+        (dashBoardData as any)?.handlingChargesData?.deliveriesAmount || 0,
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "Handling Charges",
+      value1: (dashBoardData as any)?.handlingChargesData?.handlingCharges || 0,
+      value2:
+        (dashBoardData as any)?.handlingChargesData?.handlingChargesAmount || 0,
+      color: "#67E8F9",
+    },
+  ];
+  //  delivery vs teflon coating
+  const chartData_teflonCoating = [
+    {
+      name: "Deliveries",
+      value1: (dashBoardData as any)?.teflonCoatingData?.deliveries || 0,
+      value2: (dashBoardData as any)?.teflonCoatingData?.deliveriesAmount || 0,
+      color: COLORS.secondaryBlue,
+    },
+    {
+      name: "Teflon Coating",
+      value1: (dashBoardData as any)?.teflonCoatingData?.teflonCoating || 0,
+      value2:
+        (dashBoardData as any)?.teflonCoatingData?.teflonCoatingAmount || 0,
+      color: "#67E8F9",
+    },
+  ];
+
   //  delivery vs rsa
   const chartData_3 = [
     {
@@ -1082,6 +1138,234 @@ const handleResetCertificateFilter = () => {
         </View>
       </View>
     );
+  };
+  const PieChart_Accessories2 = () => {
+  // Handle empty data
+  if (chartData_accessories2.reduce((sum, item) => sum + item.value1, 0) <= 0) {
+    return (
+      <View style={styles.radialChartContainer}>
+        <View style={styles.progressCirclesContainer}>
+          <Text style={styles.centerText}>0</Text>
+          <Text style={styles.centerSubText}>No Data</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const chartDataForKit = [
+    {
+      value: chartData_accessories2[1].value1, // accessories 2
+      svg: { fill: "#67E8F9" },
+      key: "accessories2",
+    },
+    {
+      value: Math.max(0, chartData_accessories2[0].value1 - chartData_accessories2[1].value1), // deliveries without accessories 2
+      svg: { fill: COLORS.secondaryBlue },
+      key: "deliveries",
+    },
+  ];
+
+  const total = chartData_accessories2[0].value1; // Use deliveries as 100%
+
+  const Labels = ({ slices }: any) => {
+    return slices.map((slice: any, index: number) => {
+      const { pieCentroid, data } = slice;
+      const percentage =
+        index === 1
+          ? (100 - (chartData_accessories2[1].value1 / total) * 100).toFixed(1)
+          : ((data.value / total) * 100).toFixed(1);
+      const x = pieCentroid[0] * 1;
+      const y = pieCentroid[1] * 1;
+      return (
+        <SvgText
+          key={index}
+          x={x}
+          y={y}
+          fill="white"
+          textAnchor="middle"
+          alignmentBaseline="middle"
+          fontSize={10}
+          fontFamily={FONTS.YellixMedium}
+        >
+          {percentage}%
+        </SvgText>
+      );
+    });
+  };
+
+  return (
+    <View style={styles.radialChartContainer}>
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height: 240,
+        }}
+      >
+        <PieChart
+          style={{ height: 240, width: screenWidth - 80 }}
+          data={chartDataForKit}
+          innerRadius={"0%"}
+          spacing={0}
+        >
+          <Labels />
+        </PieChart>
+      </View>
+    </View>
+  );
+  };
+  const PieChart_HandlingCharges = () => {
+  // Handle empty data
+  if (chartData_handlingCharges.reduce((sum, item) => sum + item.value1, 0) <= 0) {
+    return (
+      <View style={styles.radialChartContainer}>
+        <View style={styles.progressCirclesContainer}>
+          <Text style={styles.centerText}>0</Text>
+          <Text style={styles.centerSubText}>No Data</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const chartDataForKit = [
+    {
+      value: chartData_handlingCharges[1].value1, // handling charges
+      svg: { fill: "#67E8F9" },
+      key: "handlingCharges",
+    },
+    {
+      value: Math.max(0, chartData_handlingCharges[0].value1 - chartData_handlingCharges[1].value1), // deliveries without handling charges
+      svg: { fill: COLORS.secondaryBlue },
+      key: "deliveries",
+    },
+  ];
+
+  const total = chartData_handlingCharges[0].value1; // Use deliveries as 100%
+
+  const Labels = ({ slices }: any) => {
+    return slices.map((slice: any, index: number) => {
+      const { pieCentroid, data } = slice;
+      const percentage =
+        index === 1
+          ? (100 - (chartData_handlingCharges[1].value1 / total) * 100).toFixed(1)
+          : ((data.value / total) * 100).toFixed(1);
+      const x = pieCentroid[0] * 1;
+      const y = pieCentroid[1] * 1;
+      return (
+        <SvgText
+          key={index}
+          x={x}
+          y={y}
+          fill="white"
+          textAnchor="middle"
+          alignmentBaseline="middle"
+          fontSize={10}
+          fontFamily={FONTS.YellixMedium}
+        >
+          {percentage}%
+        </SvgText>
+      );
+    });
+  };
+
+  return (
+    <View style={styles.radialChartContainer}>
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height: 240,
+        }}
+      >
+        <PieChart
+          style={{ height: 240, width: screenWidth - 80 }}
+          data={chartDataForKit}
+          innerRadius={"50%"}
+          spacing={0}
+        >
+          <Labels />
+        </PieChart>
+      </View>
+    </View>
+  );
+  };
+  const PieChart_TeflonCoating = () => {
+  // Handle empty data
+  if (chartData_teflonCoating.reduce((sum, item) => sum + item.value1, 0) <= 0) {
+    return (
+      <View style={styles.radialChartContainer}>
+        <View style={styles.progressCirclesContainer}>
+          <Text style={styles.centerText}>0</Text>
+          <Text style={styles.centerSubText}>No Data</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const chartDataForKit = [
+    {
+      value: chartData_teflonCoating[1].value1, // teflon coating
+      svg: { fill: "#67E8F9" },
+      key: "teflonCoating",
+    },
+    {
+      value: Math.max(0, chartData_teflonCoating[0].value1 - chartData_teflonCoating[1].value1), // deliveries without teflon coating
+      svg: { fill: COLORS.secondaryBlue },
+      key: "deliveries",
+    },
+  ];
+
+  const total = chartData_teflonCoating[0].value1; // Use deliveries as 100%
+
+  const Labels = ({ slices }: any) => {
+    return slices.map((slice: any, index: number) => {
+      const { pieCentroid, data } = slice;
+      const percentage =
+        index === 1
+          ? (100 - (chartData_teflonCoating[1].value1 / total) * 100).toFixed(1)
+          : ((data.value / total) * 100).toFixed(1);
+      const x = pieCentroid[0] * 1;
+      const y = pieCentroid[1] * 1;
+      return (
+        <SvgText
+          key={index}
+          x={x}
+          y={y}
+          fill="white"
+          textAnchor="middle"
+          alignmentBaseline="middle"
+          fontSize={10}
+          fontFamily={FONTS.YellixMedium}
+        >
+          {percentage}%
+        </SvgText>
+      );
+    });
+  };
+
+  return (
+    <View style={styles.radialChartContainer}>
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height: 240,
+        }}
+      >
+        <PieChart
+          style={{ height: 240, width: screenWidth - 80 }}
+          data={chartDataForKit}
+          innerRadius={"0%"}
+          spacing={0}
+        >
+          <Labels />
+        </PieChart>
+      </View>
+    </View>
+  );
   };
   const PieChart_3 = () => {
     // Handle empty data
@@ -2338,98 +2622,98 @@ const handleResetCertificateFilter = () => {
     );
   };
   const BarChart_11 = () => {
-  if (!certificateData?.dealerWiseData?.monthlyData?.length) {
-    return (
-      <View style={styles.radialChartContainer}>
-        <View style={styles.progressCirclesContainer}>
-          <Text style={styles.centerText}>0</Text>
-          <Text style={styles.centerSubText}>No Data</Text>
+    if (!certificateData?.dealerWiseData?.monthlyData?.length) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
+          </View>
         </View>
-      </View>
+      );
+    }
+
+    const chartDataForKit = certificateData.dealerWiseData.monthlyData.map(
+      (item: any) => ({
+        value: item.count,
+        svg: { fill: COLORS.secondaryBlue },
+        label: item.monthYear,
+      }),
     );
-  }
 
-  const chartDataForKit = certificateData.dealerWiseData.monthlyData.map(
-    (item: any) => ({
-      value: item.count,
-      svg: { fill: COLORS.secondaryBlue },
-      label: item.monthYear,
-    })
-  );
+    const ValueLabels = ({ x, y, bandwidth, data }: any) =>
+      data.map((value: any, index: number) => (
+        <SvgText
+          key={index}
+          x={x(index) + bandwidth / 2}
+          y={y(value.value) - 5}
+          fontSize={10}
+          fill={COLORS.black}
+          alignmentBaseline="middle"
+          textAnchor="middle"
+          fontFamily={FONTS.YellixThin}
+        >
+          {value.value}
+        </SvgText>
+      ));
 
-  const ValueLabels = ({ x, y, bandwidth, data }: any) =>
-    data.map((value: any, index: number) => (
-      <SvgText
-        key={index}
-        x={x(index) + bandwidth / 2}
-        y={y(value.value) - 5}
-        fontSize={10}
-        fill={COLORS.black}
-        alignmentBaseline="middle"
-        textAnchor="middle"
-        fontFamily={FONTS.YellixThin}
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={true}
+        style={{ width: screenWidth - 80 }}
+        contentContainerStyle={{ paddingRight: 20 }}
       >
-        {value.value}
-      </SvgText>
-    ));
+        <View>
+          <BarChart
+            style={{
+              height: 200,
+              width: Math.max(
+                screenWidth - 80,
+                certificateData.dealerWiseData.monthlyData.length * 60,
+              ),
+            }}
+            data={chartDataForKit}
+            yAccessor={({ item }: { item: { value: number } }) => item.value}
+            contentInset={{ top: 30, bottom: 10 }}
+            spacing={0.4}
+            gridMin={0}
+          >
+            <ValueLabels />
+          </BarChart>
 
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={true}
-      style={{ width: screenWidth - 80 }}
-      contentContainerStyle={{ paddingRight: 20 }}
-    >
-      <View>
-        <BarChart
-          style={{
-            height: 200,
-            width: Math.max(
-              screenWidth - 80,
-              certificateData.dealerWiseData.monthlyData.length * 60
-            ),
-          }}
-          data={chartDataForKit}
-          yAccessor={({ item }: { item: { value: number } }) => item.value}
-          contentInset={{ top: 30, bottom: 10 }}
-          spacing={0.4}
-          gridMin={0}
-        >
-          <ValueLabels />
-        </BarChart>
-
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-around",
-            width: Math.max(
-              screenWidth - 80,
-              certificateData.dealerWiseData.monthlyData.length * 60
-            ),
-            marginTop: 10,
-          }}
-        >
-          {certificateData.dealerWiseData.monthlyData.map(
-            (item: any, index: number) => (
-              <View key={index} style={{ flex: 1, alignItems: "center" }}>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 9,
-                    color: COLORS.black,
-                    fontFamily: FONTS.YellixThin,
-                  }}
-                >
-                  {item.monthYear}
-                </Text>
-              </View>
-            )
-          )}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-around",
+              width: Math.max(
+                screenWidth - 80,
+                certificateData.dealerWiseData.monthlyData.length * 60,
+              ),
+              marginTop: 10,
+            }}
+          >
+            {certificateData.dealerWiseData.monthlyData.map(
+              (item: any, index: number) => (
+                <View key={index} style={{ flex: 1, alignItems: "center" }}>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 9,
+                      color: COLORS.black,
+                      fontFamily: FONTS.YellixThin,
+                    }}
+                  >
+                    {item.monthYear}
+                  </Text>
+                </View>
+              ),
+            )}
+          </View>
         </View>
-      </View>
-    </ScrollView>
-  );
- };
+      </ScrollView>
+    );
+  };
 
   const HorizontalStackedBarChart_1 = () => {
     // Handle empty data
@@ -3067,102 +3351,99 @@ const handleResetCertificateFilter = () => {
     );
   };
   const LineChart_1 = () => {
-  if (!certificateData?.certificateTrend?.trendData?.length) {
-    return (
-      <View style={styles.radialChartContainer}>
-        <View style={styles.progressCirclesContainer}>
-          <Text style={styles.centerText}>0</Text>
-          <Text style={styles.centerSubText}>No Data</Text>
-        </View>
-      </View>
-    );
-  }
-
-  const trendData = certificateData.certificateTrend.trendData;
-  const chartDataForKit = trendData.map((item: any) => item.count);
-  
-  const maxValue = Math.max(...chartDataForKit, 1);
-  const minBarWidth = 50;
-  const calculatedWidth = trendData.length * minBarWidth;
-  const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
-
-  const Decorator = ({ x, y, data }: any) => {
-    return data.map((value: number, index: number) => (
-      <React.Fragment key={index}>
-        <Circle
-          cx={x(index)}
-          cy={y(value)}
-          r={4}
-          fill={COLORS.secondaryBlue}
-        />
-        <SvgText
-          x={x(index)}
-          y={y(value) - 10}
-          fontSize={10}
-          fill={COLORS.black}
-          alignmentBaseline="middle"
-          textAnchor="middle"
-          fontFamily={FONTS.YellixThin}
-        >
-          {value}
-        </SvgText>
-      </React.Fragment>
-    ));
-  };
-
-  return (
-    <View style={{ paddingVertical: 20 }}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={true}
-        style={{ width: screenWidth - 80 }}
-        contentContainerStyle={{ paddingRight: 20 }}
-      >
-        <View>
-          <LineChart
-            style={{ height: 200, width: chartWidth }}
-            data={chartDataForKit}
-            svg={{ stroke: COLORS.secondaryBlue, strokeWidth: 2 }}
-            contentInset={{ top: 30, bottom: 10, left: 20, right: 20 }}
-            gridMin={0}
-            gridMax={maxValue * 1.1}
-          >
-            <Decorator />
-          </LineChart>
-
-          {/* X-axis labels - Full Date */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
-              width: chartWidth,
-              marginTop: 10,
-              paddingHorizontal: 20,
-            }}
-          >
-            {trendData.map((item: any, index: number) => (
-              <View
-                key={index}
-                style={{ flex: 1, alignItems: "center" }}
-              >
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 9,
-                    color: COLORS.black,
-                    fontFamily: FONTS.YellixThin,
-                  }}
-                >
-                  {item.date}
-                </Text>
-              </View>
-            ))}
+    if (!certificateData?.certificateTrend?.trendData?.length) {
+      return (
+        <View style={styles.radialChartContainer}>
+          <View style={styles.progressCirclesContainer}>
+            <Text style={styles.centerText}>0</Text>
+            <Text style={styles.centerSubText}>No Data</Text>
           </View>
         </View>
-      </ScrollView>
-    </View>
-  );
-};
+      );
+    }
+
+    const trendData = certificateData.certificateTrend.trendData;
+    const chartDataForKit = trendData.map((item: any) => item.count);
+
+    const maxValue = Math.max(...chartDataForKit, 1);
+    const minBarWidth = 50;
+    const calculatedWidth = trendData.length * minBarWidth;
+    const chartWidth = Math.max(screenWidth - 80, calculatedWidth);
+
+    const Decorator = ({ x, y, data }: any) => {
+      return data.map((value: number, index: number) => (
+        <React.Fragment key={index}>
+          <Circle
+            cx={x(index)}
+            cy={y(value)}
+            r={4}
+            fill={COLORS.secondaryBlue}
+          />
+          <SvgText
+            x={x(index)}
+            y={y(value) - 10}
+            fontSize={10}
+            fill={COLORS.black}
+            alignmentBaseline="middle"
+            textAnchor="middle"
+            fontFamily={FONTS.YellixThin}
+          >
+            {value}
+          </SvgText>
+        </React.Fragment>
+      ));
+    };
+
+    return (
+      <View style={{ paddingVertical: 20 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={true}
+          style={{ width: screenWidth - 80 }}
+          contentContainerStyle={{ paddingRight: 20 }}
+        >
+          <View>
+            <LineChart
+              style={{ height: 200, width: chartWidth }}
+              data={chartDataForKit}
+              svg={{ stroke: COLORS.secondaryBlue, strokeWidth: 2 }}
+              contentInset={{ top: 30, bottom: 10, left: 20, right: 20 }}
+              gridMin={0}
+              gridMax={maxValue * 1.1}
+            >
+              <Decorator />
+            </LineChart>
+
+            {/* X-axis labels - Full Date */}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                width: chartWidth,
+                marginTop: 10,
+                paddingHorizontal: 20,
+              }}
+            >
+              {trendData.map((item: any, index: number) => (
+                <View key={index} style={{ flex: 1, alignItems: "center" }}>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 9,
+                      color: COLORS.black,
+                      fontFamily: FONTS.YellixThin,
+                    }}
+                  >
+                    {item.date}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  };
 
   const renderTabButton = (label: string, value: number) => (
     <TouchableOpacity
@@ -3266,79 +3547,84 @@ const handleResetCertificateFilter = () => {
 
         {/* Certificate Tab Content */}
         {mainTabValue === 0 && (
-  <View style={styles.tabContent}>
-    {/* Certificate Monthly Bar Chart */}
-    <View style={[allStyles.card, styles.deliveryCard]}>
-      <View style={styles.deliveryHeader}>
-        <Text style={styles.deliveryTitle}>Certificates</Text>
-      </View>
+          <View style={styles.tabContent}>
+            {/* Certificate Monthly Bar Chart */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View style={styles.deliveryHeader}>
+                <Text style={styles.deliveryTitle}>Certificates</Text>
+              </View>
 
-      <View style={styles.legendContainer}>
-        <View style={styles.legendItem}>
-          <View
-            style={[
-              styles.legendDot,
-              { backgroundColor: COLORS.secondaryBlue },
-            ]}
-          />
-          <Text style={styles.legendText}>Count</Text>
-        </View>
-      </View>
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Count</Text>
+                </View>
+              </View>
 
-      <View style={styles.chartContainer}>
-        <BarChart_11 />
-      </View>
-    </View>
+              <View style={styles.chartContainer}>
+                <BarChart_11 />
+              </View>
+            </View>
 
-   {/* Certificate Trend Line Chart */}
-<View style={[allStyles.card, styles.deliveryCard]}>
-  <View style={[styles.deliveryHeader, {flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 16,}]}>
-    <Text style={styles.deliveryTitle}>Certificate Trend</Text>
-     <TouchableOpacity
-      style={styles.filterButton}
-      onPress={handleCertificateFilterPress}
-    >
-      <Image
-        source={require("@/assets/icons/filtericon.png")}
-        style={[styles.filterIcon, { width: 16, height: 16 }]}
-        resizeMode="contain"
-      />
-    </TouchableOpacity>
-  </View>
+            {/* Certificate Trend Line Chart */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+              <View
+                style={[
+                  styles.deliveryHeader,
+                  {
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 16,
+                  },
+                ]}
+              >
+                <Text style={styles.deliveryTitle}>Certificate Trend</Text>
+                <TouchableOpacity
+                  style={styles.filterButton}
+                  onPress={handleCertificateFilterPress}
+                >
+                  <Image
+                    source={require("@/assets/icons/filtericon.png")}
+                    style={[styles.filterIcon, { width: 16, height: 16 }]}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
 
-  {/* Filter button for Certificate Trend */}
-  <View
-    style={{
-      flexDirection: "row",
-      justifyContent: "flex-end",
-      alignItems: "center",
-      marginBottom: responsiveWidth(2),
-      paddingHorizontal: responsiveWidth(4),
-    }}
-  >
-  </View>
+              {/* Filter button for Certificate Trend */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  marginBottom: responsiveWidth(2),
+                  paddingHorizontal: responsiveWidth(4),
+                }}
+              ></View>
 
-  <View style={styles.legendContainer}>
-    <View style={styles.legendItem}>
-      <View
-        style={[
-          styles.legendDot,
-          { backgroundColor: COLORS.secondaryBlue },
-        ]}
-      />
-      <Text style={styles.legendText}>Daily Count</Text>
-    </View>
-  </View>
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendDot,
+                      { backgroundColor: COLORS.secondaryBlue },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>Daily Count</Text>
+                </View>
+              </View>
 
-  <View style={styles.chartContainer}>
-    <LineChart_1 />
-  </View>
-</View>
-
-  </View>
+              <View style={styles.chartContainer}>
+                <LineChart_1 />
+              </View>
+            </View>
+          </View>
         )}
 
         {/* Delivery Tab Content - Wrap all existing cards */}
@@ -3403,6 +3689,104 @@ const handleResetCertificateFilter = () => {
                 <PieChart_2 />
               </View>
             </View>
+            {/* Delivery VS Accessories 2 Card */}
+            <View style={[allStyles.card, styles.deliveryCard]}>
+  <View style={styles.deliveryHeader}>
+    <Text style={styles.deliveryTitle}>
+      Delivery VS Accessories 2
+    </Text>
+  </View>
+
+  {/* Legend */}
+  <View style={styles.legendContainer}>
+    {chartData_accessories2.map((item, index) => (
+      <View key={index} style={styles.legendItem}>
+        <View
+          style={[
+            styles.legendDot,
+            { backgroundColor: item.color },
+          ]}
+        />
+        <Text style={styles.legendText}>{item.name}</Text>
+        <Text style={styles.legendValue}>
+          {item.value1}
+          {` / ₹${item.value2}`}
+        </Text>
+      </View>
+    ))}
+  </View>
+
+  {/* Progress Chart */}
+  <View style={styles.chartContainer}>
+    <PieChart_Accessories2 />
+  </View>
+            </View>
+
+          {/* Delivery VS Handling Charges Card */}
+          <View style={[allStyles.card, styles.deliveryCard]}>
+  <View style={styles.deliveryHeader}>
+    <Text style={styles.deliveryTitle}>
+      Delivery VS Handling Charges
+    </Text>
+  </View>
+
+  {/* Legend */}
+  <View style={styles.legendContainer}>
+    {chartData_handlingCharges.map((item, index) => (
+      <View key={index} style={styles.legendItem}>
+        <View
+          style={[
+            styles.legendDot,
+            { backgroundColor: item.color },
+          ]}
+        />
+        <Text style={styles.legendText}>{item.name}</Text>
+        <Text style={styles.legendValue}>
+          {item.value1}
+          {` / ₹${item.value2}`}
+        </Text>
+      </View>
+    ))}
+  </View>
+
+  {/* Progress Chart */}
+  <View style={styles.chartContainer}>
+    <PieChart_HandlingCharges />
+  </View>
+          </View>
+
+        {/* Delivery VS Teflon Coating Card */}
+          <View style={[allStyles.card, styles.deliveryCard]}>
+  <View style={styles.deliveryHeader}>
+    <Text style={styles.deliveryTitle}>
+      Delivery VS Teflon Coating
+    </Text>
+  </View>
+
+  {/* Legend */}
+  <View style={styles.legendContainer}>
+    {chartData_teflonCoating.map((item, index) => (
+      <View key={index} style={styles.legendItem}>
+        <View
+          style={[
+            styles.legendDot,
+            { backgroundColor: item.color },
+          ]}
+        />
+        <Text style={styles.legendText}>{item.name}</Text>
+        <Text style={styles.legendValue}>
+          {item.value1}
+          {` / ₹${item.value2}`}
+        </Text>
+      </View>
+    ))}
+  </View>
+
+  {/* Progress Chart */}
+  <View style={styles.chartContainer}>
+    <PieChart_TeflonCoating />
+  </View>
+          </View>
             {/* Delivery VS RSA Card */}
             <View style={[allStyles.card, styles.deliveryCard]}>
               <View style={styles.deliveryHeader}>
@@ -4529,188 +4913,195 @@ const handleResetCertificateFilter = () => {
       </Modal>
 
       {/* Certificate Filter Modal */}
-<Modal
-  animationType="slide"
-  transparent={true}
-  visible={showCertificateFilterModal}
-  onRequestClose={() => setShowCertificateFilterModal(false)}
->
-  <View style={styles.filterModalOverlay}>
-    <View style={styles.filterModalContent}>
-      {/* Modal Header */}
-      <View style={styles.filterModalHeader}>
-        <TouchableOpacity onPress={() => setShowCertificateFilterModal(false)}>
-          <Ionicons name="arrow-back" size={24} color="#6B7280" />
-        </TouchableOpacity>
-        <Text style={styles.filterModalTitle}>Certificate Filter</Text>
-        <TouchableOpacity onPress={handleResetCertificateFilter}>
-          <Text style={styles.resetText}>Reset</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Filter Form */}
-      <ScrollView
-        style={styles.filterForm}
-        contentContainerStyle={{ paddingBottom: 30 }}
-        showsVerticalScrollIndicator={false}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showCertificateFilterModal}
+        onRequestClose={() => setShowCertificateFilterModal(false)}
       >
-        {/* Start Date Picker */}
-        <TouchableOpacity
-          style={[globalStyles.input, styles.dropdownButton]}
-          onPress={() => setShowCertStartDatePicker(true)}
-          activeOpacity={0.7}
-        >
-          <Text
-            style={[
-              allStyles.dropdownText,
-              certificateFilters.startDate ? { color: COLORS.black } : null,
-            ]}
-          >
-            {certificateFilters.startDate
-              ? formatDateForDisplay(certificateFilters.startDate)
-              : "Start Date"}
-          </Text>
-          <Ionicons name="calendar" size={20} color="#6C757D" />
-        </TouchableOpacity>
+        <View style={styles.filterModalOverlay}>
+          <View style={styles.filterModalContent}>
+            {/* Modal Header */}
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity
+                onPress={() => setShowCertificateFilterModal(false)}
+              >
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Certificate Filter</Text>
+              <TouchableOpacity onPress={handleResetCertificateFilter}>
+                <Text style={styles.resetText}>Reset</Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* End Date Picker */}
-        <TouchableOpacity
-          style={[globalStyles.input, styles.dropdownButton]}
-          onPress={() => setShowCertEndDatePicker(true)}
-          activeOpacity={0.7}
-        >
-          <Text
-            style={[
-              allStyles.dropdownText,
-              certificateFilters.endDate ? { color: COLORS.black } : null,
-            ]}
-          >
-            {certificateFilters.endDate
-              ? formatDateForDisplay(certificateFilters.endDate)
-              : "End Date"}
-          </Text>
-          <Ionicons name="calendar" size={20} color="#6C757D" />
-        </TouchableOpacity>
+            {/* Filter Form */}
+            <ScrollView
+              style={styles.filterForm}
+              contentContainerStyle={{ paddingBottom: 30 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Start Date Picker */}
+              <TouchableOpacity
+                style={[globalStyles.input, styles.dropdownButton]}
+                onPress={() => setShowCertStartDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    allStyles.dropdownText,
+                    certificateFilters.startDate
+                      ? { color: COLORS.black }
+                      : null,
+                  ]}
+                >
+                  {certificateFilters.startDate
+                    ? formatDateForDisplay(certificateFilters.startDate)
+                    : "Start Date"}
+                </Text>
+                <Ionicons name="calendar" size={20} color="#6C757D" />
+              </TouchableOpacity>
 
-        {/* Date Validation Error */}
-        {certDateValidationError ? (
-          <Text
-            style={{
-              color: "red",
-              fontSize: 12,
-              marginTop: 5,
-              marginBottom: 10,
-            }}
-          >
-            {certDateValidationError}
-          </Text>
-        ) : null}
-      </ScrollView>
+              {/* End Date Picker */}
+              <TouchableOpacity
+                style={[globalStyles.input, styles.dropdownButton]}
+                onPress={() => setShowCertEndDatePicker(true)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    allStyles.dropdownText,
+                    certificateFilters.endDate ? { color: COLORS.black } : null,
+                  ]}
+                >
+                  {certificateFilters.endDate
+                    ? formatDateForDisplay(certificateFilters.endDate)
+                    : "End Date"}
+                </Text>
+                <Ionicons name="calendar" size={20} color="#6C757D" />
+              </TouchableOpacity>
 
-      {/* Apply Button */}
-      <View style={styles.filterButtonContainer}>
-        <TouchableOpacity
-          style={allStyles.btn}
-          onPress={handleApplyCertificateFilter}
-        >
-          <Text style={allStyles.btnText}>Apply</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </View>
-</Modal>
+              {/* Date Validation Error */}
+              {certDateValidationError ? (
+                <Text
+                  style={{
+                    color: "red",
+                    fontSize: 12,
+                    marginTop: 5,
+                    marginBottom: 10,
+                  }}
+                >
+                  {certDateValidationError}
+                </Text>
+              ) : null}
+            </ScrollView>
 
-{/* Certificate Start Date Calendar Modal */}
-<Modal
-  animationType="slide"
-  transparent={true}
-  visible={showCertStartDatePicker}
-  onRequestClose={() => setShowCertStartDatePicker(false)}
->
-  <View style={styles.filterModalOverlay}>
-    <View style={[styles.filterModalContent, { height: "60%" }]}>
-      <View style={styles.filterModalHeader}>
-        <TouchableOpacity onPress={() => setShowCertStartDatePicker(false)}>
-          <Ionicons name="arrow-back" size={24} color="#6B7280" />
-        </TouchableOpacity>
-        <Text style={styles.filterModalTitle}>Select Start Date</Text>
-        <TouchableOpacity onPress={() => setShowCertStartDatePicker(false)}>
-          <Text style={styles.resetText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
+            {/* Apply Button */}
+            <View style={styles.filterButtonContainer}>
+              <TouchableOpacity
+                style={allStyles.btn}
+                onPress={handleApplyCertificateFilter}
+              >
+                <Text style={allStyles.btnText}>Apply</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
-      <View style={{ flex: 1, padding: 20 }}>
-        <Calendar
-          onDayPress={handleCertStartDateSelect}
-          markedDates={{
-            [certificateFilters.startDate]: {
-              selected: true,
-              selectedColor: COLORS.primaryBlue || "#007AFF",
-            },
-          }}
-          maxDate={new Date().toISOString().split("T")[0]}
-          theme={{
-            selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
-            selectedDayTextColor: "#ffffff",
-            todayTextColor: COLORS.primaryBlue || "#007AFF",
-            dayTextColor: "#2d4150",
-            textDisabledColor: "#d9e1e8",
-            arrowColor: COLORS.primaryBlue || "#007AFF",
-            monthTextColor: COLORS.primaryBlue || "#007AFF",
-            indicatorColor: COLORS.primaryBlue || "#007AFF",
-          }}
-        />
-      </View>
-    </View>
-  </View>
-</Modal>
+      {/* Certificate Start Date Calendar Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showCertStartDatePicker}
+        onRequestClose={() => setShowCertStartDatePicker(false)}
+      >
+        <View style={styles.filterModalOverlay}>
+          <View style={[styles.filterModalContent, { height: "60%" }]}>
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity
+                onPress={() => setShowCertStartDatePicker(false)}
+              >
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Select Start Date</Text>
+              <TouchableOpacity
+                onPress={() => setShowCertStartDatePicker(false)}
+              >
+                <Text style={styles.resetText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
 
-{/* Certificate End Date Calendar Modal */}
-<Modal
-  animationType="slide"
-  transparent={true}
-  visible={showCertEndDatePicker}
-  onRequestClose={() => setShowCertEndDatePicker(false)}
->
-  <View style={styles.filterModalOverlay}>
-    <View style={[styles.filterModalContent, { height: "60%" }]}>
-      <View style={styles.filterModalHeader}>
-        <TouchableOpacity onPress={() => setShowCertEndDatePicker(false)}>
-          <Ionicons name="arrow-back" size={24} color="#6B7280" />
-        </TouchableOpacity>
-        <Text style={styles.filterModalTitle}>Select End Date</Text>
-        <TouchableOpacity onPress={() => setShowCertEndDatePicker(false)}>
-          <Text style={styles.resetText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
+            <View style={{ flex: 1, padding: 20 }}>
+              <Calendar
+                onDayPress={handleCertStartDateSelect}
+                markedDates={{
+                  [certificateFilters.startDate]: {
+                    selected: true,
+                    selectedColor: COLORS.primaryBlue || "#007AFF",
+                  },
+                }}
+                maxDate={new Date().toISOString().split("T")[0]}
+                theme={{
+                  selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+                  selectedDayTextColor: "#ffffff",
+                  todayTextColor: COLORS.primaryBlue || "#007AFF",
+                  dayTextColor: "#2d4150",
+                  textDisabledColor: "#d9e1e8",
+                  arrowColor: COLORS.primaryBlue || "#007AFF",
+                  monthTextColor: COLORS.primaryBlue || "#007AFF",
+                  indicatorColor: COLORS.primaryBlue || "#007AFF",
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
 
-      <View style={{ flex: 1, padding: 20 }}>
-        <Calendar
-          onDayPress={handleCertEndDateSelect}
-          markedDates={{
-            [certificateFilters.endDate]: {
-              selected: true,
-              selectedColor: COLORS.primaryBlue || "#007AFF",
-            },
-          }}
-          maxDate={new Date().toISOString().split("T")[0]}
-          minDate={certificateFilters.startDate || undefined}
-          theme={{
-            selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
-            selectedDayTextColor: "#ffffff",
-            todayTextColor: COLORS.primaryBlue || "#007AFF",
-            dayTextColor: "#2d4150",
-            textDisabledColor: "#d9e1e8",
-            arrowColor: COLORS.primaryBlue || "#007AFF",
-            monthTextColor: COLORS.primaryBlue || "#007AFF",
-            indicatorColor: COLORS.primaryBlue || "#007AFF",
-          }}
-        />
-      </View>
-    </View>
-  </View>
-</Modal>
+      {/* Certificate End Date Calendar Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showCertEndDatePicker}
+        onRequestClose={() => setShowCertEndDatePicker(false)}
+      >
+        <View style={styles.filterModalOverlay}>
+          <View style={[styles.filterModalContent, { height: "60%" }]}>
+            <View style={styles.filterModalHeader}>
+              <TouchableOpacity onPress={() => setShowCertEndDatePicker(false)}>
+                <Ionicons name="arrow-back" size={24} color="#6B7280" />
+              </TouchableOpacity>
+              <Text style={styles.filterModalTitle}>Select End Date</Text>
+              <TouchableOpacity onPress={() => setShowCertEndDatePicker(false)}>
+                <Text style={styles.resetText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
 
+            <View style={{ flex: 1, padding: 20 }}>
+              <Calendar
+                onDayPress={handleCertEndDateSelect}
+                markedDates={{
+                  [certificateFilters.endDate]: {
+                    selected: true,
+                    selectedColor: COLORS.primaryBlue || "#007AFF",
+                  },
+                }}
+                maxDate={new Date().toISOString().split("T")[0]}
+                minDate={certificateFilters.startDate || undefined}
+                theme={{
+                  selectedDayBackgroundColor: COLORS.primaryBlue || "#007AFF",
+                  selectedDayTextColor: "#ffffff",
+                  todayTextColor: COLORS.primaryBlue || "#007AFF",
+                  dayTextColor: "#2d4150",
+                  textDisabledColor: "#d9e1e8",
+                  arrowColor: COLORS.primaryBlue || "#007AFF",
+                  monthTextColor: COLORS.primaryBlue || "#007AFF",
+                  indicatorColor: COLORS.primaryBlue || "#007AFF",
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
