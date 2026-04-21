@@ -52,6 +52,9 @@ export interface Delivery {
   insuranceAmount?: number;
   rtoAmount?: number;
   accessoriesAmount?: number;
+  accessories2Amount?: number;
+  handlingCharges?: number;
+  teflonCoatingAmount?: number;
   rsaAmount?: number;
   others1?: number;
   others2?: number;
@@ -116,6 +119,9 @@ const initialDelivery: Partial<Delivery> = {
   insuranceAmount: undefined,
   rtoAmount: undefined,
   accessoriesAmount: undefined,
+  accessories2Amount: undefined,
+  handlingCharges: undefined,
+  teflonCoatingAmount: undefined,
   helmetAmount: undefined,
   rsaAmount: undefined,
   others1: undefined,
@@ -213,6 +219,9 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({
       insuranceAmount = 0,
       rtoAmount = 0,
       accessoriesAmount = 0,
+      accessories2Amount = 0,
+      handlingCharges = 0,
+      teflonCoatingAmount = 0,
       rsaAmount = 0,
       others1 = 0,
       others2 = 0,
@@ -222,7 +231,6 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({
       schemeDiscount = 0,
       discount = 0,
       loyalityCardAmount = 0,
-      // numberOfHelmet = 0,
     } = currentDelivery;
 
     const total =
@@ -230,6 +238,9 @@ export const DeliveryProvider: React.FC<DeliveryProviderProps> = ({
       insuranceAmount +
       rtoAmount +
       accessoriesAmount +
+      accessories2Amount +
+      handlingCharges +
+      teflonCoatingAmount +
       rsaAmount +
       others1 +
       others2 +

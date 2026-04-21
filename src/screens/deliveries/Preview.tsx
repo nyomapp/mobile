@@ -193,6 +193,24 @@ export default function PreviewScreen() {
       }`,
     },
     {
+      label: "Accessories 2",
+      value: `₹${
+        currentDelivery?.accessories2Amount?.toLocaleString("en-IN") || "0"
+      }`,
+    },
+    {
+      label: "Handling Charges",
+      value: `₹${
+        currentDelivery?.handlingCharges?.toLocaleString("en-IN") || "0"
+      }`,
+    },
+    {
+      label: "Teflon Coating",
+      value: `₹${
+        currentDelivery?.teflonCoatingAmount?.toLocaleString("en-IN") || "0"
+      }`,
+    },
+    {
       label: "Discount",
       value: `₹${currentDelivery?.discount?.toLocaleString("en-IN") || "0"}`,
     },

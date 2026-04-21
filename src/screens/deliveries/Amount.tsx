@@ -30,11 +30,14 @@ export default function AmountScreen() {
     { id: "exShowroom", label: "Ex-Showroom", value: "" },
     { id: "insurance", label: "Insurance", value: "" },
     { id: "rto", label: "RTO", value: "" },
-    { id: "accessories", label: "Accessories", value: "" },
+    { id: "accessories", label: "Accessories 1", value: "" },
     { id: "helmet", label: "Helmet", value: "" },
     { id: "loyalityCardAmount", label: "Loyalty Card", value: "" },
     { id: "rsa", label: "RSA", value: "" },
     { id: "schemeDiscount", label: "Scheme Discount", value: "" },
+    { id: "accessories2Amount", label: "Accessories 2", value: "" },
+    { id: "handlingCharges", label: "Handling Charges", value: "" },
+    { id: "teflonCoatingAmount", label: "Teflon Coating", value: "" },
     { id: "discount", label: "Discount", value: "" },
     { id: "other1", label: "Other 1", value: "" },
     { id: "other2", label: "Other 2", value: "" },
@@ -102,6 +105,22 @@ export default function AmountScreen() {
                 ...item,
                 value: currentDelivery.schemeDiscount?.toString() || "",
               };
+            case "accessories2Amount":
+              return {
+                ...item,
+                value: currentDelivery.accessories2Amount?.toString() || "",
+              };
+            case "handlingCharges":
+              return {
+                ...item,
+                value: currentDelivery.handlingCharges?.toString() || "",
+              };
+            case "teflonCoatingAmount":
+              return {
+                ...item,
+                value: currentDelivery.teflonCoatingAmount?.toString() || "",
+              };
+
             case "discount":
               return {
                 ...item,
@@ -199,6 +218,15 @@ export default function AmountScreen() {
           break;
         case "schemeDiscount":
           amountData.schemeDiscount = value;
+          break;
+        case "accessories2Amount":
+          amountData.accessories2Amount = value;
+          break;
+        case "handlingCharges":
+          amountData.handlingCharges = value;
+          break;
+        case "teflonCoatingAmount":
+          amountData.teflonCoatingAmount = value;
           break;
         case "discount":
           amountData.discount = value;
