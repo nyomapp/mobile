@@ -29,6 +29,7 @@ interface DocumentArrayContextType {
     }>,
   ) => void;
   resetDocuments: () => void;
+  hasUploadingDocuments: () => boolean;
 }
 
 const initialDocumentTypes: DocumentType[] = [
@@ -225,6 +226,10 @@ export const DocumentArrayProvider: React.FC<DocumentArrayProviderProps> = ({
     setUploadingDocuments({});
   };
 
+  const hasUploadingDocuments = (): boolean => {
+    return Object.values(uploadingDocuments).some((uploading) => uploading);
+  };
+
   const contextValue: DocumentArrayContextType = {
     documentTypes,
     uploadingDocuments,
@@ -232,6 +237,7 @@ export const DocumentArrayProvider: React.FC<DocumentArrayProviderProps> = ({
     setDocumentUploading,
     updateBulkDocuments,
     resetDocuments,
+    hasUploadingDocuments,
   };
 
   return (

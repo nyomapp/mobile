@@ -56,6 +56,18 @@ export default function OtherDocumentsScreen() {
   }, [currentDelivery?.downloadDocuments]);
 
   const handleNext = async () => {
+    // Check if any documents are still uploading
+    if (
+      uploadingDocuments &&
+      Object.values(uploadingDocuments).some((uploading) => uploading)
+    ) {
+      Toast.show({
+        type: "info",
+        text1: "Upload in Progress",
+        text2: "Please wait for all documents to finish uploading",
+      });
+      return;
+    }
     // Validate that all documents have been uploaded
     // const missingDocuments = documentTypes.filter(doc => !doc.fileUrl || doc.fileUrl.trim() === '');
 

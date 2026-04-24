@@ -121,6 +121,18 @@ export default function DocumentsScreen() {
   };
 
   const handleNext = async () => {
+    // Check if any documents are still uploading
+    if (
+      uploadingDocuments &&
+      Object.values(uploadingDocuments).some((uploading) => uploading)
+    ) {
+      Toast.show({
+        type: "info",
+        text1: "Upload in Progress",
+        text2: "Please wait for all documents to finish uploading",
+      });
+      return;
+    }
     // Check if all required documents are uploaded
     // const requiredDocuments = documentTypes.filter(
     //   doc => doc.documentName !== "AADHAAR BACK" // Aadhaar Back is optional
