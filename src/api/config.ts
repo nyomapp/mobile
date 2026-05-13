@@ -1,3 +1,11 @@
+import { Platform } from "react-native";
+
+// App Configuration
+export const APP_CONFIG = {
+  VERSION: "1.0.15",
+  DEVICE: Platform.OS === "ios" ? "ios" : "android",
+} as const;
+
 // API Configuration
 export const API_CONFIG = {
   BASE_URL: "https://nyomx.com/api/v1/",

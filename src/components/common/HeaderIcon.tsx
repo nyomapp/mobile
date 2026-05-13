@@ -1,7 +1,7 @@
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "../../contexts";
-
+import { APP_CONFIG } from "../../api/config";
 import { FONTS } from "@/src/constants/fonts";
 import { responsiveFontSize } from "react-native-responsive-dimensions";
 import { allStyles } from "../../styles/global";
@@ -34,7 +34,7 @@ export const HeaderIcon: React.FC<HeaderProps> = ({
             color: "#9CA3AF",
           }}
         >
-          App Version: 1.0.14
+          App Version: {APP_CONFIG.VERSION}
         </Text>
       </View>
     </View>

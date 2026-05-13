@@ -1,16 +1,16 @@
 import { apiClient } from "./client";
-import { API_ENDPOINTS } from "./config";
+import { API_ENDPOINTS, APP_CONFIG } from "./config";
 
 export const getModalsData = async (makeId?: any) => {
   try {
     const id = makeId || "1";
 
     const response = await apiClient.get(
-      API_ENDPOINTS.ADD_DELIVERY.GET_MODELS.replace("{makeId}", id)
+      API_ENDPOINTS.ADD_DELIVERY.GET_MODELS.replace("{makeId}", id),
     );
 
     // Check if the API client returned an error response
-    if (!response.success || response.error) {      
+    if (!response.success || response.error) {
       throw new Error(response.error || "API request failed");
     }
 
@@ -48,9 +48,18 @@ export const getAllFinancierData = async () => {
 };
 export const createDelivery = async (data: any) => {
   try {
-    const response = await apiClient.post(API_ENDPOINTS.ADD_DELIVERY.CREATE, data);
+    // Add version and device to the delivery data
+    const deliveryData = {
+      ...data,
+      appVersion: APP_CONFIG.VERSION,
+      device: APP_CONFIG.DEVICE,
+    };
 
-    // Check if the API client returned an error response
+    const response = await apiClient.post(
+      API_ENDPOINTS.ADD_DELIVERY.CREATE,
+      deliveryData,
+    );
+
     if (!response.success || response.error) {
       throw new Error(response.error || "API request failed");
     }
