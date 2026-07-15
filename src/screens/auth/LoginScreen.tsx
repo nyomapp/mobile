@@ -6,11 +6,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { useAuth } from "../../contexts/AuthContext";
@@ -21,6 +20,9 @@ import { COLORS } from "@/src/constants/colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { allStyles } from "../../styles/global";
 import { styles } from "../../styles/loginStyles";
+import { APP_CONFIG } from "@/src/api/config";
+import { checkAppVersion } from "@/src/utils/versionCheck";
+import { VersionCheck } from "@/src/components/common";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -28,26 +30,32 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
-    useEffect(() => {
+  // Add state for version check
+  const [showVersionCheck, setShowVersionCheck] = useState(false);
+  const [versionInfo, setVersionInfo] = useState<{
+    currentVersion: string;
+    latestVersion: string;
+    downloadUrl: string;
+  } | null>(null);
+
+  useEffect(() => {
     const checkUserAndRedirect = async () => {
       try {
         const user = await TokenStorage.getUser();
- 
+
         if (user && user.id) {
           // User is logged in, redirect to home
-          router.replace('/(tabs)/home');
+          router.replace("/(tabs)/home");
         }
         // Remove the else block since we're already on the login screen
       } catch (error) {
         // Error getting user, stay on login screen (do nothing)
-        console.log('Error checking user:', error);
+        console.log("Error checking user:", error);
       }
     };
- 
+
     checkUserAndRedirect();
   }, []); // Empty dependency array - only run once on mount
-
-
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -77,8 +85,6 @@ export default function LoginScreen() {
   };
 
   const handleLogin = async () => {
- 
- 
     if (!email) {
       Toast.show({
         type: "error",
@@ -96,31 +102,52 @@ export default function LoginScreen() {
       });
       return;
     }
- 
+
     setIsLoading(true);
- 
+
     try {
       console.log("Attempting login with email:", email);
       const response = await login({
         email: email,
         password: password,
       });
-      
+
       console.log("Login response received:", response);
- 
+
       if (response.success) {
-        console.log("Login successful, navigating to home");
-        // Use replace instead of push and add a small delay
-        setTimeout(() => {
-          router.replace('/(tabs)/home');
-        }, 500);
+        console.log("Login successful, checking app version");
+
+        // Check version after successful login
+        const versionCheck = await checkAppVersion();
+
+        if (
+          versionCheck.needsUpdate &&
+          versionCheck.latestVersion &&
+          versionCheck.downloadUrl
+        ) {
+          setIsLoading(false);
+          setVersionInfo({
+            currentVersion: APP_CONFIG.VERSION,
+            latestVersion: versionCheck.latestVersion,
+            downloadUrl: versionCheck.downloadUrl,
+          });
+          setShowVersionCheck(true);
+        } else {
+          // Navigate to home if no update needed
+          setTimeout(() => {
+            router.replace("/(tabs)/home");
+          }, 500);
+        }
       } else {
         console.log("Login failed:", response.error || response.message);
         setIsLoading(false);
         Toast.show({
           type: "error",
           text1: "Login Failed",
-          text2: response.error || response.message || "Invalid credentials. Please try again.",
+          text2:
+            response.error ||
+            response.message ||
+            "Invalid credentials. Please try again.",
         });
       }
     } catch (error) {
@@ -129,7 +156,10 @@ export default function LoginScreen() {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: error instanceof Error ? error.message : "An unexpected error occurred",
+        text2:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
       });
     }
   };
@@ -141,58 +171,51 @@ export default function LoginScreen() {
         style={styles.container}
         resizeMode="cover"
       > */}
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <ScrollView contentContainerStyle={allStyles.scrollContent}>
-            <View style={allStyles.container}>
-              <View style={styles.imageContainer}>
-                <Image
-                  source={require("@/assets/icons/loginpagelogo.png")}
-                  style={styles.buildingImage}
-                  resizeMode="contain"
-                />
-              </View>
-
-              <Text style={authStyles.title}>Get Started</Text>
-
-              <Text style={authStyles.subtitle}>
-                Sign in to Start your session
-              </Text>
-              <View style={styles.dividerLine}>
-              </View>
-              
-
-              <TextInput
-                style={globalStyles.input}
-                placeholder="Email"
-                placeholderTextColor={COLORS.black}
-                value={email}
-                onChangeText={handleEmailChange}
-                keyboardType="email-address"
-                autoCapitalize="none"
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView contentContainerStyle={allStyles.scrollContent}>
+          <View style={allStyles.container}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={require("@/assets/icons/loginpagelogo.png")}
+                style={styles.buildingImage}
+                resizeMode="contain"
               />
+            </View>
 
+            <Text style={authStyles.title}>Get Started</Text>
 
-              
-                <TextInput
-                  style={[globalStyles.input, styles.input]}
-                  secureTextEntry={true}
-                  placeholder="Password"
-                  placeholderTextColor={COLORS.black}
-                  value={password}
-                  onChangeText={handlePasswordChange}
-                />
-                <View  style={styles.forgetPasswordContainer}>
-                  <Text style={styles.forgetPasswordText}>Forgot Password?</Text>
-                </View>
-                      <View style={styles.loginButtonContainer}>
+            <Text style={authStyles.subtitle}>
+              Sign in to Start your session
+            </Text>
+            <View style={styles.dividerLine}></View>
+
+            <TextInput
+              style={globalStyles.input}
+              placeholder="Email"
+              placeholderTextColor={COLORS.black}
+              value={email}
+              onChangeText={handleEmailChange}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            <TextInput
+              style={[globalStyles.input, styles.input]}
+              secureTextEntry={true}
+              placeholder="Password"
+              placeholderTextColor={COLORS.black}
+              value={password}
+              onChangeText={handlePasswordChange}
+            />
+            <View style={styles.forgetPasswordContainer}>
+              <Text style={styles.forgetPasswordText}>Forgot Password?</Text>
+            </View>
+            <View style={styles.loginButtonContainer}>
               <TouchableOpacity
-                style={[
-                  allStyles.btn,
-                  isLoading && styles.otpButtonDisabled,
-                ]}
+                style={[allStyles.btn, isLoading && styles.otpButtonDisabled]}
                 onPress={handleLogin}
                 disabled={isLoading}
               >
@@ -202,13 +225,23 @@ export default function LoginScreen() {
                   <Text style={allStyles.btnText}>Login</Text>
                 )}
               </TouchableOpacity>
-              </View>
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-        <Toast />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      {versionInfo && (
+        <VersionCheck
+          currentVersion={versionInfo.currentVersion}
+          latestVersion={versionInfo.latestVersion}
+          downloadUrl={versionInfo.downloadUrl}
+          onClose={() => {
+            setShowVersionCheck(false);
+            router.replace("/(tabs)/home");
+          }}
+        />
+      )}
+      <Toast />
       {/* </ImageBackground> */}
     </SafeAreaView>
   );
 }
-
