@@ -22,6 +22,7 @@ export interface User {
   role: string;
   userType: string;
   permissions: string[];
+  roles?: { _id: string; title: string }[];
   mainDealerRef: {
     name: string;
     email: string;

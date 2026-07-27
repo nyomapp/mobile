@@ -2,7 +2,7 @@ import { Platform } from "react-native";
 
 // App Configuration
 export const APP_CONFIG = {
-  VERSION: "1.0.15",
+  VERSION: "1.0.16",
   DEVICE: Platform.OS === "ios" ? "ios" : "android",
 } as const;
 
@@ -78,5 +78,12 @@ export const API_ENDPOINTS = {
     DELETE: "notifications/:id",
     REGISTER_DEVICE: "notifications/device/register",
     UNREGISTER_DEVICE: "notifications/device/unregister",
+  },
+  QR_SCAN: {
+    SEARCH_BY_CHASSIS: "/certificates/search?chassisNumber={chassisNumber}",
+    SEARCH_BY_MOBILE: "/certificates/search?mobileNumber={mobileNumber}",
+    SEARCH_BY_CERT_NUMBER:
+      "/certificates/search-by-number?certificateNumber={certificateNumber}",
+    MAP_QR: "/qr-codes/map-certificate",
   },
 } as const;
