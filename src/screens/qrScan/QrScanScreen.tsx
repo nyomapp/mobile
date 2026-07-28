@@ -1,3 +1,9 @@
+import {
+  mapQRCodeToCertificate,
+  searchByCertificateNumber,
+  searchByChassisNumber,
+  searchByMobileNumber,
+} from "@/src/api/search";
 import { HeaderIcon } from "@/src/components/common/HeaderIcon";
 import { COLORS, FONTS } from "@/src/constants";
 import { allStyles } from "@/src/styles/global";
@@ -5,12 +11,6 @@ import { globalStyles } from "@/src/styles/globalStyles";
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRef, useState } from "react";
-import {
-  searchByCertificateNumber,
-  searchByChassisNumber,
-  searchByMobileNumber,
-  mapQRCodeToCertificate,
-} from "@/src/api/search";
 import {
   ActivityIndicator,
   FlatList,
@@ -313,8 +313,6 @@ export default function QrScanScreen() {
                 .replace(/[^A-Z0-9]/g, "")
                 .slice(0, 6);
               setChassisNumber(val);
-              if (val.length === 6)
-                triggerSearch(val, mobileNumber, certNumber);
             }}
             autoCapitalize="characters"
             maxLength={6}
@@ -326,8 +324,6 @@ export default function QrScanScreen() {
             onChangeText={(t) => {
               const val = t.replace(/[^0-9]/g, "").slice(0, 10);
               setMobileNumber(val);
-              if (val.length === 10)
-                triggerSearch(chassisNumber, val, certNumber);
             }}
             keyboardType="numeric"
             maxLength={10}
@@ -342,8 +338,6 @@ export default function QrScanScreen() {
                 .replace(/[^A-Z0-9]/g, "")
                 .slice(0, 15);
               setCertNumber(val);
-              if (val.length === 15)
-                triggerSearch(chassisNumber, mobileNumber, val);
             }}
             autoCapitalize="characters"
             maxLength={15}
