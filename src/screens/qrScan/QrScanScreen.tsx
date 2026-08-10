@@ -196,16 +196,16 @@ export default function QrScanScreen() {
   };
 
   const handleManualSave = async () => {
-    if (!manualQrCode.trim()) {
+    if (!/^[A-Z0-9]{4}-[A-Z0-9]{3}$/.test(manualQrCode)) {
       Toast.show({
         type: "error",
         text1: "Validation",
-        text2: "Please enter a QR code.",
+        text2: "QR Code must be in format XXXX-XXX",
       });
       return;
     }
     setManualModal(false);
-    await callMapApi(manualQrCode.trim());
+    await callMapApi(manualQrCode);
     setManualQrCode("");
   };
 
@@ -536,8 +536,18 @@ export default function QrScanScreen() {
                 style={globalStyles.input}
                 placeholder="Enter QR Code (e.g. AAAA-000)"
                 value={manualQrCode}
-                onChangeText={setManualQrCode}
-                autoCapitalize="characters"
+                onChangeText={(t) => {
+                  const raw = t
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, "")
+                    .slice(0, 7);
+                  const formatted =
+                    raw.length >= 4
+                      ? `${raw.slice(0, 4)}-${raw.slice(4)}`
+                      : raw;
+                  setManualQrCode(formatted);
+                }}
+                maxLength={8}
               />
               <TouchableOpacity
                 style={[
