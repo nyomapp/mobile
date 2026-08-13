@@ -2,7 +2,7 @@ import { Platform } from "react-native";
 
 // App Configuration
 export const APP_CONFIG = {
-  VERSION: "1.0.16",
+  VERSION: "1.0.17",
   DEVICE: Platform.OS === "ios" ? "ios" : "android",
 } as const;
 
